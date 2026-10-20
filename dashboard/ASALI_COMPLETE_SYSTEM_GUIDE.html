@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASALI vs NAKALI — Master System & Architecture Guide</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Prism Syntax Highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+<!-- Mermaid JS -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+<!-- MathJax 3 Configuration -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)'], ['$', '$']],
+    displayMath: [['\\[', '\\]'], ['$$', '$$']]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<style>
+/* CSS Reset & Variables */
+:root {
+  --primary: #0284c7;
+  --primary-dark: #0369a1;
+  --primary-light: #e0f2fe;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-400: #94a3b8;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --emerald-600: #059669;
+  --emerald-50: #ecfdf5;
+  --rose-600: #e11d48;
+  --rose-50: #fff1f2;
+  --amber-600: #d97706;
+  --amber-50: #fffbeb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 10pt;
+  line-height: 1.6;
+  color: var(--slate-800);
+  background: #ffffff;
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Print Page Rules */
+@page {
+  size: A4 portrait;
+  margin: 16mm 14mm 16mm 14mm;
+}
+
+@media print {
+  body {
+    font-size: 9.5pt;
+    line-height: 1.55;
+  }
+  .page-break {
+    page-break-before: always;
+    break-before: always;
+  }
+  .no-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  h1 {
+    page-break-before: always;
+    break-before: always;
+  }
+  h1:first-of-type, .cover-page h1 {
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  table, pre, .mermaid-card, .viva-box, .cover-page {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+/* Document Container */
+.doc-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Cover Page Hero */
+.cover-page {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0369a1 100%);
+  color: #ffffff;
+  padding: 44px 38px;
+  border-radius: 14px;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.cover-badge {
+  display: inline-block;
+  background: rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  margin-bottom: 18px;
+}
+
+.cover-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 28pt;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.cover-title span {
+  color: #38bdf8;
+}
+
+.cover-subtitle {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13pt;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #94a3b8;
+  margin: 0 0 28px 0;
+  max-width: 90%;
+}
+
+.cover-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 20px;
+}
+
+.cover-meta-item {
+  font-size: 8pt;
+}
+
+.cover-meta-label {
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.cover-meta-val {
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 8.5pt;
+}
+
+/* Headings */
+h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18pt;
+  font-weight: 800;
+  color: var(--slate-900);
+  letter-spacing: -0.025em;
+  margin-top: 36px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--slate-100);
+}
+
+h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5pt;
+  font-weight: 700;
+  color: var(--slate-800);
+  letter-spacing: -0.02em;
+  margin-top: 24px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11.5pt;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-top: 18px;
+  margin-bottom: 8px;
+}
+
+h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+  color: var(--slate-700);
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+/* Paragraphs & Typography */
+p {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: var(--slate-700);
+}
+
+strong {
+  color: var(--slate-900);
+  font-weight: 600;
+}
+
+ul, ol {
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-left: 20px;
+  color: var(--slate-700);
+}
+
+li {
+  margin-bottom: 4px;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--slate-200);
+  margin: 28px 0;
+}
+
+blockquote {
+  border-left: 4px solid var(--primary);
+  background: var(--slate-50);
+  margin: 14px 0;
+  padding: 12px 18px;
+  border-radius: 0 8px 8px 0;
+  color: var(--slate-700);
+  font-style: italic;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Inline Code */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5pt;
+  background: var(--slate-100);
+  color: var(--slate-800);
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--slate-200);
+}
+
+/* Code Blocks */
+pre {
+  background: #0f172a !important;
+  color: #e2e8f0;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8pt;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 14px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+pre code {
+  background: transparent !important;
+  border: none !important;
+  color: inherit !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 8.5pt;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+th {
+  background-color: var(--slate-900);
+  color: #ffffff;
+  text-align: left;
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 8pt;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--slate-800);
+}
+
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--slate-200);
+  color: var(--slate-700);
+  vertical-align: top;
+}
+
+tr:nth-child(even) td {
+  background-color: var(--slate-50);
+}
+
+/* Mermaid Visual Containers */
+.mermaid-card {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: 10px;
+  padding: 18px 16px;
+  margin: 18px 0;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mermaid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* MathJax Formulas */
+.mjx-chtml {
+  font-size: 105% !important;
+}
+
+p .math.display {
+  display: block;
+  text-align: center;
+  margin: 12px 0;
+  padding: 10px;
+  background: var(--slate-50);
+  border-radius: 6px;
+  border: 1px solid var(--slate-100);
+}
+
+/* Viva Questions Styling */
+.viva-box {
+  background: #f0f9ff;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin: 16px 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.viva-box h4 {
+  color: var(--primary-dark);
+  margin-top: 0;
+  font-size: 10.5pt;
+}
+
+/* Table of Contents Styling */
+#table-of-contents + ol {
+  columns: 2;
+  column-gap: 24px;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: 10px;
+  padding: 18px 24px 18px 36px;
+  font-size: 9pt;
+  margin-bottom: 28px;
+}
+
+#table-of-contents + ol li {
+  margin-bottom: 6px;
+  break-inside: avoid;
+}
+
+#table-of-contents + ol a {
+  color: var(--slate-800);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#table-of-contents + ol a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+
+<div class="doc-container">
+
+  <!-- Cover Page Header -->
+  <div class="cover-page">
+    <div class="cover-badge">INFORMATION INTEGRATION &amp; ARCHITECTURE &bull; TECHNICAL MONOGRAPH</div>
+    <h1 class="cover-title">ASALI (असली) <span>vs</span> NAKALI (नकली)</h1>
+    <p class="cover-subtitle">The Complete Zero-to-100 Master Architecture, Codebase, Heterogeneous Integration, and Detection Theory Guide</p>
+    
+    <div class="cover-meta-grid">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Integration Paradigm</div>
+        <div class="cover-meta-val">Global-as-View (GAV)</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Distributed Mesh</div>
+        <div class="cover-meta-val">4 Autonomous Silos</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Detection Logic</div>
+        <div class="cover-meta-val">2-Tier Hybrid Architecture</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Audit Security</div>
+        <div class="cover-meta-val">SHA-256 Ledger Chain</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Body Transformed by Pandoc -->
+  <div class="content-body">
+    <h1 id="asali-असल-vs-nakali-नकल">ASALI (असली) vs NAKALI (नकली)</h1>
+<h2
+id="the-complete-zero-to-100-master-architecture-codebase-and-theory-guide">The
+Complete Zero-to-100 Master Architecture, Codebase, and Theory
+Guide</h2>
+<hr />
+<h2 id="table-of-contents">TABLE OF CONTENTS</h2>
+<ol type="1">
+<li><a href="#1-executive-overview--the-real-world-crisis">Executive
+Overview &amp; The Real-World Crisis</a></li>
+<li><a
+href="#2-why-not-a-single-monolithic-database-the-core-iia-problem">Why
+Not a Single Monolithic Database? (The Core IIA Problem)</a></li>
+<li><a href="#3-global-architecture--distributed-mesh-topology">Global
+Architecture &amp; Distributed Mesh Topology</a></li>
+<li><a href="#4-data-generation--seeding-pipeline-zero-to-one">Data
+Generation &amp; Seeding Pipeline (Zero-to-One)</a></li>
+<li><a href="#5-the-4-heterogeneous-databases-schemas--meanings">The 4
+Heterogeneous Databases: Schemas &amp; Meanings</a></li>
+<li><a href="#6-multi-pc--docker-distributed-deployment">Multi-PC &amp;
+Docker Distributed Deployment</a></li>
+<li><a href="#7-the-modular-wrapper-layer">The Modular Wrapper
+Layer</a></li>
+<li><a
+href="#8-global-as-view-gav-mediator--query-unfolding">Global-as-View
+(GAV) Mediator &amp; Query Unfolding</a></li>
+<li><a href="#9-detection-logic-two-tier-hybrid-architecture">Detection
+Logic: Two-Tier Hybrid Architecture</a>
+<ul>
+<li><a href="#tier-1-deterministic-hard-veto-gates">Tier-1:
+Deterministic Hard Veto Gates</a></li>
+<li><a href="#tier-2-anomaly-detection-engine">Tier-2: Anomaly Detection
+Engine</a></li>
+<li><a href="#tier-2-probabilistic-soft-trust-scoring">Tier-2:
+Probabilistic Soft Trust Scoring</a></li>
+<li><a href="#lifecycle-state-machine-tracking">Lifecycle State Machine
+Tracking</a></li>
+</ul></li>
+<li><a
+href="#10-the-8-information-integration--architecture-iia-challenges">The
+8 Information Integration &amp; Architecture (IIA) Challenges (Deep Dive
+with Code)</a>
+<ul>
+<li><a
+href="#challenge-01-syntactic-heterogeneity--gav-query-unfolding">Challenge
+01: Syntactic Heterogeneity &amp; GAV Query Unfolding</a></li>
+<li><a
+href="#challenge-02-structural-heterogeneity--hierarchy-flattening">Challenge
+02: Structural Heterogeneity &amp; Hierarchy Flattening</a></li>
+<li><a
+href="#challenge-03-semantic--scientific-unit-heterogeneity">Challenge
+03: Semantic &amp; Scientific Unit Heterogeneity</a></li>
+<li><a
+href="#challenge-04-multi-metric-fuzzy-entity-resolution--ocr-jitter">Challenge
+04: Multi-Metric Fuzzy Entity Resolution &amp; OCR Jitter</a></li>
+<li><a
+href="#challenge-05-declarative-conflict-arbitration--contradictions">Challenge
+05: Declarative Conflict Arbitration &amp; Contradictions</a></li>
+<li><a
+href="#challenge-06-cap-theorem-network-partition--circuit-breakers">Challenge
+06: CAP Theorem, Network Partition &amp; Circuit Breakers</a></li>
+<li><a
+href="#challenge-07-schema-evolution--gs1-digital-link-drift">Challenge
+07: Schema Evolution &amp; GS1 Digital Link Drift</a></li>
+<li><a
+href="#challenge-08-transitive-multi-database-identity-graph-disjoint-silos">Challenge
+08: Transitive Multi-Database Identity Graph (Disjoint Silos)</a></li>
+</ul></li>
+<li><a href="#11-cryptographic-immutable-audit-chain">Cryptographic
+Immutable Audit Chain</a></li>
+<li><a
+href="#12-frontend-architecture--tactile-ceramic-ui-system">Frontend
+Architecture &amp; Tactile Ceramic UI System</a></li>
+<li><a
+href="#13-step-by-step-execution-verification--viva-cheat-sheet">Step-by-Step
+Execution, Verification &amp; Viva Cheat-Sheet</a></li>
+</ol>
+<hr />
+<h1 id="executive-overview-the-real-world-crisis">1. Executive Overview
+&amp; The Real-World Crisis</h1>
+<p>In the pharmaceutical supply chain, counterfeit medications
+(<strong>Nakali</strong>) kill hundreds of thousands of people each
+year. Substandard drugs range from: 1. <strong>Chalk &amp; Starch
+Fakes</strong>: Packaging printed to look identical to Cipla Novamox,
+but with zero active pharmaceutical ingredient (API). 2. <strong>Toxic
+Contamination</strong>: Medicines formulated with lethal industrial
+solvents (such as Diethylene Glycol in cough syrups). 3. <strong>Barcode
+Cloning / Digital Duplication</strong>: A counterfeiter buys one
+legitimate box, copies its 2D DataMatrix code onto 10,000 fake boxes,
+and distributes them simultaneously across hundreds of pharmacies. 4.
+<strong>Cold-Chain Spoilage</strong>: Vaccines, insulins, or biologicals
+that experienced heat excursion (<span class="math inline">\(&gt;
+8^\circ\text{C}\)</span>) during transport, denaturing the protein
+structure and rendering the drug ineffective or toxic. 5. <strong>Black
+Market / Illicit Diversion</strong>: Medicines stolen from hospital
+dispensaries or routed through unlicensed vendors.</p>
+<p><strong>Asali</strong> (Swahili/Hindi for <em>“Pure / Genuine /
+Authentic”</em>) is a federated Information Integration platform
+engineered to verify any medication pack in real time at point-of-sale
+or hospital dispensation.</p>
+<hr />
+<h1 id="why-not-a-single-monolithic-database-the-core-iia-problem">2.
+Why Not a Single Monolithic Database? (The Core IIA Problem)</h1>
+<p>Beginners often ask: &gt; <em>“Why not just put all pharmaceutical
+data into one giant Oracle or PostgreSQL database in the
+cloud?”</em></p>
+<p>In the real world, a single database is <strong>technically,
+commercially, and legally impossible</strong>:</p>
+<ol type="1">
+<li><strong>Autonomous Enterprise Boundaries</strong>:
+<ul>
+<li><strong>Manufacturers</strong> (e.g., Cipla, Sun Pharma, Pfizer)
+treat their batch release formulas and ERP cost data as trade secrets.
+They will never give direct database write access to external logistics
+companies.</li>
+<li><strong>Logistics &amp; Freight Forwarders</strong> run their own
+warehouse management systems (often SAP or custom relational DBs).</li>
+<li><strong>Retail Dispensaries / Pharmacies</strong> run thousands of
+independent Point-of-Sale (POS) systems (often streaming document stores
+or lightweight NoSQL engines).</li>
+<li><strong>Government Regulatory Agencies</strong> (CDSCO, Ministry of
+Consumer Affairs) maintain statutory master lists and blacklists
+completely isolated from commercial networks.</li>
+</ul></li>
+<li><strong>System &amp; Syntactic Heterogeneity</strong>:
+<ul>
+<li>Different stakeholders choose different databases optimized for
+their specific workload:
+<ul>
+<li>Retail POS terminals require high-velocity NoSQL document
+streams.</li>
+<li>Logistics ERP requires 3NF relational databases with foreign
+keys.</li>
+<li>Central regulators publish secure REST APIs.</li>
+</ul></li>
+</ul></li>
+<li><strong>Regulatory &amp; Geographic Sovereignty</strong>:
+<ul>
+<li>Data residency laws and antitrust regulations prevent centralized
+commercial monopolies over health data.</li>
+</ul></li>
+</ol>
+<p><strong>The Solution</strong>: <strong>Global-as-View (GAV) Federated
+Query Mediation</strong>. Instead of centralizing data, Asali
+centralizes <strong>logic</strong>. The databases remain completely
+autonomous, heterogeneous, and distributed. The Asali Mediator issues
+distributed subqueries on the fly, translates syntaxes, resolves typos,
+arbitrates contradictions, and calculates a unified verdict.</p>
+<hr />
+<h1 id="global-architecture-distributed-mesh-topology">3. Global
+Architecture &amp; Distributed Mesh Topology</h1>
+<pre class="mermaid"><code>flowchart TD
+    subgraph ClientLayer[&quot;1. Client Tier&quot;]
+        UI[&quot;Web Dashboard Terminal (dashboard/verify.html)&quot;]
+        CLI[&quot;CLI Automation Tool (api/verify_item.py)&quot;]
+    end
+
+    subgraph MediatorIntake[&quot;2. Mediation Intake &amp; Unfolding&quot;]
+        NORM[&quot;Identifier Normalizer (identifier_normalizer.py)&quot;]
+        ER[&quot;Entity Resolver &amp; Jitter Fix (entity_resolver.py)&quot;]
+        UNFOLD[&quot;GAV Query Unfolding Engine (mediator.py)&quot;]
+    end
+
+    subgraph DistributedWitnesses[&quot;3. Distributed Data Witness Nodes&quot;]
+        subgraph NodePC1[&quot;Machine 1: Retail Edge (Port 8011)&quot;]
+            DB1[&quot;DB1: Retail Pharmacy POS (NoSQL Document Store / JSON)&quot;]
+            DB2[&quot;DB2: Distributor Logistics ERP (3NF Relational SQLite)&quot;]
+        end
+        subgraph NodePC2[&quot;Machine 2: Authority Cloud (Ports 8012 &amp; 8001)&quot;]
+            DB3[&quot;DB3: CDSCO Master Registry (Central MDM Relational SQLite)&quot;]
+            DB4[&quot;DB4: Ministry INGRAM Portal (HTTP REST Microservice)&quot;]
+        end
+    end
+
+    subgraph VerificationPipeline[&quot;4. Verification, Scoring &amp; Audit Pipeline&quot;]
+        SEM[&quot;Semantic Transformer (semantic_transformer.py)&quot;]
+        CONF[&quot;Conflict Arbitrator (conflict_resolver.py)&quot;]
+        VETO[&quot;Tier-1: Hard Veto Engine (hard_veto_engine.py)&quot;]
+        ANOM[&quot;Tier-2: Anomaly Detector (anomaly_detector.py)&quot;]
+        TRUST[&quot;Tier-2: Trust Scorer (trust_engine.py)&quot;]
+        AUDIT[&quot;Immutable Audit Chain (audit_chain.py)&quot;]
+    end
+
+    UI &amp; CLI --&gt; NORM --&gt; ER --&gt; UNFOLD
+    UNFOLD --&gt;|&quot;NoSQL Predicate&quot;| DB1
+    UNFOLD --&gt;|&quot;Relational SQL&quot;| DB2
+    UNFOLD --&gt;|&quot;MDM Catalog SQL&quot;| DB3
+    UNFOLD --&gt;|&quot;REST GET (Bearer Auth)&quot;| DB4
+
+    DB1 &amp; DB2 &amp; DB3 &amp; DB4 --&gt; SEM --&gt; CONF --&gt; VETO --&gt; ANOM --&gt; TRUST --&gt; AUDIT</code></pre>
+<p>The system operates across <strong>3 tiers</strong>: 1.
+<strong>Client Tier</strong>: Modern web application
+(<code>index.html</code>, <code>verify.html</code>) and Python
+automation CLI (<code>api/verify_item.py</code>). 2. <strong>Mediation
+Tier</strong>: The federated query coordinator, running the GAV
+resolution pipeline and the Two-Tier verification engine. 3.
+<strong>Data Witness Tier</strong>: 4 physically independent,
+heterogeneous database nodes.</p>
+<hr />
+<h1 id="data-generation-seeding-pipeline-zero-to-one">4. Data Generation
+&amp; Seeding Pipeline (Zero-to-One)</h1>
+<p>All data in Asali is deterministically generated from scratch to
+model realistic pharmaceutical scenarios.</p>
+<pre class="mermaid"><code>flowchart TD
+    DDL[&quot;create_databases.py&lt;br/&gt;(Reads schema/schema_db*.sql)&quot;]
+
+    subgraph Stage1[&quot;Stage 1: Relational SQLite Seeding&quot;]
+        S3[&quot;seed_db3.py&lt;br/&gt;(CDSCO Manufacturer Registry)&quot;]
+        S2[&quot;seed_db2.py&lt;br/&gt;(Distributor Logistics ERP)&quot;]
+        S1[&quot;seed_db1.py&lt;br/&gt;(Retail POS Scans)&quot;]
+        S4[&quot;seed_db4.py&lt;br/&gt;(Ministry Grievance &amp; Blacklist)&quot;]
+    end
+
+    subgraph Stage2[&quot;Stage 2: NoSQL Document Store Generation&quot;]
+        NOSQL[&quot;seed_nosql_db1.py&lt;br/&gt;(Nested JSON Hierarchy Generator)&quot;]
+        STORE[&quot;data/nosql_store/db1_retail_pos.json&lt;br/&gt;(Retail Document Store)&quot;]
+    end
+
+    DDL --&gt; S3 &amp; S2 &amp; S1 &amp; S4
+    S1 --&gt; NOSQL --&gt; STORE</code></pre>
+<h3 id="step-1-schema-creation-create_databases.py">Step 1: Schema
+Creation (<code>create_databases.py</code>)</h3>
+<ul>
+<li>Reads schema definition files from <code>schema/</code>:
+<ul>
+<li><code>schema_db1.sql</code> <span class="math inline">\(\to\)</span>
+DB1</li>
+<li><code>schema_db2.sql</code> <span class="math inline">\(\to\)</span>
+DB2</li>
+<li><code>schema_db3.sql</code> <span class="math inline">\(\to\)</span>
+DB3</li>
+<li><code>schema_db4.sql</code> <span class="math inline">\(\to\)</span>
+DB4</li>
+</ul></li>
+<li>Deletes any stale SQLite databases and compiles clean binary
+database files in <code>databases/</code>.</li>
+</ul>
+<h3 id="step-2-relational-seeding-dataseed_db.py">Step 2: Relational
+Seeding (<code>data/seed_db*.py</code>)</h3>
+<ul>
+<li><strong><code>seed_db3.py</code> (CDSCO Manufacturer
+Registry)</strong>:
+<ul>
+<li>Creates 5 licensed Indian pharmaceutical giants:
+<code>MFG-CIPLA-01</code>, <code>MFG-SUN-02</code>,
+<code>MFG-DRREDDY-03</code>, <code>MFG-LUPIN-04</code>,
+<code>MFG-ZYDUS-05</code>.</li>
+<li>Injects product catalog records: <code>Novamox 500mg</code>,
+<code>Pantocid 40mg</code>, <code>Ciplox 500mg</code>,
+<code>Azithral 500mg</code>, <code>Insugen 40IU</code>.</li>
+<li>Attaches ISO/GMP certificates and batch QC release signatures
+(<code>qc_passed = 1</code>).</li>
+</ul></li>
+<li><strong><code>seed_db2.py</code> (Distributor Logistics
+ERP)</strong>:
+<ul>
+<li>Creates cold-chain freight companies: <code>DIST-APOLLO-LOG</code>,
+<code>DIST-TRANSMED-EXP</code>, <code>DIST-BLUE-DART-PHARMA</code>.</li>
+<li>Generates distribution batches with transport vehicle numbers,
+source warehouses, destination pharmacy IDs, and GPS telemetry
+URLs.</li>
+</ul></li>
+<li><strong><code>seed_db1.py</code> (Point-of-Sale Scans)</strong>:
+<ul>
+<li>Creates licensed pharmacies (<code>VND-MUM-001</code> Apollo Mumbai,
+<code>VND-BLR-002</code> MedPlus Bengaluru) and unlicensed rogue kiosks
+(<code>VND-999</code> Unlicensed Chemist).</li>
+<li>Injects scan records with timestamps, prices, payment methods (UPI,
+Cash), and device IDs.</li>
+</ul></li>
+<li><strong><code>seed_db4.py</code> (Ministry of Consumer Affairs &amp;
+INGRAM)</strong>:
+<ul>
+<li>Injects consumer complaints, forensic lab reports (chemical assay
+potency match), and the statutory <code>ministry_blacklist</code>.</li>
+</ul></li>
+</ul>
+<h3 id="injected-test-cases">Injected Test Cases:</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Test Code</th>
+<th style="text-align: left;">Scenario Type</th>
+<th style="text-align: left;">Why It Exists &amp; What It Proves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>MED-ASALI-001</code></td>
+<td style="text-align: left;"><strong>Genuine Baseline</strong></td>
+<td style="text-align: left;">Verified in DB3, authorized in DB2,
+scanned legally in DB1, clean in DB4. Score: 100/100
+(<strong>ASALI</strong>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MED-ASALI-002</code></td>
+<td style="text-align: left;"><strong>Barcode Cloning</strong></td>
+<td style="text-align: left;">Scanned in 5 different stores across
+Mumbai, Pune, and Bengaluru in 28 minutes. Proves geospatial velocity
+contradiction (<span class="math inline">\(&gt; 800\text{
+km/h}\)</span>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MED-RECALL-001</code></td>
+<td style="text-align: left;"><strong>Toxic Contamination</strong></td>
+<td style="text-align: left;">Active recall in DB3 and gazetted
+blacklist in DB4. Proves Authority Precedence Policy.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MED-UNAUTH-001</code></td>
+<td style="text-align: left;"><strong>Black Market
+Diversion</strong></td>
+<td style="text-align: left;">Sold by unlicensed kiosk
+<code>VND-999</code> with zero distributor records in DB2. Proves Supply
+Chain Gap detection.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MED-ASALI-009</code></td>
+<td style="text-align: left;"><strong>Cold-Chain Excursion</strong></td>
+<td style="text-align: left;">Temperature spike to <span
+class="math inline">\(14.2^\circ\text{C}\)</span> (<span
+class="math inline">\(&gt; 8^\circ\text{C}\)</span>). Proves Semantic
+Unit Normalization and potency risk penalty.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MED-NAKALI-001</code></td>
+<td style="text-align: left;"><strong>Phantom Fake</strong></td>
+<td style="text-align: left;">Sold at retail in DB1, but <strong>zero
+manufacturer record in DB3</strong>. Proves Tier-1 Hard Veto.</td>
+</tr>
+</tbody>
+</table>
+<h3
+id="step-3-native-nosql-document-conversion-dataseed_nosql_db1.py">Step
+3: Native NoSQL Document Conversion
+(<code>data/seed_nosql_db1.py</code>)</h3>
+<p>In modern retail, thousands of POS cash registers stream
+semi-structured JSON directly into document stores like MongoDB.
+<code>seed_nosql_db1.py</code> converts DB1 relational rows into:
+<code>data/nosql_store/db1_retail_pos.json</code> with nested document
+trees:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;_id&quot;</span><span class="fu">:</span> <span class="st">&quot;EVT-MUM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;scan_code&quot;</span><span class="fu">:</span> <span class="st">&quot;MED-ASALI-001&quot;</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;document_type&quot;</span><span class="fu">:</span> <span class="st">&quot;retail_pos_scan&quot;</span><span class="fu">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;dispensary&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;vendor_id&quot;</span><span class="fu">:</span> <span class="st">&quot;VND-MUM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Apollo Pharmacy Bandra&quot;</span><span class="fu">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;geo&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;city&quot;</span><span class="fu">:</span> <span class="st">&quot;Mumbai&quot;</span><span class="fu">,</span> <span class="dt">&quot;coordinates&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;lat&quot;</span><span class="fu">:</span> <span class="fl">19.0760</span><span class="fu">,</span> <span class="dt">&quot;lon&quot;</span><span class="fu">:</span> <span class="fl">72.8777</span> <span class="fu">}</span> <span class="fu">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;transaction&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;amount&quot;</span><span class="fu">:</span> <span class="fl">48.0</span><span class="fu">,</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;currency&quot;</span><span class="fu">:</span> <span class="st">&quot;INR&quot;</span><span class="fu">,</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;payment&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;method&quot;</span><span class="fu">:</span> <span class="st">&quot;upi&quot;</span><span class="fu">,</span> <span class="dt">&quot;device_id&quot;</span><span class="fu">:</span> <span class="st">&quot;POS-MUM-01&quot;</span> <span class="fu">}</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quality_assurance&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;anomaly_flag&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span> <span class="dt">&quot;verified_at_counter&quot;</span><span class="fu">:</span> <span class="kw">true</span> <span class="fu">}</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<hr />
+<h1 id="the-4-heterogeneous-databases-schemas-meanings">5. The 4
+Heterogeneous Databases: Schemas &amp; Meanings</h1>
+<h3 id="database-1-retail-purchase-registry-db1">Database 1: Retail
+Purchase Registry (DB1)</h3>
+<ul>
+<li><strong>Role</strong>: High-velocity retail scan events at point of
+sale.</li>
+<li><strong>Paradigm</strong>: NoSQL Document Store (JSON) with
+relational SQLite backup.</li>
+<li><strong>Primary Integration Key</strong>:
+<code>scan_code</code>.</li>
+<li><strong>Core Entities</strong>:
+<ul>
+<li><code>vendors</code>: Store ID, name, license number, license expiry
+date, active status.</li>
+<li><code>purchase_events</code>: Scan code, scan timestamp, vendor ID,
+price paid, payment method, device ID.</li>
+<li><code>scan_anomaly_log</code>: Rapid rescan alerts, multi-location
+flags.</li>
+</ul></li>
+</ul>
+<h3 id="database-2-distributor-logistics-ledger-db2">Database 2:
+Distributor Logistics Ledger (DB2)</h3>
+<ul>
+<li><strong>Role</strong>: Tracks middle-mile transportation from
+factory to pharmacy.</li>
+<li><strong>Paradigm</strong>: 3NF Relational SQL (SQLite).</li>
+<li><strong>Primary Integration Key</strong>:
+<code>batch_serial</code>.</li>
+<li><strong>Core Entities</strong>:
+<ul>
+<li><code>distributors</code>: Freight license number, cold-chain
+capability flag, authorization status.</li>
+<li><code>distribution_batches</code>: Batch serial, distributor ID,
+source warehouse, destination vendor ID, dispatch date, arrival date,
+<code>cold_chain_maintained</code> flag, temperature log URL, vehicle
+registration.</li>
+<li><code>distributor_vendor_contracts</code>: Legal contracts between
+logistics firms and pharmacies.</li>
+<li><code>return_log</code>: Damaged or rejected batch shipments.</li>
+</ul></li>
+</ul>
+<h3 id="database-3-cdsco-master-manufacturer-registry-db3">Database 3:
+CDSCO Master Manufacturer Registry (DB3)</h3>
+<ul>
+<li><strong>Role</strong>: The statutory Golden Record of genuine
+medicines.</li>
+<li><strong>Paradigm</strong>: Central Master Data Management (MDM)
+Relational Catalog (SQLite).</li>
+<li><strong>Primary Integration Key</strong>:
+<code>product_uid</code>.</li>
+<li><strong>Core Entities</strong>:
+<ul>
+<li><code>manufacturers</code>: Manufacturer ID, company name, GMP
+certification number, license expiry.</li>
+<li><code>products</code>: Product UID, brand name, generic formulation,
+strength, batch number, manufacture date, expiry date, registration
+number, <code>requires_cold_chain</code> flag, <code>is_recalled</code>
+flag, MSRP.</li>
+<li><code>authorized_distributors</code>: Whitelist of approved
+logistics partners per manufacturer.</li>
+<li><code>batch_release_certs</code>: QC laboratory release certificate
+with cryptographic hash.</li>
+</ul></li>
+</ul>
+<h3
+id="database-4-ministry-of-consumer-affairs-grievance-portal-db4">Database
+4: Ministry of Consumer Affairs Grievance Portal (DB4)</h3>
+<ul>
+<li><strong>Role</strong>: Government oversight, consumer complaints,
+and legal blacklists.</li>
+<li><strong>Paradigm</strong>: HTTP RESTful Web Microservice
+(<code>api/ministry_service.py</code> on Port 8001).</li>
+<li><strong>Primary Integration Key</strong>:
+<code>complaint_item_ref</code> / <code>item_ref</code>.</li>
+<li><strong>Core Entities</strong>:
+<ul>
+<li><code>complaints</code>: Citizen complaint reports, adverse
+reactions, complaint severity (<code>critical</code>,
+<code>high</code>).</li>
+<li><code>ministry_blacklist</code>: Legally banned or seized
+counterfeit codes with immediate police seizure mandate.</li>
+<li><code>lab_reports</code>: Independent government chemical test
+results (<code>active_ingredient_match</code>,
+<code>contaminants_found</code>, result
+<code>pass</code>/<code>fail</code>).</li>
+<li><code>public_alerts</code>: Gazette safety advisories broadcast to
+consumers.</li>
+</ul></li>
+</ul>
+<hr />
+<h1 id="multi-pc-docker-distributed-deployment">6. Multi-PC &amp; Docker
+Distributed Deployment</h1>
+<p>In an enterprise environment, these databases reside on different
+machines across corporate firewalls.</p>
+<h3
+id="topology-configuration-integrationdistributed_config.py">Topology
+Configuration (<code>integration/distributed_config.py</code>)</h3>
+<p><code>distributed_config.py</code> provides dynamic endpoint
+resolution:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reads environment variables with seamless fallback to localhost</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>PC1_HOST <span class="op">=</span> os.environ.get(<span class="st">&quot;PC1_HOST&quot;</span>, <span class="st">&quot;127.0.0.1&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>PC1_PORT <span class="op">=</span> <span class="bu">int</span>(os.environ.get(<span class="st">&quot;PC1_PORT&quot;</span>, <span class="st">&quot;8011&quot;</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>PC2_HOST <span class="op">=</span> os.environ.get(<span class="st">&quot;PC2_HOST&quot;</span>, <span class="st">&quot;127.0.0.1&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>PC2_PORT <span class="op">=</span> <span class="bu">int</span>(os.environ.get(<span class="st">&quot;PC2_PORT&quot;</span>, <span class="st">&quot;8012&quot;</span>))</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>DB4_PORT <span class="op">=</span> <span class="bu">int</span>(os.environ.get(<span class="st">&quot;DB4_PORT&quot;</span>, <span class="st">&quot;8001&quot;</span>))</span></code></pre></div>
+<h3 id="docker-compose-architecture-docker-compose.yml">Docker Compose
+Architecture (<code>docker-compose.yml</code>)</h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">asali-pc1-retail</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> .</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">container_name</span><span class="kw">:</span><span class="at"> asali-pc1-retail</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;python3&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;api/node_pc1.py&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;--port&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;8011&quot;</span><span class="kw">]</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8011:8011&quot;</span><span class="kw">]</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">asali-network</span><span class="kw">]</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">asali-pc2-authority</span><span class="kw">:</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> .</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">container_name</span><span class="kw">:</span><span class="at"> asali-pc2-authority</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;python3&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;api/node_pc2.py&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;--port&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;8012&quot;</span><span class="kw">]</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8012:8012&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;8001:8001&quot;</span><span class="kw">]</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">asali-network</span><span class="kw">]</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">asali-mediator</span><span class="kw">:</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> .</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">container_name</span><span class="kw">:</span><span class="at"> asali-mediator</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;python3&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;-m&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;http.server&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;8000&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;--directory&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;dashboard&quot;</span><span class="kw">]</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8000:8000&quot;</span><span class="kw">]</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> PC1_HOST=asali-pc1-retail</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> PC2_HOST=asali-pc2-authority</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">asali-network</span><span class="kw">]</span></span></code></pre></div>
+<p>To run on <strong>two physical laptops on the same
+Wi-Fi</strong>:</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph LaptopA[&quot;Laptop A: Retail Edge (IP: 192.168.1.10)&quot;]
+        direction TB
+        PC1_NODE[&quot;&lt;b&gt;api/node_pc1.py&lt;/b&gt;&lt;br/&gt;Port 8011&quot;]
+        DB1_INST[&quot;DB1: Retail POS&lt;br/&gt;(NoSQL JSON)&quot;]
+        DB2_INST[&quot;DB2: Distributor ERP&lt;br/&gt;(Relational SQLite)&quot;]
+        PC1_NODE --- DB1_INST
+        PC1_NODE --- DB2_INST
+    end
+
+    subgraph LaptopB[&quot;Laptop B: Authority Cloud (IP: 192.168.1.20)&quot;]
+        direction TB
+        PC2_NODE[&quot;&lt;b&gt;api/node_pc2.py&lt;/b&gt;&lt;br/&gt;Port 8012&quot;]
+        DB3_INST[&quot;DB3: CDSCO Master&lt;br/&gt;(Relational SQLite)&quot;]
+        PC2_NODE --- DB3_INST
+
+        MIN_SVC[&quot;&lt;b&gt;api/ministry_service.py&lt;/b&gt;&lt;br/&gt;Port 8001&quot;]
+        DB4_INST[&quot;DB4: Ministry INGRAM&lt;br/&gt;(REST Microservice)&quot;]
+        MIN_SVC --- DB4_INST
+    end
+
+    subgraph Controller[&quot;Coordinator / UI (Any Laptop or Server)&quot;]
+        DASH[&quot;&lt;b&gt;Web Dashboard &amp; Mediator&lt;/b&gt;&lt;br/&gt;&lt;code&gt;http://localhost:8000&lt;/code&gt;&quot;]
+    end
+
+    DASH --&gt;|&quot;Socket / HTTP :8011&quot;| PC1_NODE
+    DASH --&gt;|&quot;Socket / HTTP :8012&quot;| PC2_NODE
+    DASH --&gt;|&quot;REST GET :8001&quot;| MIN_SVC</code></pre>
+<ol type="1">
+<li>Laptop A (IP <code>192.168.1.10</code>): Run
+<code>python3 api/node_pc1.py --port 8011</code>.</li>
+<li>Laptop B (IP <code>192.168.1.20</code>): Run
+<code>python3 api/node_pc2.py --port 8012</code> and
+<code>python3 api/ministry_service.py --port 8001</code>.</li>
+<li>Laptop A or Server: Set
+<code>PC1_HOST=192.168.1.10 PC2_HOST=192.168.1.20 python3 -m http.server 8000 --directory dashboard</code>.</li>
+</ol>
+<hr />
+<h1 id="the-modular-wrapper-layer">7. The Modular Wrapper Layer</h1>
+<p>In Information Integration, a <strong>Wrapper</strong> encapsulates a
+specific data storage technology, translating high-level canonical query
+requests into native queries and returning standardized Python
+dictionaries.</p>
+<p>All wrappers inherit from <code>BaseWrapper</code> (<a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/wrappers/base_wrapper.py">integration/wrappers/base_wrapper.py</a>):</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaseWrapper(ABC):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, source_id: <span class="bu">str</span>):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.source_id <span class="op">=</span> source_id</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> fetch_by_key(<span class="va">self</span>, key_value: <span class="bu">str</span>) <span class="op">-&gt;</span> Dict[<span class="bu">str</span>, Any]:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;Fetch raw records matching the primary integration key.&quot;&quot;&quot;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> health_check(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;Verify underlying connection / file availability.&quot;&quot;&quot;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span></code></pre></div>
+<h3 id="nosql-wrapper-nosql_wrapper.py">1. NoSQL Wrapper
+(<code>nosql_wrapper.py</code>)</h3>
+<ul>
+<li>Reads <code>data/nosql_store/db1_retail_pos.json</code>.</li>
+<li>Streams documents into memory, evaluates predicates
+(<code>doc["scan_code"] == key</code>), and flattens nested
+structures.</li>
+<li>Records execution latency in milliseconds for query telemetry.</li>
+</ul>
+<h3 id="relational-sql-wrapper-sql_wrapper.py">2. Relational SQL Wrapper
+(<code>sql_wrapper.py</code>)</h3>
+<ul>
+<li><p>Used for DB2 and DB3.</p></li>
+<li><p>Opens SQLite connection with
+<code>conn.row_factory = sqlite3.Row</code>.</p></li>
+<li><p>Executes foreign key <code>JOIN</code> queries:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.<span class="op">*</span>, m.company_name, m.license_no, m.gmp_certified</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> products p</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> manufacturers m <span class="kw">ON</span> p.manufacturer_id <span class="op">=</span> m.manufacturer_id</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> p.product_uid <span class="op">=</span> ?</span></code></pre></div></li>
+</ul>
+<h3 id="rest-api-wrapper-rest_wrapper.py">3. REST API Wrapper
+(<code>rest_wrapper.py</code>)</h3>
+<ul>
+<li>Used for DB4 (Ministry Web Microservice).</li>
+<li>Issues HTTP <code>GET</code> requests to
+<code>http://&lt;host&gt;:8001/api/v1/dossier?item_ref=&lt;key&gt;</code>.</li>
+<li>Includes bearer authorization headers
+(<code>Authorization: Bearer CDSCO-MCA-2026-KEY</code>).</li>
+<li>Implements a <strong>Circuit Breaker</strong> pattern: if the remote
+HTTP service drops, it gracefully logs network degradation and proxies
+to local storage without crashing the user session.</li>
+</ul>
+<hr />
+<h1 id="global-as-view-gav-mediator-query-unfolding">8. Global-as-View
+(GAV) Mediator &amp; Query Unfolding</h1>
+<p>The core innovation of Asali is its <strong>Global-as-View
+(GAV)</strong> architecture implemented in
+<code>integration/mediator.py</code>.</p>
+<p>In GAV, the <strong>Global Schema</strong> is defined as a view over
+the underlying <strong>Source Schemas</strong>: <span
+class="math display">\[\text{Global Schema } \mathcal{G} =
+\mathcal{V}(\mathcal{S}_1, \mathcal{S}_2, \mathcal{S}_3,
+\mathcal{S}_4)\]</span></p>
+<p>When an application queries the global concept
+<code>UnifiedMedicineDossier</code>, the Mediator
+<strong>unfolds</strong> the query into physical subqueries:</p>
+<pre class="mermaid"><code>flowchart TD
+    GQ[&quot;Global Client Query:&lt;br/&gt;&lt;code&gt;SELECT * FROM UnifiedMedicineDossier WHERE item_code = &#39;X&#39;&lt;/code&gt;&quot;]
+    
+    subgraph MediatorUnfolding[&quot;GAV Query Unfolding Engine (mediator.py)&quot;]
+        NORM[&quot;Identifier &amp; Entity Resolution&lt;br/&gt;(Fuzzy / OCR Normalization)&quot;]
+        UNFOLD[&quot;Query Unfolding Planner&quot;]
+    end
+
+    subgraph NativeQueries[&quot;Targeted Heterogeneous Subqueries&quot;]
+        Q1[&quot;&lt;b&gt;DB1 Wrapper (NoSQL Document Store)&lt;/b&gt;&lt;br/&gt;&lt;code&gt;db.retail_scans.find({&#39;item_code&#39;: &#39;X&#39;})&lt;/code&gt;&quot;]
+        Q2[&quot;&lt;b&gt;DB2 Wrapper (Relational SQLite)&lt;/b&gt;&lt;br/&gt;&lt;code&gt;SELECT b.*, d.company_name FROM distribution_batches JOIN ...&lt;/code&gt;&quot;]
+        Q3[&quot;&lt;b&gt;DB3 Wrapper (Central MDM SQLite)&lt;/b&gt;&lt;br/&gt;&lt;code&gt;SELECT p.*, m.company_name FROM products JOIN ...&lt;/code&gt;&quot;]
+        Q4[&quot;&lt;b&gt;DB4 Wrapper (RESTful Microservice)&lt;/b&gt;&lt;br/&gt;&lt;code&gt;GET /api/v1/dossier?item_ref=X&lt;/code&gt;&lt;br/&gt;&lt;i&gt;Bearer Token Auth&lt;/i&gt;&quot;]
+    end
+
+    subgraph Aggregation[&quot;Canonical Synthesis Layer&quot;]
+        CANON[&quot;Canonical Data Model (ItemRecord)&lt;br/&gt;&lt;code&gt;semantic_transformer.py&lt;/code&gt; &amp; &lt;code&gt;conflict_resolver.py&lt;/code&gt;&quot;]
+        DOSSIER[&quot;Unified Medicine Dossier&lt;br/&gt;(GlobalItemHistory)&quot;]
+    end
+
+    GQ --&gt; NORM --&gt; UNFOLD
+    UNFOLD --&gt; Q1 &amp; Q2 &amp; Q3 &amp; Q4
+    Q1 &amp; Q2 &amp; Q3 &amp; Q4 --&gt; CANON --&gt; DOSSIER</code></pre>
+<h3 id="unfolding-implementation-in-code-mediator.py">Unfolding
+Implementation in Code (<a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/mediator.py#L109-L154">mediator.py</a>):</h3>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> explain_query_unfolding(<span class="va">self</span>, query_code: <span class="bu">str</span>) <span class="op">-&gt;</span> Dict[<span class="bu">str</span>, Any]:</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    entity_res <span class="op">=</span> <span class="va">self</span>.entity_engine.resolve_item_code(query_code)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    canonical <span class="op">=</span> entity_res.resolved_canonical</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;global_query&quot;</span>: <span class="ss">f&quot;SELECT * FROM UnifiedMedicineDossier WHERE item_code = &#39;</span><span class="sc">{</span>query_code<span class="sc">}</span><span class="ss">&#39;&quot;</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;entity_linkage&quot;</span>: {</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;raw_input&quot;</span>: query_code,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;canonical_target&quot;</span>: canonical,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;confidence_score&quot;</span>: entity_res.confidence_score,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;is_fuzzy_match&quot;</span>: entity_res.is_fuzzy_linked</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;subqueries&quot;</span>: [</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;target_source&quot;</span>: <span class="st">&quot;DB1 Retail Pharmacy POS&quot;</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;engine&quot;</span>: <span class="st">&quot;NoSQL Document Store&quot;</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;unfolded_operation&quot;</span>: <span class="ss">f&quot;db.retail_scans.find(</span><span class="ch">{{</span><span class="ss">&#39;item_code&#39;: &#39;</span><span class="sc">{</span>canonical<span class="sc">}</span><span class="ss">&#39;</span><span class="ch">}}</span><span class="ss">)&quot;</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;purpose&quot;</span>: <span class="st">&quot;Detect duplicate scans, velocity anomalies, and unauthorized vendor sales&quot;</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>            },</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;target_source&quot;</span>: <span class="st">&quot;DB2 Distributor ERP&quot;</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;engine&quot;</span>: <span class="st">&quot;Relational SQL (SQLite)&quot;</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;unfolded_operation&quot;</span>: <span class="ss">f&quot;SELECT b.*, d.company_name FROM distribution_batches b JOIN distributors d ON b.distributor_id = d.distributor_id WHERE b.batch_serial = &#39;</span><span class="sc">{</span>canonical<span class="sc">}</span><span class="ss">&#39;&quot;</span>,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;purpose&quot;</span>: <span class="st">&quot;Audit supply chain custody, cold-chain temperature excursion, transit route&quot;</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>            },</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;target_source&quot;</span>: <span class="st">&quot;DB3 CDSCO Master Registry&quot;</span>,</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;engine&quot;</span>: <span class="st">&quot;Central MDM Catalog (SQLite)&quot;</span>,</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;unfolded_operation&quot;</span>: <span class="ss">f&quot;SELECT p.*, m.company_name FROM products p JOIN manufacturers m ON p.manufacturer_id = m.manufacturer_id WHERE p.product_uid = &#39;</span><span class="sc">{</span>canonical<span class="sc">}</span><span class="ss">&#39;&quot;</span>,</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;purpose&quot;</span>: <span class="st">&quot;Verify statutory existence, authorized distributors, batch certificate QC&quot;</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>            },</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;target_source&quot;</span>: <span class="st">&quot;DB4 Ministry INGRAM Portal&quot;</span>,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;engine&quot;</span>: <span class="st">&quot;HTTP RESTful Microservice&quot;</span>,</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;unfolded_operation&quot;</span>: <span class="ss">f&quot;GET /api/v1/dossier?item_ref=</span><span class="sc">{</span>canonical<span class="sc">}</span><span class="ss">&quot;</span>,</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;purpose&quot;</span>: <span class="st">&quot;Fetch active recalls, citizen grievance reports, laboratory chemical tests&quot;</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div>
+<hr />
+<h1 id="detection-logic-two-tier-hybrid-architecture">9. Detection
+Logic: Two-Tier Hybrid Architecture</h1>
+<p>A critical innovation in Asali is resolving the <strong>Subtractive
+Scoring Paradox</strong>.</p>
+<h3 id="the-problem-with-simple-additivesubtractive-scoring">The Problem
+with Simple Additive/Subtractive Scoring:</h3>
+<p>Imagine an engine that starts with a score of 100 and subtracts
+points for errors: - If a medicine fails the manufacturer check:
+subtract 40 points. - Score: <span class="math inline">\(100 - 40 =
+60\)</span>. - Result: <strong>60 points = “SUSPICIOUS - REVIEW
+REQUIRED”</strong>.</p>
+<p><strong>This is unacceptable in healthcare.</strong> If a medicine
+was never manufactured by any licensed pharmaceutical company, it is not
+“suspicious” — it is a <strong>100% fake (Nakali)</strong>. It must have
+a score of <span class="math inline">\(0\)</span> and trigger immediate
+police escalation.</p>
+<h3 id="the-solution-two-tier-hybrid-architecture">The Solution:
+Two-Tier Hybrid Architecture</h3>
+<ol type="1">
+<li><strong>Tier-1: Hard Veto Gates</strong> (Deterministic,
+zero-tolerance, fail-stop).</li>
+<li><strong>Tier-2: Soft Compliance Scoring</strong> (Probabilistic,
+weighted deductions).</li>
+</ol>
+<pre class="mermaid"><code>flowchart TD
+    INPUT[&quot;Canonical Record: &lt;code&gt;ItemRecord&lt;/code&gt;&lt;br/&gt;(Aggregated from DB1, DB2, DB3, DB4)&quot;]
+    
+    subgraph Tier1[&quot;Tier-1: Deterministic Hard Veto Gates (hard_veto_engine.py)&quot;]
+        direction TB
+        V1[&quot;&lt;b&gt;V1: Phantom Serial&lt;/b&gt;&lt;br/&gt;&lt;i&gt;not record.manufacturer.found&lt;/i&gt;&lt;br/&gt;(Not in CDSCO DB3)&quot;]
+        V2[&quot;&lt;b&gt;V2: Ministry Blacklist&lt;/b&gt;&lt;br/&gt;&lt;i&gt;record.ministry.blacklist_entry&lt;/i&gt;&lt;br/&gt;(Seized / Banned in DB4)&quot;]
+        V3[&quot;&lt;b&gt;V3: Temporal Paradox&lt;/b&gt;&lt;br/&gt;&lt;i&gt;purchase_date &lt; mfg_date&lt;/i&gt;&lt;br/&gt;(Physical Causality Violation)&quot;]
+        V4[&quot;&lt;b&gt;V4: Replay Scan Attack&lt;/b&gt;&lt;br/&gt;&lt;i&gt;lifecycle == &#39;DISPENSED&#39;&lt;/i&gt;&lt;br/&gt;(Double-Spend Barcode Clone)&quot;]
+        V5[&quot;&lt;b&gt;V5: Custody Bypass&lt;/b&gt;&lt;br/&gt;&lt;i&gt;selling_vendor not in route&lt;/i&gt;&lt;br/&gt;(Unregistered Retail Handover)&quot;]
+        
+        V_CHECK{&quot;Did ANY Gate&lt;br/&gt;Trigger?&quot;}
+        
+        V1 &amp; V2 &amp; V3 &amp; V4 &amp; V5 --&gt; V_CHECK
+    end
+    
+    FAIL_STOP[&quot;🛑 &lt;b&gt;FAIL-STOP HARD VETO&lt;/b&gt;&lt;br/&gt;Verdict: &lt;b&gt;NAKALI (नकली)&lt;/b&gt;&lt;br/&gt;Trust Score: &lt;b&gt;0 / 100&lt;/b&gt;&lt;br/&gt;Action: Immediate Regulatory Seizure&quot;]
+    
+    subgraph Tier2[&quot;Tier-2: Soft Compliance &amp; Trust Scoring Engine (trust_engine.py)&quot;]
+        direction TB
+        BASE[&quot;Initial Score: &lt;b&gt;100 Points&lt;/b&gt;&quot;]
+        ANOM[&quot;Cross-Source Anomaly Engine&lt;br/&gt;• Geospatial Velocity Check (&gt;800 km/h)&lt;br/&gt;• Price Dumping (&lt;40% MSRP)&lt;br/&gt;• Unlicensed Dispensary Warning&quot;]
+        DEDUCT[&quot;Calibrated Point Deductions&lt;br/&gt;• Cold-Chain Thermal Breach: -25 pts&lt;br/&gt;• Unauthorized Distributor: -20 pts&lt;br/&gt;• Supply Chain Gap (No DB2): -20 pts&lt;br/&gt;• Severe Price Dumping: -15 pts&lt;br/&gt;• Expired Distributor License: -15 pts&lt;br/&gt;• Failed Chemical Lab Assay: -15 pts&lt;br/&gt;• Citizen Grievances in INGRAM: -10 pts&lt;br/&gt;• Imminent Expiry (&lt;30d): -10 pts&lt;br/&gt;• Verified Clean Lineage &amp; Lab Pass: +5 pts&quot;]
+        COMPUTE[&quot;Calculate Final Trust Score&lt;br/&gt;&lt;code&gt;Score ∈ [0, 100]&lt;/code&gt;&quot;]
+        
+        BASE --&gt; ANOM --&gt; DEDUCT --&gt; COMPUTE
+    end
+    
+    DECIDE{&quot;Score Evaluation&quot;}
+    ASALI[&quot;🟢 &lt;b&gt;ASALI (असली)&lt;/b&gt;&lt;br/&gt;Score ≥ 80&lt;br/&gt;Genuine Medicine&quot;]
+    SUSP[&quot;🟡 &lt;b&gt;SUSPICIOUS&lt;/b&gt;&lt;br/&gt;50 ≤ Score &lt; 80&lt;br/&gt;Quarantine &amp; Manual Review&quot;]
+    NAKALI_SOFT[&quot;🔴 &lt;b&gt;NAKALI (नकली)&lt;/b&gt;&lt;br/&gt;Score &lt; 50&lt;br/&gt;Substandard / Fraudulent&quot;]
+    
+    INPUT --&gt; Tier1
+    V_CHECK --&gt;|YES: Veto Fired| FAIL_STOP
+    V_CHECK --&gt;|NO: All Gates Passed| Tier2
+    COMPUTE --&gt; DECIDE
+    DECIDE --&gt;|Score ≥ 80| ASALI
+    DECIDE --&gt;|50 ≤ Score &lt; 80| SUSP
+    DECIDE --&gt;|Score &lt; 50| NAKALI_SOFT</code></pre>
+<hr />
+<h3
+id="tier-1-deterministic-hard-veto-gates-hard_veto_engine.py">Tier-1:
+Deterministic Hard Veto Gates (<code>hard_veto_engine.py</code>)</h3>
+<p>If ANY of these 5 gates fire, evaluation halts immediately: <span
+class="math display">\[\text{Verdict} = \mathbf{NAKALI}, \quad
+\text{Trust Score} = 0\]</span></p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HardVetoEngine:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> evaluate(<span class="va">self</span>, record: ItemRecord, lifecycle_state: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>) <span class="op">-&gt;</span> VetoResult:</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        gates <span class="op">=</span> [</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._v1_phantom_serial(record),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._v2_ministry_blacklist(record),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._v3_temporal_paradox(record),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._v4_replay_scan(record, lifecycle_state),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._v5_custody_bypass(record),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        triggered <span class="op">=</span> [g <span class="cf">for</span> g <span class="kw">in</span> gates <span class="cf">if</span> g.triggered]</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> VetoResult(vetoed<span class="op">=</span><span class="bu">len</span>(triggered) <span class="op">&gt;</span> <span class="dv">0</span>, gates<span class="op">=</span>gates)</span></code></pre></div>
+<h4 id="the-5-hard-veto-gates">The 5 Hard Veto Gates:</h4>
+<ol type="1">
+<li><strong><code>V1_PHANTOM_SERIAL</code></strong>:
+<ul>
+<li><strong>Logic</strong>:
+<code>not record.manufacturer.found</code></li>
+<li><strong>Meaning</strong>: The serial code exists in the retail shop
+(DB1), but was never registered in the Central CDSCO Manufacturer
+Database (DB3). It is a pure counterfeit manufactured in an illicit
+facility.</li>
+</ul></li>
+<li><strong><code>V2_MINISTRY_BLACKLIST</code></strong>:
+<ul>
+<li><strong>Logic</strong>:
+<code>record.ministry.blacklist_entry and blacklist_entry["active"] == 1</code></li>
+<li><strong>Meaning</strong>: The drug code was explicitly seized,
+tested, and blacklisted by government gazette notice for lethal toxicity
+or illegal distribution.</li>
+</ul></li>
+<li><strong><code>V3_TEMPORAL_PARADOX</code></strong>:
+<ul>
+<li><strong>Logic</strong>:
+<code>purchase_date &lt; manufacture_date</code></li>
+<li><strong>Meaning</strong>: The point-of-sale customer receipt
+timestamp in DB1 is earlier than the factory manufacturing release date
+in DB3. This physical causality violation proves fraudulent barcode
+generation.</li>
+</ul></li>
+<li><strong><code>V4_REPLAY_SCAN</code> (Double-Spend / Barcode
+Cloning)</strong>:
+<ul>
+<li><strong>Logic</strong>:
+<code>lifecycle_state == "DISPENSED" and is_new_checkout_scan</code></li>
+<li><strong>Meaning</strong>: A 2D DataMatrix code on a prescription box
+can only be dispensed to a patient <strong>once</strong>. If that same
+code is scanned again at another counter, it is a cloned duplicate.</li>
+</ul></li>
+<li><strong><code>V5_CUSTODY_BYPASS</code></strong>:
+<ul>
+<li><strong>Logic</strong>:
+<code>selling_vendor_id not in authorized_destination_vendors</code></li>
+<li><strong>Meaning</strong>: The medicine is being sold by a dispensary
+that was never part of the legal distributor dispatch route logged in
+DB2.</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="tier-2-anomaly-detection-engine-anomaly_detector.py">Tier-2:
+Anomaly Detection Engine (<code>anomaly_detector.py</code>)</h3>
+<p>When all Tier-1 gates pass, the <strong>Anomaly Detector</strong>
+inspects temporal and cross-source patterns:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AnomalyDetector:</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> detect(<span class="va">self</span>, record: ItemRecord) <span class="op">-&gt;</span> AnomalyReport:</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">=</span> []</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">+=</span> <span class="va">self</span>._check_multi_location(record)      <span class="co"># Barcode cloning across cities</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">+=</span> <span class="va">self</span>._check_temporal_consistency(record)<span class="co"># Handoff sequence</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">+=</span> <span class="va">self</span>._check_price_anomaly(record)       <span class="co"># Price dumping</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">+=</span> <span class="va">self</span>._check_velocity(record)            <span class="co"># Volume spikes</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">+=</span> <span class="va">self</span>._check_unlicensed_vendor(record)   <span class="co"># Rogue pharmacy</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">+=</span> <span class="va">self</span>._check_supply_chain_gap(record)    <span class="co"># Missing distributor</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        flags <span class="op">+=</span> <span class="va">self</span>._check_cold_chain_risk(record)     <span class="co"># Temperature breach</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> AnomalyReport(flags<span class="op">=</span>flags, clean<span class="op">=</span><span class="bu">len</span>(flags) <span class="op">==</span> <span class="dv">0</span>)</span></code></pre></div>
+<h4 id="geospatial-velocity-feasibility-formula">Geospatial Velocity
+Feasibility Formula:</h4>
+<p>To detect barcode cloning, Asali calculates the minimum travel
+velocity between consecutive store scans: <span class="math display">\[v
+= \frac{\text{HaversineDistance}(\text{City}_1, \text{City}_2)}{\Delta
+t}\]</span> If <span class="math inline">\(v &gt; 800\text{
+km/h}\)</span> (faster than commercial jet speed) between pharmacy
+scans, <code>MULTI_LOCATION_SCAN</code> fires automatically.</p>
+<hr />
+<h3 id="tier-2-probabilistic-soft-trust-scoring-trust_engine.py">Tier-2:
+Probabilistic Soft Trust Scoring (<code>trust_engine.py</code>)</h3>
+<p>When Tier-1 passes, the drug begins with <strong>100 Points</strong>
+and is subjected to calibrated deductions:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Cold-Chain Thermal Excursion (-25)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> requires_cold_chain <span class="kw">and</span> cold_chain_maintained <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">25</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Unauthorized Distributor Route (-20)</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> distributor.get(<span class="st">&quot;is_authorized&quot;</span>, <span class="dv">1</span>):</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">20</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Supply Chain Gap (-20)</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Item sold at retail but has zero distributor dispatch batch in DB2</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> record.purchase.found <span class="kw">and</span> <span class="kw">not</span> record.distribution.found:</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">20</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Severe Price Dumping (-15)</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Sold at less than 40% of manufacturer MSRP</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> price_paid <span class="op">&lt;</span> <span class="fl">0.40</span> <span class="op">*</span> msrp:</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">15</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Revoked Distributor License (-15)</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> distributor_license_expired:</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">15</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Failed Forensic Lab Test (-15)</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> lab_report.get(<span class="st">&quot;result&quot;</span>) <span class="op">==</span> <span class="st">&quot;fail&quot;</span>:</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">15</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Citizen Complaints in INGRAM (-10)</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">len</span>(record.ministry.complaints) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">10</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="co"># 8. Imminent Expiry Date (-10)</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> days_to_expiry <span class="op">&lt;</span> <span class="dv">30</span>:</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    score <span class="op">-=</span> <span class="dv">10</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Bonus (+5)</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> clean_lineage <span class="kw">and</span> lab_report.get(<span class="st">&quot;result&quot;</span>) <span class="op">==</span> <span class="st">&quot;pass&quot;</span>:</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> <span class="bu">min</span>(<span class="dv">100</span>, score <span class="op">+</span> <span class="dv">5</span>)</span></code></pre></div>
+<h3 id="verdict-decision-boundary">Verdict Decision Boundary:</h3>
+<p><span class="math display">\[\text{Verdict} = \begin{cases}
+\mathbf{ASALI} &amp; \text{if } \text{Score} \ge 80 \text{ and }
+\text{Tier-1 Passed} \\
+\mathbf{SUSPICIOUS} &amp; \text{if } 50 \le \text{Score} &lt; 80 \text{
+and } \text{Tier-1 Passed} \\
+\mathbf{NAKALI} &amp; \text{if } \text{Score} &lt; 50 \text{ or }
+\text{Tier-1 Veto Fired}
+\end{cases}\]</span></p>
+<hr />
+<h3 id="lifecycle-state-machine-tracking-lifecycle_state.py">Lifecycle
+State Machine Tracking (<code>lifecycle_state.py</code>)</h3>
+<p>A legitimate medicine pack moves through a strictly sequential state
+machine: <span class="math display">\[\mathbf{MINTED} \longrightarrow
+\mathbf{IN\_TRANSIT} \longrightarrow \mathbf{DELIVERED} \longrightarrow
+\mathbf{DISPENSED}\]</span></p>
+<pre class="mermaid"><code>stateDiagram-v2
+    [*] --&gt; MINTED: 1. Batch Release QC Passed (DB3)
+    MINTED --&gt; IN_TRANSIT: 2. Freight Pickup &amp; Telemetry Started (DB2)
+    IN_TRANSIT --&gt; DELIVERED: 3. Pharmacy Intake &amp; Custody Acknowledged (DB2)
+    DELIVERED --&gt; DISPENSED: 4. Point-of-Sale Scan &amp; Customer Checkout (DB1)
+    
+    DISPENSED --&gt; REPLAY_ATTACK: 5. Subsequent Scan Attempt at Counter
+    REPLAY_ATTACK --&gt; HARD_VETO: Trigger Gate V4_REPLAY_SCAN
+    HARD_VETO --&gt; [*]: Verdict: NAKALI (Score 0)
+    
+    DISPENSED --&gt; [*]: Normal Final Dispensation</code></pre>
+<p>If an item’s current state is <code>DISPENSED</code>, any subsequent
+checkout scan is flagged as a duplicate clone.</p>
+<hr />
+<h1 id="the-8-information-integration-architecture-iia-challenges">10.
+The 8 Information Integration &amp; Architecture (IIA) Challenges</h1>
+<p>Asali is built as a complete academic research platform solving 8
+core Information Integration challenges:</p>
+<hr />
+<h3
+id="challenge-01-syntactic-heterogeneity-gav-query-unfolding">Challenge
+01: Syntactic Heterogeneity &amp; GAV Query Unfolding</h3>
+<ul>
+<li><p><strong>Theoretical Problem</strong>: Disparate storage engines
+speak fundamentally different query languages: NoSQL JSON query
+predicates vs ANSI SQL 3NF JOINs vs RESTful HTTP GET.</p></li>
+<li><p><strong>Asali Implementation</strong>: <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/mediator.py">mediator.py</a>
+defines a Global-as-View query unfolding engine.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Unfolds single canonical query into 4 distinct native syntaxes</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>unfolded_plans <span class="op">=</span> {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;db1&quot;</span>: <span class="st">&quot;db.retail_scans.find({&#39;item_code&#39;: &#39;...&#39;})&quot;</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;db2&quot;</span>: <span class="st">&quot;SELECT b.*, d.company_name FROM distribution_batches b JOIN distributors d ...&quot;</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;db3&quot;</span>: <span class="st">&quot;SELECT p.*, m.company_name FROM products p JOIN manufacturers m ...&quot;</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;db4&quot;</span>: <span class="st">&quot;GET /api/v1/dossier?item_ref=... [Bearer CDSCO-MCA-2026-KEY]&quot;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div></li>
+</ul>
+<hr />
+<h3
+id="challenge-02-structural-heterogeneity-hierarchy-flattening">Challenge
+02: Structural Heterogeneity &amp; Hierarchy Flattening</h3>
+<ul>
+<li><p><strong>Theoretical Problem</strong>: Schema mismatch between
+nested document trees (hierarchical 3D) and flat tabular rows
+(relational 2D).</p></li>
+<li><p><strong>Asali Implementation</strong>: <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/wrappers/nosql_wrapper.py">nosql_wrapper.py</a>
+and <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/canonical_model.py">canonical_model.py</a>.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Safe path projection flattening nested NoSQL tree to 2D</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>flat_event <span class="op">=</span> {</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;event_id&quot;</span>: doc.get(<span class="st">&quot;_id&quot;</span>),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;scan_code&quot;</span>: doc.get(<span class="st">&quot;scan_code&quot;</span>),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;vendor_id&quot;</span>: doc.get(<span class="st">&quot;dispensary&quot;</span>, {}).get(<span class="st">&quot;vendor_id&quot;</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;vendor_name&quot;</span>: doc.get(<span class="st">&quot;dispensary&quot;</span>, {}).get(<span class="st">&quot;name&quot;</span>),</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;city&quot;</span>: doc.get(<span class="st">&quot;dispensary&quot;</span>, {}).get(<span class="st">&quot;geo&quot;</span>, {}).get(<span class="st">&quot;city&quot;</span>),</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;price_paid&quot;</span>: doc.get(<span class="st">&quot;transaction&quot;</span>, {}).get(<span class="st">&quot;amount&quot;</span>),</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;currency&quot;</span>: doc.get(<span class="st">&quot;transaction&quot;</span>, {}).get(<span class="st">&quot;currency&quot;</span>, <span class="st">&quot;INR&quot;</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div></li>
+</ul>
+<hr />
+<h3 id="challenge-03-semantic-scientific-unit-heterogeneity">Challenge
+03: Semantic &amp; Scientific Unit Heterogeneity</h3>
+<ul>
+<li><p><strong>Theoretical Problem</strong>: Sensor telemetry uses
+different units of measure (<span
+class="math inline">\(^\circ\text{F}\)</span>, <span
+class="math inline">\(\text{K}\)</span>, <span
+class="math inline">\(^\circ\text{C}\)</span>); currency is logged in
+foreign currencies (USD, EUR, KES, INR); date formats vary (Unix Epoch,
+Gazette <code>DD/MM/YYYY</code>, ISO-8601).</p></li>
+<li><p><strong>Asali Implementation</strong>: <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/semantic_transformer.py">semantic_transformer.py</a>.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="at">@staticmethod</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalize_temperature(temp_val: Any, source_unit: <span class="bu">str</span> <span class="op">=</span> <span class="st">&quot;C&quot;</span>) <span class="op">-&gt;</span> Dict[<span class="bu">str</span>, Any]:</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> <span class="bu">float</span>(temp_val)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    unit <span class="op">=</span> source_unit.strip().upper()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> unit <span class="kw">in</span> (<span class="st">&quot;F&quot;</span>, <span class="st">&quot;FAHRENHEIT&quot;</span>):</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        celsius <span class="op">=</span> (val <span class="op">-</span> <span class="fl">32.0</span>) <span class="op">*</span> <span class="fl">5.0</span> <span class="op">/</span> <span class="fl">9.0</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> unit <span class="kw">in</span> (<span class="st">&quot;K&quot;</span>, <span class="st">&quot;KELVIN&quot;</span>):</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        celsius <span class="op">=</span> val <span class="op">-</span> <span class="fl">273.15</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        celsius <span class="op">=</span> val</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">&quot;value_celsius&quot;</span>: <span class="bu">round</span>(celsius, <span class="dv">2</span>), <span class="st">&quot;canonical_unit&quot;</span>: <span class="st">&quot;C&quot;</span>}</span></code></pre></div></li>
+</ul>
+<hr />
+<h3
+id="challenge-04-multi-metric-fuzzy-entity-resolution-ocr-jitter">Challenge
+04: Multi-Metric Fuzzy Entity Resolution &amp; OCR Jitter</h3>
+<ul>
+<li><p><strong>Theoretical Problem</strong>: Optical scanners swap
+glyphs (<code>O</code> <span
+class="math inline">\(\leftrightarrow\)</span> <code>0</code>,
+<code>I</code> <span class="math inline">\(\leftrightarrow\)</span>
+<code>1</code>); pharmacists make spelling typos
+(<code>"Novamax 500"</code> vs <code>"Novamox 500"</code>;
+<code>"Pasyamol"</code> vs <code>"Paracetamol"</code>).</p></li>
+<li><p><strong>Asali Implementation</strong>: <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/entity_resolver.py">entity_resolver.py</a>
+and <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/identifier_normalizer.py">identifier_normalizer.py</a>.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Optical Glyph Substitution</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>OCR_SUBSTITUTIONS <span class="op">=</span> {<span class="st">&#39;O&#39;</span>: <span class="st">&#39;0&#39;</span>, <span class="st">&#39;I&#39;</span>: <span class="st">&#39;1&#39;</span>, <span class="st">&#39;l&#39;</span>: <span class="st">&#39;1&#39;</span>, <span class="st">&#39;Z&#39;</span>: <span class="st">&#39;2&#39;</span>, <span class="st">&#39;S&#39;</span>: <span class="st">&#39;5&#39;</span>, <span class="st">&#39;B&#39;</span>: <span class="st">&#39;8&#39;</span>}</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Multi-Metric Similarity Fusion (Fellegi-Sunter Paradigm)</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>sim <span class="op">=</span> <span class="fl">0.50</span> <span class="op">*</span> jaro_winkler(s1, s2) <span class="op">+</span> <span class="fl">0.35</span> <span class="op">*</span> levenshtein_ratio(s1, s2) <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> soundex_match(s1, s2)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> sim <span class="op">&gt;=</span> <span class="fl">0.72</span>:</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResolutionMatch(canonical_code<span class="op">=</span>catalog_key, confidence<span class="op">=</span>sim)</span></code></pre></div></li>
+</ul>
+<hr />
+<h3
+id="challenge-05-declarative-conflict-arbitration-contradictions">Challenge
+05: Declarative Conflict Arbitration &amp; Contradictions</h3>
+<ul>
+<li><p><strong>Theoretical Problem</strong>: Independent databases
+assert contradicting facts for the exact same item.</p></li>
+<li><p><strong>Asali Implementation</strong>: <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/conflict_resolver.py">conflict_resolver.py</a>
+enforces declarative precedence policies.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Authority Precedence Policy: Government blacklist strictly overrules manufacturer claim</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> db4_blacklisted <span class="kw">and</span> <span class="kw">not</span> db3_recalled:</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    conflicts.append(ConflictResolutionEntry(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        conflict_type<span class="op">=</span><span class="st">&quot;RECALL_AUTHORITY_CONTRADICTION&quot;</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        winning_source<span class="op">=</span><span class="st">&quot;DB4_MINISTRY_OF_CONSUMER_AFFAIRS&quot;</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        governing_policy<span class="op">=</span><span class="st">&quot;STATUTORY_DOMINANCE_POLICY&quot;</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        arbitrated_value<span class="op">=</span>{<span class="st">&quot;is_recalled&quot;</span>: <span class="va">True</span>, <span class="st">&quot;action&quot;</span>: <span class="st">&quot;IMMEDIATE_SEIZURE&quot;</span>}</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    ))</span></code></pre></div></li>
+</ul>
+<hr />
+<h3
+id="challenge-06-cap-theorem-network-partition-circuit-breakers">Challenge
+06: CAP Theorem, Network Partition &amp; Circuit Breakers</h3>
+<ul>
+<li><p><strong>Theoretical Problem</strong>: In a distributed
+deployment, physical cables disconnect or remote cloud containers crash.
+A naive mediator hangs or throws HTTP 500 errors.</p></li>
+<li><p><strong>Asali Implementation</strong>: Circuit breakers with
+dynamic penalty degradation in <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/api/verify_item.py">api/verify_item.py</a>
+and <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/wrappers/rest_wrapper.py">rest_wrapper.py</a>.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> urllib.request.urlopen(req, timeout<span class="op">=</span><span class="fl">1.5</span>) <span class="im">as</span> resp:</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> json.loads(resp.read())</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> (urllib.error.URLError, <span class="pp">TimeoutError</span>):</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Trip circuit breaker, fall back gracefully to local snapshot</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    circuit_breaker.trip(<span class="st">&quot;PC1_NODE&quot;</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Penalize evidence completeness rather than crashing</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    evidence_completeness <span class="op">-=</span> <span class="dv">25</span>  <span class="co"># Missing 1 of 4 database witnesses</span></span></code></pre></div></li>
+</ul>
+<hr />
+<h3 id="challenge-07-schema-evolution-gs1-digital-link-drift">Challenge
+07: Schema Evolution &amp; GS1 Digital Link Drift</h3>
+<ul>
+<li><p><strong>Theoretical Problem</strong>: Remote nodes upgrade
+schemas asynchronously. When PC1 upgrades from Schema v1.0 (flat JSON)
+to Schema v2.0 (GS1 Digital Link URI <code>/01/gtin/21/serial</code>,
+minor-unit pricing, and GLN codes), static pipelines fail.</p></li>
+<li><p><strong>Asali Implementation</strong>: <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/schema_adapter.py">schema_adapter.py</a>.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adapt_retail_scan(doc: Dict[<span class="bu">str</span>, Any]) <span class="op">-&gt;</span> Dict[<span class="bu">str</span>, Any]:</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">&quot;digital_link_uri&quot;</span> <span class="kw">in</span> doc:</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extract serial from GS1 Digital Link regex</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        match <span class="op">=</span> re.search(<span class="vs">r&quot;/21/</span><span class="kw">(</span><span class="pp">[A-Z0-9</span><span class="ch">\-</span><span class="pp">]</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>, doc[<span class="st">&quot;digital_link_uri&quot;</span>])</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        doc[<span class="st">&quot;item_code&quot;</span>] <span class="op">=</span> match.group(<span class="dv">1</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Convert ISO-4217 minor currency units (4800 paise -&gt; 48.00 INR)</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        doc[<span class="st">&quot;price_paid&quot;</span>] <span class="op">=</span> doc[<span class="st">&quot;transaction_pricing&quot;</span>][<span class="st">&quot;amount_gross&quot;</span>] <span class="op">/</span> <span class="fl">100.0</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> doc</span></code></pre></div></li>
+</ul>
+<hr />
+<h3
+id="challenge-08-transitive-multi-database-identity-graph-disjoint-silos">Challenge
+08: Transitive Multi-Database Identity Graph (Disjoint Silos)</h3>
+<ul>
+<li><strong>Theoretical Problem</strong>: Autonomous enterprise
+databases share <strong>no universal primary key</strong>.
+<ul>
+<li><strong>DB1 (POS)</strong>: Keys by
+<code>scan_code: "MED-ASALI-001"</code>.</li>
+<li><strong>DB2 (ERP)</strong>: Keys by
+<code>batch_id: "BATCH-A001"</code> and
+<code>distributor_id</code>.</li>
+<li><strong>DB3 (CDSCO)</strong>: Keys by <code>product_uid</code> and
+generic formula.</li>
+<li><strong>DB4 (Ministry)</strong>: Keys by
+<code>complaint_item_ref</code>.</li>
+</ul></li>
+</ul>
+<pre class="mermaid"><code>flowchart LR
+    subgraph QueryInput[&quot;User / Inspector Query&quot;]
+        Q[&quot;Input Key:&lt;br/&gt;&lt;code&gt;BATCH-A001&lt;/code&gt;&lt;br/&gt;&lt;i&gt;(Distributor Batch ID)&lt;/i&gt;&quot;]
+    end
+
+    subgraph DisjointSilos[&quot;Disjoint Heterogeneous Enterprise Silos&quot;]
+        direction TB
+        DB2_NODE[&quot;&lt;b&gt;DB2: Logistics ERP&lt;/b&gt;&lt;br/&gt;Primary Key: &lt;code&gt;batch_id&lt;/code&gt;&lt;br/&gt;Matches: &lt;code&gt;batch_serial = &#39;MED-ASALI-001&#39;&lt;/code&gt;&quot;]
+        DB1_NODE[&quot;&lt;b&gt;DB1: Retail POS&lt;/b&gt;&lt;br/&gt;Primary Key: &lt;code&gt;scan_code&lt;/code&gt;&lt;br/&gt;Matches: &lt;code&gt;MED-ASALI-001&lt;/code&gt; (Apollo Bandra)&quot;]
+        DB3_NODE[&quot;&lt;b&gt;DB3: CDSCO Master&lt;/b&gt;&lt;br/&gt;Primary Key: &lt;code&gt;product_uid&lt;/code&gt;&lt;br/&gt;Matches: &lt;code&gt;MED-ASALI-001&lt;/code&gt; (Novamox 500mg)&quot;]
+        DB4_NODE[&quot;&lt;b&gt;DB4: Ministry INGRAM&lt;/b&gt;&lt;br/&gt;Primary Key: &lt;code&gt;complaint_item_ref&lt;/code&gt;&lt;br/&gt;Matches: &lt;code&gt;MED-ASALI-001&lt;/code&gt; (Forensic Lab Pass)&quot;]
+    end
+
+    subgraph GoldenRecord[&quot;Transitive In-Memory Graph Synthesis&quot;]
+        GRAPH[&quot;&lt;b&gt;Transitive Identity Resolver&lt;/b&gt;&lt;br/&gt;&lt;code&gt;entity_resolver.py&lt;/code&gt;&quot;]
+        GOLDEN[&quot;&lt;b&gt;Single Unified Golden Record&lt;/b&gt;&lt;br/&gt;Full Lineage: Mfg ➔ Logistics ➔ Retail ➔ Quality&quot;]
+    end
+
+    Q --&gt;|&quot;1. Lookup Batch ID&quot;| DB2_NODE
+    DB2_NODE --&gt;|&quot;2. Bridge via batch_serial&quot;| GRAPH
+    GRAPH --&gt;|&quot;3. Pivot Query&quot;| DB1_NODE
+    GRAPH --&gt;|&quot;4. Pivot Query&quot;| DB3_NODE
+    GRAPH --&gt;|&quot;5. Pivot Query&quot;| DB4_NODE
+    DB1_NODE &amp; DB3_NODE &amp; DB4_NODE --&gt; GOLDEN</code></pre>
+<ul>
+<li><p><strong>Asali Implementation</strong>: <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/entity_resolver.py#L220-L290">entity_resolver.py</a>.</p></li>
+<li><p><strong>Code</strong>:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> resolve_transitive_identity(query_key: <span class="bu">str</span>) <span class="op">-&gt;</span> Dict[<span class="bu">str</span>, Any]:</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 1: Query DB2 by Batch ID to find associated serial numbers</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    batch_records <span class="op">=</span> query_db2_by_batch(query_key)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    canonical_serial <span class="op">=</span> batch_records[<span class="dv">0</span>][<span class="st">&quot;batch_serial&quot;</span>]</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 2: Traverse in-memory transitive graph</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># BATCH_ID -&gt; SERIAL_CODE -&gt; PRODUCT_UID -&gt; DOSSIER</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;canonical_id&quot;</span>: canonical_serial,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;linkage_path&quot;</span>: [<span class="st">&quot;DB2_BATCH_ID&quot;</span>, <span class="st">&quot;DB1_SERIAL_CODE&quot;</span>, <span class="st">&quot;DB3_PRODUCT_UID&quot;</span>],</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;golden_record&quot;</span>: synthesize_golden_record(canonical_serial)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div></li>
+</ul>
+<hr />
+<h1 id="cryptographic-immutable-audit-chain">11. Cryptographic Immutable
+Audit Chain</h1>
+<p>To guarantee that corrupt actors cannot alter past verification logs,
+Asali includes a built-in cryptographic audit ledger in <a
+href="file:///Users/sayan/Sayan/Study/IIA/Project2_Asali_Nakali/integration/audit_chain.py">integration/audit_chain.py</a>.</p>
+<h3 id="block-structure-databasesaudit_chain.sqlite">Block Structure
+(<code>databases/audit_chain.sqlite</code>):</h3>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> <span class="cf">IF</span> <span class="kw">NOT</span> <span class="kw">EXISTS</span> audit_blocks (</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    block_index   <span class="dt">INTEGER</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span> AUTOINCREMENT,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">timestamp</span>     TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    item_code     TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    verdict       TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    trust_score   <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    db_sources    TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    prev_hash     TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    block_hash    TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<h3 id="cryptographic-chaining-formula">Cryptographic Chaining
+Formula:</h3>
+<p><span class="math display">\[\text{block\_hash} =
+\text{SHA-256}\Big(\text{index} \,\|\, \text{timestamp} \,\|\,
+\text{item\_code} \,\|\, \text{verdict} \,\|\, \text{trust\_score}
+\,\|\, \text{prev\_hash}\Big)\]</span></p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Block0[&quot;Block #0 (Genesis)&quot;]
+        direction TB
+        B0_H[&quot;&lt;b&gt;Block Hash:&lt;/b&gt;&lt;br/&gt;&lt;code&gt;3a7f...e91c&lt;/code&gt;&quot;]
+        B0_P[&quot;&lt;b&gt;Prev Hash:&lt;/b&gt;&lt;br/&gt;&lt;code&gt;0000000000000000&lt;/code&gt;&quot;]
+        B0_D[&quot;Data: Genesis Block&quot;]
+    end
+
+    subgraph Block1[&quot;Block #1 (Inspection)&quot;]
+        direction TB
+        B1_H[&quot;&lt;b&gt;Block Hash:&lt;/b&gt;&lt;br/&gt;&lt;code&gt;d812...4fa2&lt;/code&gt;&quot;]
+        B1_P[&quot;&lt;b&gt;Prev Hash:&lt;/b&gt;&lt;br/&gt;&lt;code&gt;3a7f...e91c&lt;/code&gt;&quot;]
+        B1_D[&quot;Item: MED-ASALI-001&lt;br/&gt;Verdict: ASALI (100)&quot;]
+    end
+
+    subgraph Block2[&quot;Block #2 (Inspection)&quot;]
+        direction TB
+        B2_H[&quot;&lt;b&gt;Block Hash:&lt;/b&gt;&lt;br/&gt;&lt;code&gt;9c41...b730&lt;/code&gt;&quot;]
+        B2_P[&quot;&lt;b&gt;Prev Hash:&lt;/b&gt;&lt;br/&gt;&lt;code&gt;d812...4fa2&lt;/code&gt;&quot;]
+        B2_D[&quot;Item: MED-NAKALI-001&lt;br/&gt;Verdict: NAKALI (0)&quot;]
+    end
+
+    subgraph TamperAlert[&quot;Tamper Detection (verify_integrity)&quot;]
+        ALERT[&quot;⚠️ Modifying historical row 1 alters its SHA-256,&lt;br/&gt;instantly breaking Block 2&#39;s prev_hash pointer!&quot;]
+    end
+
+    Block0 --&gt;|&quot;prev_hash&quot;| Block1
+    Block1 --&gt;|&quot;prev_hash&quot;| Block2
+    Block2 -.-&gt; TamperAlert</code></pre>
+<p>If a single row is modified or deleted by an attacker,
+<code>verify_chain_integrity()</code> detects the broken hash pointer
+and alerts administrators.</p>
+<hr />
+<h1 id="frontend-architecture-tactile-ceramic-ui-system">12. Frontend
+Architecture &amp; Tactile Ceramic UI System</h1>
+<p>The user interface is built strictly in <strong>Vanilla HTML5,
+Vanilla JavaScript, and Tailwind CSS</strong>, adhering to high-end
+design aesthetics:</p>
+<ol type="1">
+<li><strong>Zero Component Borders</strong>:
+<ul>
+<li>Strict removal of artificial hairline borders
+(<code>border border-black/[0.04]</code>), preventing cluttered
+wireframe aesthetics.</li>
+</ul></li>
+<li><strong>Small Minimal Tactile Shadows</strong>:
+<ul>
+<li><p>Custom layered drop shadows:</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>box-shadow<span class="in">:</span> 0 2px 8px -1px rgba<span class="in">(</span>0<span class="op">,</span> 0<span class="op">,</span> 0<span class="op">,</span> 0<span class="fu">.07</span><span class="in">)</span><span class="op">,</span> 0 1px 3px rgba<span class="in">(</span>0<span class="op">,</span> 0<span class="op">,</span> 0<span class="op">,</span> 0<span class="fu">.04</span><span class="in">)</span>;</span></code></pre></div></li>
+<li><p><strong>Grounding Layer (<code>0 1px 3px</code>)</strong>:
+Provides razor-sharp edge definition separating cards from white/gray
+surfaces.</p></li>
+<li><p><strong>Ambient Lift (<code>0 2px 8px</code>)</strong>: Subtle
+downward elevation with negative spread choke to prevent blurry
+halos.</p></li>
+<li><p><strong>Hover Lift
+(<code>hover:shadow-[0_6px_16px_-2px_rgba(0,0,0,0.1),0_2px_5px_rgba(0,0,0,0.04)]</code>)</strong>:
+Interactive elevation.</p></li>
+</ul></li>
+<li><strong>Octane / Blender 3D Ceramic Art</strong>:
+<ul>
+<li>Dedicated 3D dioramas for all 8 challenges
+(e.g. <code>challenge4_fuzzy_3d.png</code>,
+<code>challenge8_nanobanana_3d.png</code>).</li>
+</ul></li>
+<li><strong>Interactive Verification Pipeline</strong>:
+<ul>
+<li>4-step status progress indicator (<code>Barcode</code> <span
+class="math inline">\(\to\)</span> <code>Cold-Chain</code> <span
+class="math inline">\(\to\)</span> <code>Manufacturer</code> <span
+class="math inline">\(\to\)</span> <code>Ministry</code>).</li>
+<li>Radial SVG Trust Gauge (<span class="math inline">\(0\)</span> to
+<span class="math inline">\(100\)</span>).</li>
+<li>Live distributed topology console displaying real-time latencies
+across Node PC1 and Node PC2.</li>
+</ul></li>
+</ol>
+<hr />
+<h1 id="step-by-step-execution-verification-viva-cheat-sheet">13.
+Step-by-Step Execution, Verification &amp; Viva Cheat-Sheet</h1>
+<h3 id="initialize-the-environment">1. Initialize the Environment</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Create all 4 SQLite database schemas</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> create_databases.py</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Seed relational databases</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> data/seed_db3.py  <span class="co"># Manufacturer catalog</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> data/seed_db2.py  <span class="co"># Distributor logistics</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> data/seed_db1.py  <span class="co"># Retail POS scans</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> data/seed_db4.py  <span class="co"># Ministry grievance reports</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Seed NoSQL document store</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> data/seed_nosql_db1.py</span></code></pre></div>
+<h3 id="run-the-web-dashboard">2. Run the Web Dashboard</h3>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> http.server 8000 <span class="at">--directory</span> dashboard</span></code></pre></div>
+<p>Open: <a
+href="http://localhost:8000/index.html">http://localhost:8000/index.html</a>
+or <a
+href="http://localhost:8000/verify.html">http://localhost:8000/verify.html</a>.</p>
+<h3 id="run-distributed-multi-pc-cluster">3. Run Distributed Multi-PC
+Cluster</h3>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/run_cluster.py</span></code></pre></div>
+<h3 id="cli-verification-commands">4. CLI Verification Commands</h3>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify a genuine medicine</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> api/verify_item.py MED-ASALI-001</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify a counterfeit medicine (triggers Tier-1 Hard Veto)</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> api/verify_item.py MED-NAKALI-001</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify a recalled batch</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> api/verify_item.py MED-RECALL-001</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify with automated HTML report generation</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> api/verify_item.py <span class="at">--report</span> MED-ASALI-001</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify cryptographic audit chain integrity</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> api/verify_item.py <span class="at">--audit</span></span></code></pre></div>
+<hr />
+<h2 id="the-top-5-questions-you-will-be-asked-in-a-viva-exam">The Top 5
+Questions You Will Be Asked in a Viva / Exam</h2>
+<h4
+id="q1-what-is-the-difference-between-gav-global-as-view-and-lav-local-as-view-why-did-you-pick-gav">Q1:
+What is the difference between GAV (Global-as-View) and LAV
+(Local-as-View)? Why did you pick GAV?</h4>
+<ul>
+<li><strong>Answer</strong>: In <strong>GAV</strong>, the global schema
+is defined as a view or query over the underlying source tables (<span
+class="math inline">\(G = V(S)\)</span>). Query unfolding is
+straightforward because the mediator knows exactly which subquery to
+send to which source. In <strong>LAV</strong>, each local source is
+defined as a view over the global schema (<span class="math inline">\(S
+= V(G)\)</span>), which requires complex query rewriting algorithms
+(like the Bucket Algorithm). Since pharmaceutical registries have stable
+global concepts (manufacturer, batch, scan, alert), GAV provides
+deterministic, low-latency unfolding.</li>
+</ul>
+<h4
+id="q2-what-is-the-subtractive-scoring-paradox-and-how-did-you-solve-it">Q2:
+What is the Subtractive Scoring Paradox and how did you solve it?</h4>
+<ul>
+<li><strong>Answer</strong>: In additive/subtractive systems, a drug
+starts at 100 points and loses points per failure. A completely fake
+drug that was never registered by any manufacturer might only lose 40
+points, scoring 60 points (“Suspicious”). This is unacceptable in
+healthcare. We solved it with a <strong>Two-Tier Hybrid
+Architecture</strong>: Tier-1 executes 5 deterministic Hard Veto Gates
+(<code>V1_PHANTOM_SERIAL</code>, <code>V2_MINISTRY_BLACKLIST</code>,
+etc.). If any gate triggers, the score is forced to <span
+class="math inline">\(0\)</span> and verdict to <code>NAKALI</code>
+immediately, completely bypassing soft scoring.</li>
+</ul>
+<h4
+id="q3-how-do-you-link-records-when-databases-share-no-universal-primary-key-the-airtel-disjoint-silos-case">Q3:
+How do you link records when databases share no universal primary key?
+(The Airtel / Disjoint Silos Case)</h4>
+<ul>
+<li><strong>Answer</strong>: Real-world silos (POS vs ERP vs CDSCO) do
+not share keys. Asali builds an in-memory <strong>Transitive
+Multi-Database Identity Graph</strong> in
+<code>entity_resolver.py</code>. It uses secondary keys to bridge silos:
+querying DB2 by <code>batch_id</code> yields <code>batch_serial</code>,
+which bridges to DB1’s <code>scan_code</code> and DB3’s
+<code>product_uid</code>. Combined with Fellegi-Sunter probabilistic
+matching (<span class="math inline">\(0.72\)</span> threshold), it
+synthesizes a single unified Golden Record.</li>
+</ul>
+<h4
+id="q4-how-does-your-system-handle-network-partition-cap-theorem">Q4:
+How does your system handle network partition (CAP Theorem)?</h4>
+<ul>
+<li><strong>Answer</strong>: When a physical LAN cable disconnects or a
+remote node drops, a naive mediator hangs or throws a 500 error. Asali
+implements a <strong>Circuit Breaker</strong> pattern in
+<code>rest_wrapper.py</code> and <code>verify_item.py</code>. When a
+node fails to respond within <span class="math inline">\(1.5\text{
+seconds}\)</span>, the mediator marks the node <code>OFFLINE</code>,
+falls back to local cached snapshots, and transparently penalizes the
+<code>evidence_completeness</code> percentage rather than crashing the
+user session.</li>
+</ul>
+<h4
+id="q5-how-do-you-prove-that-past-audit-records-were-not-altered-by-a-corrupt-employee">Q5:
+How do you prove that past audit records were not altered by a corrupt
+employee?</h4>
+<ul>
+<li><strong>Answer</strong>: Every verification event is appended to
+<code>databases/audit_chain.sqlite</code> as a cryptographic block. Each
+block contains a SHA-256 hash calculated over the current inspection
+details concatenated with the <code>prev_hash</code> of the previous
+block. Modifying any historical row breaks the hash chain, which is
+instantly detected by
+<code>audit_chain.py:verify_integrity()</code>.</li>
+</ul>
+<hr />
+<p><em>Document compiled and verified for the Asali / Nakali Information
+Integration &amp; Architecture (IIA) Project.</em></p>
+
+  </div>
+
+</div>
+
+<!-- Prism JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+<script>
+window.__PDF_READY__ = false;
+
+async function prepareAndRender() {
+  console.log("Preparing DOM for rendering...");
+
+  // 1. Remove duplicate H1 and H2 rendered by pandoc right after cover
+  const firstH1 = document.querySelector('.content-body > h1:first-of-type');
+  if (firstH1 && firstH1.textContent.includes('ASALI')) {
+    firstH1.style.display = 'none';
+    const firstH2 = firstH1.nextElementSibling;
+    if (firstH2 && firstH2.tagName === 'H2') firstH2.style.display = 'none';
+    const hr = firstH2 ? firstH2.nextElementSibling : null;
+    if (hr && hr.tagName === 'HR') hr.style.display = 'none';
+  }
+
+  // 2. Transform pre.mermaid to div.mermaid wrapped in card
+  document.querySelectorAll('pre.mermaid').forEach((pre) => {
+    const codeEl = pre.querySelector('code');
+    const rawText = codeEl ? codeEl.textContent : pre.textContent;
+    
+    const card = document.createElement('div');
+    card.className = 'mermaid-card';
+    
+    const div = document.createElement('div');
+    div.className = 'mermaid';
+    div.textContent = rawText;
+    
+    card.appendChild(div);
+    pre.parentNode.replaceChild(card, pre);
+  });
+
+  // 3. Wrap Q1-Q5 Viva in styled cards
+  document.querySelectorAll('h4').forEach(h4 => {
+    if (h4.textContent.startsWith('Q1:') || h4.textContent.startsWith('Q2:') || 
+        h4.textContent.startsWith('Q3:') || h4.textContent.startsWith('Q4:') || 
+        h4.textContent.startsWith('Q5:')) {
+      const nextUl = h4.nextElementSibling;
+      if (nextUl && nextUl.tagName === 'UL') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'viva-box';
+        h4.parentNode.insertBefore(wrapper, h4);
+        wrapper.appendChild(h4);
+        wrapper.appendChild(nextUl);
+      }
+    }
+  });
+
+  // 4. Initialize Mermaid with publication palette
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#e0f2fe',
+      primaryTextColor: '#0369a1',
+      primaryBorderColor: '#0284c7',
+      lineColor: '#64748b',
+      secondaryColor: '#f1f5f9',
+      tertiaryColor: '#f8fafc',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '13px'
+    },
+    flowchart: { curve: 'basis', htmlLabels: true, useMaxWidth: true }
+  });
+
+  // 5. Run Mermaid
+  console.log("Running Mermaid diagrams...");
+  try {
+    await mermaid.run();
+  } catch (err) {
+    console.error("Mermaid error:", err);
+  }
+
+  // 6. Typeset MathJax
+  console.log("Typesetting MathJax...");
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    try {
+      await window.MathJax.typesetPromise();
+    } catch (err) {
+      console.error("MathJax error:", err);
+    }
+  }
+
+  // 7. Highlight code blocks with Prism
+  if (window.Prism) {
+    window.Prism.highlightAll();
+  }
+
+  // 8. Signal readiness
+  setTimeout(() => {
+    window.__PDF_READY__ = true;
+    console.log("ALL RENDER PHASES COMPLETED! Ready for Chrome PDF engine.");
+  }, 1000);
+}
+
+window.addEventListener('DOMContentLoaded', prepareAndRender);
+</script>
+
+</body>
+</html>

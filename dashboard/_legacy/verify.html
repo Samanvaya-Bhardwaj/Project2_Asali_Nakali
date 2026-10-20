@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Medicine - Asali</title>
+  <meta name="description" content="Verify pharmaceutical authenticity across manufacturer, logistics, and retail records.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=8">
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .score-circle-bar {
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
+    }
+  </style>
+</head>
+<body class="bg-[#F8F8FA] text-black antialiased min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
+
+  <!-- TOP NAVIGATION: Polished frosted glass header -->
+  <header class="w-full bg-[#F8F8FA]/85 backdrop-blur-xl sticky top-0 z-50 transition-all shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
+    <div class="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- Standalone Geometric 4-Fold Emblem Logo -->
+      <a href="index.html" class="flex items-center gap-3 group">
+        <svg class="w-7 h-7 text-black transition-transform duration-300 group-hover:rotate-45" viewBox="0 0 256 256" fill="currentColor">
+          <path d="M 128.005 191.173 C 128.448 156.208 156.93 128 192 128 L 192 64 L 128 64 C 128 99.346 99.346 128 64 128 L 64 192 L 128 192 Z M 192 256 L 64 256 C 28.654 256 0 227.346 0 192 L 0 64 L 64 64 L 64 0 L 192 0 C 227.346 0 256 28.654 256 64 L 256 192 L 192 192 Z"/>
+        </svg>
+        <span class="text-2xl font-medium tracking-tight text-black font-tight leading-none">Asali</span>
+      </a>
+
+      <nav class="flex items-center gap-6 sm:gap-8">
+        <a href="index.html#how-it-works" class="hidden sm:inline-block text-sm text-black/60 hover:text-black transition-colors font-medium">How it works</a>
+        <a href="index.html#challenges" class="hidden sm:inline-block text-sm text-black/60 hover:text-black transition-colors font-medium">Challenges</a>
+        <a href="explorer.html" class="hidden sm:inline-block text-sm text-black/60 hover:text-black transition-colors font-medium">DB Explorer</a>
+        <a href="index.html" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-xs font-medium text-black/80 hover:text-black shadow-sm hover:shadow transition-all group">
+          <svg class="w-3.5 h-3.5 text-black/50 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span>Overview</span>
+        </a>
+      </nav>
+    </div>
+    <!-- Multi-stop blurred gradient edge -->
+    <div class="h-6 w-full bg-gradient-to-b from-[#F8F8FA] to-transparent pointer-events-none -mb-6"></div>
+  </header>
+
+  <!-- MAIN CONTAINER (Refined ceramic spacing) -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+    <!-- PAGE TITLE SECTION -->
+    <div class="mb-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 text-[11px] font-semibold text-black/70 mb-3">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+        <span>Asali Verification Engine</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-black">Verify medication</h1>
+      <p class="text-sm text-black/60 mt-2 max-w-xl leading-relaxed">
+        Enter the serial code or choose a sample scenario to inspect manufacturer registration, batch validity, and supply chain origin.
+      </p>
+    </div>
+
+    <!-- SEARCH & TEST PILLS CARD (BORDERLESS WITH SOFT SHADOW) -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      
+      <!-- Tactile Search Input Bar (Borderless with subtle shadow) -->
+      <div class="bg-[#F3F3F6] focus-within:bg-white focus-within:ring-4 focus-within:ring-black/[0.04] rounded-full p-2 pl-5 flex items-center gap-3 transition-all duration-200 shadow-sm">
+        <svg class="w-4 h-4 text-black/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input 
+          id="itemCodeInput" 
+          type="text" 
+          value="MED-ASALI-001" 
+          placeholder="Enter product code (e.g. MED-ASALI-001)" 
+          class="w-full bg-transparent text-sm text-black placeholder-black/35 focus:outline-none"
+        >
+        <span class="hidden sm:inline-block px-2 py-0.5 rounded-md bg-black/[0.05] text-[10px] font-mono text-black/40">↵ Enter</span>
+        <button 
+          id="btnSearch" 
+          onclick="handleManualVerify()" 
+          class="px-6 py-2.5 rounded-full bg-black text-white text-xs font-medium hover:bg-neutral-800 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer shrink-0"
+        >
+          Verify
+        </button>
+      </div>
+
+      <!-- Test Scenarios / Samples (Borderless tactile pills) -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-black/50">Pre-loaded test scenarios:</span>
+          <span class="text-xs text-black/40">1-click automated verification</span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button 
+            onclick="loadScenario('MED-ASALI-001')" 
+            data-code="MED-ASALI-001"
+            class="scenario-pill active px-4 py-2 rounded-full text-xs font-medium bg-black text-white shadow-sm transition-all cursor-pointer"
+          >
+            Cipla Novamox 500mg (Genuine Baseline)
+          </button>
+          <button 
+            onclick="loadScenario('MED-ASALI-002')" 
+            data-code="MED-ASALI-002"
+            class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+          >
+            Barcode Cloning (MED-ASALI-002)
+          </button>
+          <button 
+            onclick="loadScenario('MED-RECALL-001')" 
+            data-code="MED-RECALL-001"
+            class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+          >
+            Toxic Contamination (MED-RECALL-001)
+          </button>
+          <button 
+            onclick="loadScenario('MED-UNAUTH-001')" 
+            data-code="MED-UNAUTH-001"
+            class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+          >
+            Black Market Diversion (MED-UNAUTH-001)
+          </button>
+          <button 
+            onclick="loadScenario('MED-ASALI-009')" 
+            data-code="MED-ASALI-009"
+            class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+          >
+            Cold-Chain Failure (MED-ASALI-009)
+          </button>
+          <button 
+            onclick="loadScenario('MED-NAKALI-001')" 
+            data-code="MED-NAKALI-001"
+            class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+          >
+            Phantom Fake (MED-NAKALI-001)
+          </button>
+        </div>
+
+        <!-- Multi-Attribute Identity Resolution (Transitive & Probabilistic Linkage) -->
+        <div class="mt-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-black/50">Multi-Attribute Identity Resolution (Transitive & Probabilistic Linkage):</span>
+            <span class="text-xs text-black/40">Cross-silo record linkage</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button 
+              onclick="loadScenario('BATCH-A001')" 
+              data-code="BATCH-A001"
+              class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+            >
+              Batch ID: BATCH-A001 (Transitive Graph)
+            </button>
+            <button 
+              onclick="loadScenario('Novamax 500')" 
+              data-code="Novamax 500"
+              class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+            >
+              Brand Typo: "Novamax 500" (Jaro-Winkler)
+            </button>
+            <button 
+              onclick="loadScenario('Pasyamol 500')" 
+              data-code="Pasyamol 500"
+              class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+            >
+              Phonetic Typo: "Pasyamol" (Soundex P254)
+            </button>
+            <button 
+              onclick="loadScenario('MED-ASALI-0O1')" 
+              data-code="MED-ASALI-0O1"
+              class="scenario-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/75 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer"
+            >
+              Scanner Noise: MED-ASALI-0O1 (OCR Fix)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-STEP VERIFICATION PROGRESS PIPELINE -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-4 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-black/50">Verification progress pipeline</span>
+        <span class="text-xs text-black/40">Response time: 38ms</span>
+      </div>
+
+      <!-- 4 Equal-Height Steps with Connected Visual Hierarchy -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-stretch">
+        
+        <!-- Step 1: Barcode format -->
+        <div id="step1Node" class="h-16 p-3.5 rounded-2xl bg-[#F7F7F9] flex items-center gap-3 transition-all duration-200">
+          <span class="w-7 h-7 rounded-full bg-[#0A291A] text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">1</span>
+          <div class="min-w-0">
+            <span class="text-xs font-semibold text-black block truncate">Barcode</span>
+            <span class="text-[11px] text-black/50 block truncate">Valid 2D format</span>
+          </div>
+        </div>
+
+        <!-- Step 2: Database Registry (Dynamic Status) -->
+        <div id="step2Node" class="h-16 p-3.5 rounded-2xl bg-[#F7F7F9] flex items-center gap-3 transition-all duration-200">
+          <span id="step2Num" class="w-7 h-7 rounded-full bg-[#0A291A] text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">2</span>
+          <div class="min-w-0">
+            <span class="text-xs font-semibold text-black block truncate">Database</span>
+            <span id="step2Status" class="text-[11px] text-black/50 block truncate">Registry checked</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Integrity Logic (Dynamic status) -->
+        <div id="step3Node" class="h-16 p-3.5 rounded-2xl bg-[#F7F7F9] flex items-center gap-3 transition-all duration-200">
+          <span id="step3Num" class="w-7 h-7 rounded-full bg-[#0A291A] text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">3</span>
+          <div class="min-w-0">
+            <span class="text-xs font-semibold text-black block truncate">Integrity</span>
+            <span id="step3Status" class="text-[11px] text-black/50 block truncate">No veto triggered</span>
+          </div>
+        </div>
+
+        <!-- Step 4: Digital Receipt (Dynamic status) -->
+        <div id="step4Node" class="h-16 p-3.5 rounded-2xl bg-[#F7F7F9] flex items-center gap-3 transition-all duration-200">
+          <span id="step4Num" class="w-7 h-7 rounded-full bg-[#0A291A] text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">4</span>
+          <div class="min-w-0">
+            <span class="text-xs font-semibold text-black block truncate">Receipt</span>
+            <span id="step4Status" class="text-[11px] text-black/50 block truncate">Digital stamp</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FUZZY ENTITY RESOLUTION NOTIFICATION BANNER -->
+    <div id="fuzzyResolutionBanner" class="hidden rounded-3xl p-5 bg-[#EFF6FF] text-[#1E40AF] transition-all shadow-[0_8px_24px_-4px_rgba(30,64,175,0.12)]">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-9 h-9 rounded-2xl bg-[#DBEAFE] text-[#1E40AF] flex items-center justify-center shrink-0 shadow-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold">Fuzzy Entity Resolution Applied</span>
+              <span id="fuzzyConfidenceBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-[#DBEAFE] text-[#1E40AF] font-medium">96% match</span>
+            </div>
+            <p id="fuzzyBannerText" class="text-xs text-[#1E40AF]/80 mt-0.5 leading-relaxed">
+              Noisy barcode input resolved to canonical product code via Jaro-Winkler string similarity and OCR typo correction.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC BACKEND DATABASE LOOKUP STATUS BANNER -->
+    <div id="backendStatusAlert" class="hidden rounded-3xl p-5 sm:p-6 transition-all bg-amber-50/80 shadow-[0_8px_24px_-4px_rgba(217,119,6,0.08)]">
+      <div class="flex items-start gap-4">
+        <div id="backendAlertIconContainer" class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span id="backendAlertBadge" class="text-[11px] px-2.5 py-0.5 rounded-full font-medium">
+              Backend Database Notice
+            </span>
+            <span id="backendAlertDbSource" class="text-xs text-black/50">DB3 CDSCO Central Registry</span>
+          </div>
+          <h3 id="backendAlertTitle" class="text-sm sm:text-base font-semibold text-black">
+            File Not Found in Backend
+          </h3>
+          <p id="backendAlertDesc" class="text-xs text-black/70 mt-1 leading-relaxed">
+            The queried serial number was checked against CDSCO manufacturer records, but no registration file or batch production entry exists in the backend database.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIMARY VERDICT CARD WITH REFINED CIRCULAR PROGRESS GAUGE -->
+    <div id="verdictCard" class="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-300">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        
+        <div class="flex items-start gap-4">
+          <div id="verdictIconContainer" class="w-16 h-16 rounded-2xl bg-[#DDEBE1] p-2 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+            <img src="images/asali_verified_3d.png" class="w-full h-full object-contain" alt="Verified Authentic">
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span id="verdictBadge" class="text-xs px-3 py-1 rounded-full font-semibold bg-[#DDEBE1] text-[#0A291A]">
+                Verified authentic
+              </span>
+              <span id="itemCodeDisplay" class="text-xs text-black/45 font-mono">MED-ASALI-001</span>
+            </div>
+            <h2 id="verdictTitle" class="text-2xl font-semibold text-black tracking-tight">Authentic medicine verified</h2>
+            <p id="verdictSubtitle" class="text-sm text-black/60 mt-1 leading-relaxed max-w-xl">
+              Safe for patient dispensation. Verified across manufacturer registry, authorized cold-chain logistics, and licensed dispensary records.
+            </p>
+          </div>
+        </div>
+
+        <!-- Trust Score with Circular Progress Gauge -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-4 px-5 flex items-center gap-4 shrink-0 self-start md:self-auto shadow-sm">
+          <div class="relative w-14 h-14">
+            <svg class="w-14 h-14 -rotate-90" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="32" stroke-width="6" fill="none" stroke="#E5E7EB"/>
+              <circle id="gaugeCircle" class="score-circle-bar" cx="40" cy="40" r="32" stroke-width="6" fill="none"
+                      stroke="#0A291A" stroke-linecap="round"
+                      stroke-dasharray="201.06" stroke-dashoffset="0"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span id="gaugeScoreNum" class="text-base font-bold text-black tracking-tight">100</span>
+            </div>
+          </div>
+          <div>
+            <span class="text-[11px] text-black/45 block">Trust score</span>
+            <span id="trustScoreLabel" class="text-sm font-semibold text-black block">Genuine</span>
+            <span id="confidenceVal" class="text-[11px] text-black/50 block">70% confidence</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MEDICINE PACKAGING PREVIEW -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-4 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-black/50">Medicine packaging</span>
+        <span class="text-xs text-black/40">GS1 DataMatrix format</span>
+      </div>
+
+      <!-- Packaging Details & Barcode Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+        
+        <!-- Left: Medicine Details Box -->
+        <div class="md:col-span-2 p-6 rounded-2xl bg-[#F7F7F9] flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <div>
+            <div class="flex items-center justify-between gap-3">
+              <span id="packManufacturer" class="text-xs text-black/50 font-medium truncate">Cipla Ltd - Schedule H drug</span>
+              <span id="packSealBadge" class="text-xs px-3 py-1 rounded-full bg-[#DDEBE1] text-[#0A291A] font-semibold shrink-0">
+                Tamper seal intact
+              </span>
+            </div>
+
+            <div class="mt-4">
+              <h3 id="packBrand" class="text-2xl font-semibold text-black tracking-tight">Novamox 500mg</h3>
+              <p id="packGeneric" class="text-sm text-black/55 italic mt-0.5">Amoxycillin IP 500mg</p>
+            </div>
+          </div>
+
+          <!-- 4-Col Packaging Spec Row -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-5 bg-black/[0.02] p-4 rounded-xl">
+            <div>
+              <span class="text-[11px] text-black/40 block">Batch</span>
+              <span id="packBatch" class="text-xs font-semibold text-black block mt-0.5 truncate font-mono">BATCH-A001</span>
+            </div>
+            <div>
+              <span class="text-[11px] text-black/40 block">Manufactured</span>
+              <span id="packMfgDate" class="text-xs font-semibold text-black block mt-0.5 truncate font-mono">2025-01-15</span>
+            </div>
+            <div>
+              <span class="text-[11px] text-black/40 block">Expires</span>
+              <span id="packExpDate" class="text-xs font-semibold text-black block mt-0.5 truncate font-mono">2027-01-14</span>
+            </div>
+            <div>
+              <span class="text-[11px] text-black/40 block">Retail price</span>
+              <span id="packPrice" class="text-xs font-semibold text-black block mt-0.5 truncate font-mono">Rs. 115.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 2D DataMatrix Visual -->
+        <div class="p-6 rounded-2xl bg-[#F7F7F9] flex flex-col items-center justify-center text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <div class="w-24 h-24 bg-black rounded-2xl flex items-center justify-center p-3 shadow-sm">
+            <svg class="w-full h-full text-white" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="2" y="2" width="5" height="5" rx="1"/>
+              <rect x="17" y="2" width="5" height="5" rx="1"/>
+              <rect x="2" y="17" width="5" height="5" rx="1"/>
+              <rect x="9" y="4" width="2" height="2"/>
+              <rect x="13" y="4" width="2" height="2"/>
+              <rect x="4" y="9" width="2" height="2"/>
+              <rect x="4" y="13" width="2" height="2"/>
+              <rect x="9" y="9" width="6" height="6" rx="0.5"/>
+              <rect x="17" y="9" width="2" height="2"/>
+              <rect x="17" y="13" width="2" height="2"/>
+              <rect x="9" y="17" width="2" height="2"/>
+              <rect x="13" y="17" width="2" height="2"/>
+              <rect x="18" y="18" width="4" height="4" rx="0.5"/>
+            </svg>
+          </div>
+          <span id="barcodeCaption" class="text-xs font-semibold text-black mt-3 block font-mono">MED-ASALI-001</span>
+          <span class="text-[11px] text-black/40 block mt-0.5">2D barcode</span>
+        </div>
+
+      </div>
+
+      <!-- 4 Core Summary Indicators -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-stretch pt-2">
+        <div class="p-4 rounded-2xl bg-[#F7F7F9] flex flex-col justify-between h-20 hover:bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm transition-all">
+          <span class="text-[11px] text-black/40 block">Manufacturer</span>
+          <div>
+            <span id="metaManufacturer" class="text-xs font-semibold text-black block truncate">Cipla Ltd</span>
+            <span id="metaRegNo" class="text-[11px] text-black/45 block truncate font-mono">Reg: CDSCO/MFG/001/2020</span>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-[#F7F7F9] flex flex-col justify-between h-20 hover:bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm transition-all">
+          <span class="text-[11px] text-black/40 block">Batch and expiry</span>
+          <div>
+            <span id="metaBatch" class="text-xs font-semibold text-black block truncate">Batch BATCH-A001</span>
+            <span id="metaExpiry" class="text-[11px] text-black/45 block truncate font-mono">Expires 2027-01-14</span>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-[#F7F7F9] flex flex-col justify-between h-20 hover:bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm transition-all">
+          <span class="text-[11px] text-black/40 block">Distributor logistics</span>
+          <div>
+            <span id="metaDistributor" class="text-xs font-semibold text-black block truncate">Apollo Supply Chain Ltd</span>
+            <span id="metaColdChain" class="text-[11px] text-black/45 block truncate">Custody verified</span>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-[#F7F7F9] flex flex-col justify-between h-20 hover:bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm transition-all">
+          <span class="text-[11px] text-black/40 block">Dispensing pharmacy</span>
+          <div>
+            <span id="metaPharmacy" class="text-xs font-semibold text-black block truncate">Apollo Pharmacy</span>
+            <span id="metaPrice" class="text-[11px] text-black/45 block truncate font-mono">INR 230.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGULATORY ALERT NOTICE (Visible on counterfeit/recall) -->
+    <div id="regulatoryAlertCard" class="hidden bg-[#FEE2E2]/70 rounded-3xl p-6 sm:p-8 shadow-[0_8px_24px_-4px_rgba(220,38,38,0.12)]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-2xl bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-sm font-semibold text-black">Regulatory enforcement alert</h4>
+            <p id="regulatoryNoticeText" class="text-xs text-black/60 mt-1 leading-relaxed max-w-xl">
+              Item failed safety checks. An incident report has been generated for regulatory authorities.
+            </p>
+          </div>
+        </div>
+        
+        <button 
+          onclick="openDossierModal()" 
+          class="px-5 py-2.5 rounded-full bg-black text-white text-xs font-medium hover:bg-neutral-800 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer shrink-0 self-start sm:self-auto flex items-center gap-2"
+        >
+          <span>View regulatory report</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- DISTRIBUTED MULTI-PC & DOCKER MESH TOPOLOGY CONSOLE -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-semibold text-black tracking-tight">Network Deployment Architecture</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#0A291A]"></span>
+            <span class="text-[11px] text-black/45 font-medium">Distributed Topology</span>
+          </div>
+          <h3 class="text-lg font-semibold text-black tracking-tight">Distributed Multi-PC &amp; Docker Mesh Topology</h3>
+          <p class="text-xs text-black/50 mt-0.5">Supports deployment across 2 physical PCs on a LAN or isolated Docker containers with real-time HTTP health probing</p>
+        </div>
+        <button 
+          onclick="pingClusterNodes()" 
+          class="px-5 py-2.5 rounded-full bg-[#F7F7F9] text-xs font-medium text-black hover:bg-white hover:shadow-sm transition-all cursor-pointer shrink-0 self-start sm:self-auto"
+        >
+          Probe Cluster Nodes
+        </button>
+      </div>
+
+      <!-- 3-Node Network Strip with Status Lights -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <!-- Node 1: Edge Retail Node (PC 1) -->
+        <div class="p-4 rounded-2xl bg-[#F7F7F9] space-y-2 hover:bg-white transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-black font-mono">NODE 1 (Edge Node)</span>
+            <span id="topoPc1Badge" class="text-[10px] px-2 py-0.5 rounded-full bg-[#DDEBE1] text-[#0A291A] font-medium flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-700 pulse-online"></span>
+              <span>ONLINE</span>
+            </span>
+          </div>
+          <div class="text-xs font-semibold text-black">PC 1: Retail &amp; Logistics</div>
+          <div class="text-[11px] text-black/60 font-mono">
+            Endpoint: <span id="topoPc1Endpoint">http://127.0.0.1:8011</span><br>
+            Services: DB1 (NoSQL), DB2 (SQL)
+          </div>
+        </div>
+
+        <!-- Node 2: Central GAV Mediator -->
+        <div class="p-4 rounded-2xl bg-[#F7F7F9] space-y-2 hover:bg-white transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-black font-mono">NODE 2 (Mediator)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#DDEBE1] text-[#0A291A] font-medium flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-700 pulse-online"></span>
+              <span>ACTIVE</span>
+            </span>
+          </div>
+          <div class="text-xs font-semibold text-black">Central GAV Mediator &amp; Web</div>
+          <div class="text-[11px] text-black/60 font-mono">
+            Endpoint: http://127.0.0.1:8000<br>
+            Role: Query Unfolding &amp; Mediation
+          </div>
+        </div>
+
+        <!-- Node 3: Cloud Authority Node (PC 2) -->
+        <div class="p-4 rounded-2xl bg-[#F7F7F9] space-y-2 hover:bg-white transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-black font-mono">NODE 3 (Authority Cloud)</span>
+            <span id="topoPc2Badge" class="text-[10px] px-2 py-0.5 rounded-full bg-[#DDEBE1] text-[#0A291A] font-medium flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-700 pulse-online"></span>
+              <span>ONLINE</span>
+            </span>
+          </div>
+          <div class="text-xs font-semibold text-black">PC 2: Regulatory Authority</div>
+          <div class="text-[11px] text-black/60 font-mono">
+            Endpoint: <span id="topoPc2Endpoint">http://127.0.0.1:8012</span><br>
+            Services: DB3 (MDM), DB4 (REST API)
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time LAN & Docker Endpoint Configurator -->
+      <div class="p-5 rounded-2xl bg-[#F7F7F9] space-y-3.5 text-xs shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span class="font-semibold text-black">LAN &amp; Docker Endpoint Configurator (Configure Remote PC IPs)</span>
+          <div class="flex items-center gap-2">
+            <span id="circuitBreakerStateBadge" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#DDEBE1] text-[#0A291A]">
+              CIRCUIT: CLOSED (HEALTHY)
+            </span>
+            <button 
+              id="btnTogglePartition" 
+              onclick="togglePartitionSimulation()" 
+              class="px-3 py-1 rounded-xl bg-[#FEE2E2] text-[#7F1D1D] text-[11px] font-medium hover:bg-[#FECACA] transition-colors cursor-pointer"
+            >
+              Simulate PC 2 Partition
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] text-black/50 mb-1 font-mono">PC 1 Host / Endpoint (e.g. http://192.168.1.10:8011)</label>
+            <input id="inputPc1Endpoint" type="text" value="http://127.0.0.1:8011" class="w-full px-3.5 py-2 rounded-xl bg-white text-black font-mono text-xs focus:outline-none focus:ring-2 focus:ring-black/10 shadow-sm">
+          </div>
+          <div>
+            <label class="block text-[11px] text-black/50 mb-1 font-mono">PC 2 Host / Endpoint (e.g. http://192.168.1.20:8012)</label>
+            <input id="inputPc2Endpoint" type="text" value="http://127.0.0.1:8012" class="w-full px-3.5 py-2 rounded-xl bg-white text-black font-mono text-xs focus:outline-none focus:ring-2 focus:ring-black/10 shadow-sm">
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-1">
+          <span id="partitionDescText" class="text-[11px] text-black/60 truncate pr-2">
+            Mesh Status: All 4 distributed database endpoints reachable.
+          </span>
+          <button onclick="saveDistributedEndpoints()" class="px-5 py-2 rounded-xl bg-black text-white text-xs font-medium hover:bg-neutral-800 transition-all shadow-sm cursor-pointer shrink-0">Apply Endpoints</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-DATABASE FEDERATED VERIFICATION NETWORK (HORIZONTAL BARS WITH EXPANDABLE DROPDOWNS) -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-5 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-semibold text-black tracking-tight">National Registry Synchronization</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#0A291A]"></span>
+            <span class="text-[11px] text-black/45 font-medium">GAV Mediator Layer</span>
+          </div>
+          <h3 class="text-lg font-semibold text-black tracking-tight">Federated database verification network</h3>
+          <p class="text-xs text-black/50 mt-0.5">Real-time cross-query across India's 4 decentralized pharmaceutical registries</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span id="dbCoverageBadge" class="text-xs px-3.5 py-1.5 rounded-full font-medium bg-[#DDEBE1] text-[#0A291A] flex items-center gap-1.5 whitespace-nowrap shadow-sm">
+            <svg class="w-3.5 h-3.5 text-[#0A291A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>4/4 synchronized</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- STACKED HORIZONTAL BARS WITH DROPDOWN ACCORDIONS -->
+      <div class="space-y-3">
+
+        <!-- DB1: Retail Pharmacy POS -->
+        <div id="db1Card" class="rounded-2xl bg-[#F7F7F9] transition-all overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm">
+          <div 
+            onclick="toggleDbAccordion('db1')" 
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none hover:bg-white transition-colors"
+          >
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-12 h-12 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
+                <img src="images/db1_nosql_3d.png" class="w-full h-full object-contain" alt="DB1 NoSQL">
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-black font-mono">DB1 Retail</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-white font-medium text-black/60 shadow-sm">NoSQL Document Store</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs mt-0.5">
+                  <span id="auditD1Status" class="font-semibold text-black">Recorded checkout</span>
+                  <span class="text-black/30">-</span>
+                  <span id="auditD1Detail" class="text-black/60 text-[11px] truncate">1 scan(s) recorded across 1 store(s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+              <span id="db1Badge" class="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-[#DDEBE1] text-[#0A291A]">
+                Verified
+              </span>
+              <div class="flex items-center gap-1 text-[11px] text-black/50 font-medium">
+                <span class="hidden sm:inline">Details</span>
+                <svg id="db1Chevron" class="w-4 h-4 text-black/50 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Dropdown Menu -->
+          <div id="db1Dropdown" class="hidden p-4 sm:p-5 bg-white/95 space-y-3 text-xs shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Active Integration Challenge</span>
+                <div class="font-medium text-black flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                  <span>Challenge 1 &amp; 2: GAV Unfolding &amp; Nested NoSQL Projection</span>
+                </div>
+                <p class="text-[11px] text-black/60 leading-relaxed">
+                  Flattens hierarchical JSON documents (<code class="font-mono text-[10px] bg-black/5 px-1 py-0.5 rounded">dispensary.geo_coordinates</code>, <code class="font-mono text-[10px] bg-black/5 px-1 py-0.5 rounded">pos_terminal.device_id</code>) into the canonical global schema.
+                </p>
+              </div>
+              <div class="space-y-1 font-mono text-[11px] bg-black/[0.03] p-3 rounded-xl">
+                <span class="text-[10px] font-sans font-bold uppercase tracking-wider text-black/45 block">Unfolded Native Query:</span>
+                <div class="text-black/80 break-all" id="db1QueryCode">db.retail_pos_scans.find({ "scan_code": "MED-ASALI-001" })</div>
+                <div class="text-black/40 text-[10px] pt-1">Execution Engine: Native JSON Document Collection | Node: PC 1 (8011)</div>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-[#F7F7F9] space-y-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Real-World Case Manifestation &amp; Flaw Detection:</span>
+              <p id="db1CaseDetail" class="text-black/75 leading-relaxed text-[11px]">
+                Valid single checkout logged at Apollo Pharmacy licensed dispensary. No multi-city scan velocity anomalies detected.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB2: Supply Chain & Cold Chain -->
+        <div id="db2Card" class="rounded-2xl bg-[#F7F7F9] transition-all overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm">
+          <div 
+            onclick="toggleDbAccordion('db2')" 
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none hover:bg-white transition-colors"
+          >
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-12 h-12 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
+                <img src="images/db2_logistics_3d.png" class="w-full h-full object-contain" alt="DB2 Logistics">
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-black font-mono">DB2 Logistics</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-white font-medium text-black/60 shadow-sm">Relational SQL (3NF)</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs mt-0.5">
+                  <span id="auditD2Status" class="font-semibold text-black">Authorized distributor</span>
+                  <span class="text-black/30">-</span>
+                  <span id="auditD2Detail" class="text-black/60 text-[11px] truncate">Cold chain maintained</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+              <span id="db2Badge" class="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-[#DDEBE1] text-[#0A291A]">
+                Verified
+              </span>
+              <div class="flex items-center gap-1 text-[11px] text-black/50 font-medium">
+                <span class="hidden sm:inline">Details</span>
+                <svg id="db2Chevron" class="w-4 h-4 text-black/50 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Dropdown Menu -->
+          <div id="db2Dropdown" class="hidden p-4 sm:p-5 bg-white/95 space-y-3 text-xs shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Active Integration Challenge</span>
+                <div class="font-medium text-black flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                  <span>Challenge 3: Semantic &amp; Scientific Unit Normalization</span>
+                </div>
+                <p class="text-[11px] text-black/60 leading-relaxed">
+                  Converts IoT telemetry temperatures (Fahrenheit/Kelvin to Celsius) and checks safe cold-chain bounds (2&deg;C to 8&deg;C).
+                </p>
+              </div>
+              <div class="space-y-1 font-mono text-[11px] bg-black/[0.03] p-3 rounded-xl">
+                <span class="text-[10px] font-sans font-bold uppercase tracking-wider text-black/45 block">Unfolded Native Query:</span>
+                <div class="text-black/80 break-all" id="db2QueryCode">SELECT db.*, d.company_name FROM distribution_batches db JOIN distributors d ON db.distributor_id = d.distributor_id WHERE db.batch_serial = 'MED-ASALI-001'</div>
+                <div class="text-black/40 text-[10px] pt-1">Execution Engine: ANSI SQL (3NF SQLite) | Node: PC 1 (8011)</div>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-[#F7F7F9] space-y-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Real-World Case Manifestation &amp; Flaw Detection:</span>
+              <p id="db2CaseDetail" class="text-black/75 leading-relaxed text-[11px]">
+                Authorized logistics contract on file. IoT temperature logging continuously within safe cold chain boundary (4.2&deg;C).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB3: CDSCO Master Registry -->
+        <div id="db3Card" class="rounded-2xl bg-[#F7F7F9] transition-all overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm">
+          <div 
+            onclick="toggleDbAccordion('db3')" 
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none hover:bg-white transition-colors"
+          >
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-12 h-12 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
+                <img src="images/db3_cdsco_3d.png" class="w-full h-full object-contain" alt="DB3 CDSCO">
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-black font-mono">DB3 CDSCO</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-white font-medium text-black/60 shadow-sm">Central MDM Catalog</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs mt-0.5">
+                  <span id="auditD3Status" class="font-semibold text-black">Registered batch</span>
+                  <span class="text-black/30">-</span>
+                  <span id="auditD3Detail" class="text-black/60 text-[11px] truncate">GMP certified facility</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+              <span id="db3Badge" class="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-[#DDEBE1] text-[#0A291A]">
+                On File
+              </span>
+              <div class="flex items-center gap-1 text-[11px] text-black/50 font-medium">
+                <span class="hidden sm:inline">Details</span>
+                <svg id="db3Chevron" class="w-4 h-4 text-black/50 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Dropdown Menu -->
+          <div id="db3Dropdown" class="hidden p-4 sm:p-5 bg-white/95 space-y-3 text-xs shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Active Integration Challenge</span>
+                <div class="font-medium text-black flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                  <span>Challenge 4: Multi-Metric Fuzzy Entity Resolution &amp; Golden Record Linkage</span>
+                </div>
+                <p class="text-[11px] text-black/60 leading-relaxed">
+                  Resolves scanned barcode strings with OCR character swaps ('l' vs '1') or typos to the statutory Golden Master Catalog.
+                </p>
+              </div>
+              <div class="space-y-1 font-mono text-[11px] bg-black/[0.03] p-3 rounded-xl">
+                <span class="text-[10px] font-sans font-bold uppercase tracking-wider text-black/45 block">Unfolded Native Query:</span>
+                <div class="text-black/80 break-all" id="db3QueryCode">SELECT p.*, m.company_name, m.gmp_certified FROM products p JOIN manufacturers m ON p.manufacturer_id = m.manufacturer_id WHERE p.product_uid = 'MED-ASALI-001'</div>
+                <div class="text-black/40 text-[10px] pt-1">Execution Engine: Golden MDM Catalog (Relational SQLite) | Node: PC 2 (8012)</div>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-[#F7F7F9] space-y-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Real-World Case Manifestation &amp; Flaw Detection:</span>
+              <p id="db3CaseDetail" class="text-black/75 leading-relaxed text-[11px]">
+                Product registered in national CDSCO database. Active GMP license and verified batch production certificate.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB4: Ministry INGRAM Portal -->
+        <div id="db4Card" class="rounded-2xl bg-[#F7F7F9] transition-all overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm">
+          <div 
+            onclick="toggleDbAccordion('db4')" 
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none hover:bg-white transition-colors"
+          >
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-12 h-12 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
+                <img src="images/db4_ministry_3d.png" class="w-full h-full object-contain" alt="DB4 Ministry">
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-black font-mono">DB4 Ministry</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-white font-medium text-black/60 shadow-sm">HTTP REST Microservice</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs mt-0.5">
+                  <span id="auditD4Status" class="font-semibold text-black">Clean standing</span>
+                  <span class="text-black/30">-</span>
+                  <span id="auditD4Detail" class="text-black/60 text-[11px] truncate">0 adverse reports recorded</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+              <span id="db4Badge" class="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-[#DDEBE1] text-[#0A291A]">
+                Clean
+              </span>
+              <div class="flex items-center gap-1 text-[11px] text-black/50 font-medium">
+                <span class="hidden sm:inline">Details</span>
+                <svg id="db4Chevron" class="w-4 h-4 text-black/50 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Dropdown Menu -->
+          <div id="db4Dropdown" class="hidden p-4 sm:p-5 bg-white/95 space-y-3 text-xs shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Active Integration Challenge</span>
+                <div class="font-medium text-black flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                  <span>Challenge 5: Statutory Regulatory Dominance &amp; Conflict Arbitration</span>
+                </div>
+                <p class="text-[11px] text-black/60 leading-relaxed">
+                  Applies Drugs Rules 1945 precedence: an active Ministry recall bulletin strictly overrides commercial manufacturer catalog status.
+                </p>
+              </div>
+              <div class="space-y-1 font-mono text-[11px] bg-black/[0.03] p-3 rounded-xl">
+                <span class="text-[10px] font-sans font-bold uppercase tracking-wider text-black/45 block">Unfolded Native Query:</span>
+                <div class="text-black/80 break-all" id="db4QueryCode">GET /api/v1/dossier?item_ref=MED-ASALI-001 [Authorization: Bearer CDSCO-MCA-2026-KEY]</div>
+                <div class="text-black/40 text-[10px] pt-1">Execution Engine: HTTP RESTful API (INGRAM Protocol) | Node: PC 2 (8012)</div>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-[#F7F7F9] space-y-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Real-World Case Manifestation &amp; Flaw Detection:</span>
+              <p id="db4CaseDetail" class="text-black/75 leading-relaxed text-[11px]">
+                Zero adverse drug reactions (ADR) logged. Central Drug Laboratory assays confirm chemical purity. Clean national standing.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHAIN OF CUSTODY EVENTS -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-4 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      <div class="flex items-center justify-between mb-1">
+        <div>
+          <h3 class="text-sm font-semibold text-black">Chain of custody events</h3>
+          <p class="text-xs text-black/40 mt-0.5">3-point physical custody timeline with provenance audit</p>
+        </div>
+        <span class="text-xs text-black/40">3-point federation verification</span>
+      </div>
+
+      <div class="space-y-3">
+        
+        <!-- Custody 1: Manufacturing Origin -->
+        <div id="custodyCard1" class="rounded-2xl bg-[#F7F7F9] transition-all overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm">
+          <div 
+            onclick="toggleCustodyAccordion(1)" 
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none hover:bg-white transition-colors"
+          >
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">
+                1
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Manufacturing Origin</span>
+                <div class="flex items-center gap-2 text-xs mt-0.5">
+                  <h4 id="custodyTitle1" class="font-semibold text-black">Cipla Ltd</h4>
+                  <span class="text-black/30">-</span>
+                  <p id="custodySub1" class="text-black/60 text-[11px] truncate">Batch BATCH-A001 registered on file</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+              <span id="custodyBadge1" class="text-xs px-2.5 py-1 rounded-full bg-[#DDEBE1] text-[#0A291A] font-semibold whitespace-nowrap">
+                Verified origin
+              </span>
+              <div class="flex items-center gap-1 text-[11px] text-black/50 font-medium">
+                <span class="hidden sm:inline">Details</span>
+                <svg id="custodyChevron1" class="w-4 h-4 text-black/50 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Dropdown -->
+          <div id="custodyDropdown1" class="hidden p-4 sm:p-5 bg-white/95 space-y-2 text-xs shadow-inner">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px]">
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">Manufacturing Date:</span><span id="custodyDate1" class="text-black">15 Jan 2025</span></div>
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">Facility GMP License:</span><span id="custodyLicense1" class="text-black">MH-FDA-2024-GMP-992</span></div>
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">Batch QC Hash:</span><span id="custodyQcHash1" class="text-black">0x4a9f...e18b (Pass)</span></div>
+            </div>
+            <div class="text-[11px] text-black/60 pt-1" id="custodyExplanation1">
+              Physical Temporal Causality: Certified batch manufacturing timestamp verified as preceding all downstream logistics movements.
+            </div>
+          </div>
+        </div>
+
+        <!-- Custody 2: Distributor Logistics -->
+        <div id="custodyCard2" class="rounded-2xl bg-[#F7F7F9] transition-all overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm">
+          <div 
+            onclick="toggleCustodyAccordion(2)" 
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none hover:bg-white transition-colors"
+          >
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">
+                2
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Distributor Custody</span>
+                <div class="flex items-center gap-2 text-xs mt-0.5">
+                  <h4 id="custodyTitle2" class="font-semibold text-black">Apollo Logistics</h4>
+                  <span class="text-black/30">-</span>
+                  <p id="custodySub2" class="text-black/60 text-[11px] truncate">Cold chain and transit verified</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+              <span id="custodyBadge2" class="text-xs px-2.5 py-1 rounded-full bg-[#DDEBE1] text-[#0A291A] font-semibold whitespace-nowrap">
+                Custody verified
+              </span>
+              <div class="flex items-center gap-1 text-[11px] text-black/50 font-medium">
+                <span class="hidden sm:inline">Details</span>
+                <svg id="custodyChevron2" class="w-4 h-4 text-black/50 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Dropdown -->
+          <div id="custodyDropdown2" class="hidden p-4 sm:p-5 bg-white/95 space-y-2 text-xs shadow-inner">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px]">
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">Transit Route:</span><span id="custodyRoute2" class="text-black">Bhiwandi Hub -&gt; Mumbai Central</span></div>
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">IoT Temp Sensor:</span><span id="custodyTemp2" class="text-black">4.8&deg;C (Safe Band: 2-8&deg;C)</span></div>
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">Waybill Status:</span><span id="custodyWaybill2" class="text-black">WB-2025-0819 (Active)</span></div>
+            </div>
+            <div class="text-[11px] text-black/60 pt-1" id="custodyExplanation2">
+              Precautionary Medical Quality: Thermal logging verified continuous compliance. Zero temperature excursions logged during transit.
+            </div>
+          </div>
+        </div>
+
+        <!-- Custody 3: Retail Dispensary -->
+        <div id="custodyCard3" class="rounded-2xl bg-[#F7F7F9] transition-all overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm">
+          <div 
+            onclick="toggleCustodyAccordion(3)" 
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none hover:bg-white transition-colors"
+          >
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">
+                3
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Retail Dispensary</span>
+                <div class="flex items-center gap-2 text-xs mt-0.5">
+                  <h4 id="custodyTitle3" class="font-semibold text-black">Apollo Pharmacy</h4>
+                  <span class="text-black/30">-</span>
+                  <p id="custodySub3" class="text-black/60 text-[11px] truncate">1 scan recorded at licensed counter</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+              <span id="custodyBadge3" class="text-xs px-2.5 py-1 rounded-full bg-[#DDEBE1] text-[#0A291A] font-semibold whitespace-nowrap">
+                Scan verified
+              </span>
+              <div class="flex items-center gap-1 text-[11px] text-black/50 font-medium">
+                <span class="hidden sm:inline">Details</span>
+                <svg id="custodyChevron3" class="w-4 h-4 text-black/50 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Dropdown -->
+          <div id="custodyDropdown3" class="hidden p-4 sm:p-5 bg-white/95 space-y-2 text-xs shadow-inner">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px]">
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">Pharmacy License:</span><span id="custodyRetailLicense3" class="text-black">DL-MH-2023-99182</span></div>
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">POS Terminal ID:</span><span id="custodyTerminal3" class="text-black">POS-T88104 (East Wing)</span></div>
+              <div class="bg-[#F7F7F9] p-3 rounded-xl shadow-sm"><span class="text-black/40 block text-[10px]">Velocity Feasibility:</span><span id="custodyVelocity3" class="text-black">Single scan (0 km/h)</span></div>
+            </div>
+            <div class="text-[11px] text-black/60 pt-1" id="custodyExplanation3">
+              Geospatial Velocity Feasibility Principle: Verified single physical counter transaction without anomalous concurrent multi-city checkouts.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COMPACT VISUAL SIGNS LEGEND (POLISHED AMBIENT CARDS) -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-5 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <span class="text-xs font-semibold text-black tracking-tight">Status Reference</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-black/30"></span>
+            <span class="text-[11px] text-black/45 font-medium">Pharmacovigilance &amp; CDSCO Standards</span>
+          </div>
+          <h3 class="text-base font-semibold text-black tracking-tight">Visual signs legend</h3>
+        </div>
+        <span class="text-xs text-black/45">Quick interpretation guide for verification badges</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Legend Item 1: Asali (Authentic) -->
+        <div class="p-6 rounded-2xl bg-[#F4F8F5] flex flex-col items-center text-center space-y-4 shadow-[0_4px_20px_rgba(10,41,26,0.05)] hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div class="w-20 h-20 rounded-2xl bg-[#DDEBE1] flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+            <img src="images/asali_verified_3d.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover" alt="Verified 3D">
+            <div class="w-full h-full hidden items-center justify-center text-[#0A291A]">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-center gap-2 mb-1.5">
+              <span class="text-sm font-bold text-black">Verified (Asali)</span>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full font-semibold bg-[#DDEBE1] text-[#0A291A]">Dispense</span>
+            </div>
+            <p class="text-xs text-black/60 leading-relaxed">
+              Full 4-tier chain intact. CDSCO registered, unbroken cold-chain &amp; licensed retail scan.
+            </p>
+          </div>
+        </div>
+
+        <!-- Legend Item 2: Suspicious (Flagged) -->
+        <div class="p-6 rounded-2xl bg-[#FCF9F2] flex flex-col items-center text-center space-y-4 shadow-[0_4px_20px_rgba(180,83,9,0.05)] hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div class="w-20 h-20 rounded-2xl bg-[#FEF3C7] flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+            <img src="images/asali_suspicious_3d.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover" alt="Suspicious 3D">
+            <div class="w-full h-full hidden items-center justify-center text-[#78350F]">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-center gap-2 mb-1.5">
+              <span class="text-sm font-bold text-black">Flagged (Suspicious)</span>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full font-semibold bg-[#FEF3C7] text-[#78350F]">Review</span>
+            </div>
+            <p class="text-xs text-black/60 leading-relaxed">
+              Multi-scan velocity (cloning risk), temperature excursions, or active consumer complaint.
+            </p>
+          </div>
+        </div>
+
+        <!-- Legend Item 3: Counterfeit (Nakali) -->
+        <div class="p-6 rounded-2xl bg-[#FAF4F4] flex flex-col items-center text-center space-y-4 shadow-[0_4px_20px_rgba(185,28,28,0.05)] hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div class="w-20 h-20 rounded-2xl bg-[#FEE2E2] flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+            <img src="images/asali_counterfeit_3d.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover" alt="Counterfeit 3D">
+            <div class="w-full h-full hidden items-center justify-center text-[#7F1D1D]">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-center gap-2 mb-1.5">
+              <span class="text-sm font-bold text-black">Counterfeit (Nakali)</span>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full font-semibold bg-[#FEE2E2] text-[#7F1D1D]">Prohibited</span>
+            </div>
+            <p class="text-xs text-black/60 leading-relaxed">
+              Barcode absent from manufacturer backend, revoked license, or toxic batch recall.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TECHNICAL INSPECTION DRAWER -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      <button 
+        id="technicalAccordionBtn" 
+        onclick="toggleTechnicalDrawer()" 
+        class="w-full flex items-center justify-between text-left p-4 rounded-2xl bg-[#F7F7F9] hover:bg-black/[0.03] transition-all cursor-pointer group shadow-sm"
+      >
+        <div class="flex items-center gap-3">
+          <svg class="w-4 h-4 text-black/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+          </svg>
+          <span class="text-sm font-semibold text-black">
+            Inspect technical verification signals and weights
+          </span>
+        </div>
+        <svg id="accordionIcon" class="w-4 h-4 text-black/50 group-hover:text-black transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <!-- Accordion Body -->
+      <div id="technicalAccordionBody" class="hidden mt-6 space-y-6 pt-6">
+
+        <!-- Evidence & Signal Weights Table -->
+        <div>
+          <span class="text-xs font-semibold text-black/50 block mb-3">Evidence signals and scored adjustments:</span>
+          <div class="overflow-x-auto rounded-2xl bg-[#F7F7F9] shadow-sm">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-black/[0.03] text-black/50">
+                <tr>
+                  <th class="py-3 px-4 font-semibold">Signal description</th>
+                  <th class="py-3 px-4 font-semibold">Impact</th>
+                  <th class="py-3 px-4 font-semibold">Data node</th>
+                  <th class="py-3 px-4 font-semibold">Verification summary</th>
+                </tr>
+              </thead>
+              <tbody id="evidenceTableBody" class="divide-y divide-black/[0.03]">
+                <!-- Populated dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cryptographic Receipt -->
+        <div class="p-5 rounded-2xl bg-[#F7F7F9] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-semibold text-black">Cryptographic verification receipt</span>
+              <span class="text-[11px] text-black/45 font-mono">Immutable SHA-256 state stamp</span>
+            </div>
+            <p id="auditHashDisplay" class="text-xs text-black/70 font-mono tracking-wide break-all">
+              sha256:7f9a2b8e3c1d4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e9d0c1b2a3f4e5d6c7b8a9
+            </p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-[#DDEBE1] text-[#0A291A] shrink-0 self-start sm:self-auto shadow-sm">
+            Audit receipt valid
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- REGULATORY DOSSIER MODAL -->
+  <div id="dossierModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-2xl bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shadow-sm">
+            <svg class="w-4 h-4 text-[#991B1B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-black">Regulatory incident dossier</h3>
+            <span class="text-[11px] text-black/45">Automated compliance notification</span>
+          </div>
+        </div>
+        <button onclick="closeDossierModal()" class="w-8 h-8 rounded-full bg-[#F7F7F9] flex items-center justify-center hover:bg-[#EAEAEF] transition-colors cursor-pointer">
+          <svg class="w-4 h-4 text-black/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-[#F7F7F9] space-y-2 text-xs leading-relaxed text-black/70 shadow-sm">
+        <div class="flex justify-between pb-2 bg-black/[0.02] p-2 rounded-lg">
+          <span class="text-black/45">Report reference</span>
+          <span id="dossierId" class="font-medium text-black font-mono">DOC-CDSCO-2026-001</span>
+        </div>
+        <div class="flex justify-between pb-2 bg-black/[0.02] p-2 rounded-lg">
+          <span class="text-black/45">Target serial code</span>
+          <span id="dossierItemCode" class="font-medium text-black font-mono">MED-NAKALI-001</span>
+        </div>
+        <div class="flex justify-between pb-2 bg-black/[0.02] p-2 rounded-lg">
+          <span class="text-black/45">Violation category</span>
+          <span id="dossierViolation" class="font-semibold text-[#991B1B]">Recalled / Unregistered batch</span>
+        </div>
+        <div class="pt-2">
+          <span class="text-black/45 block mb-1">Recommended statutory action:</span>
+          <p id="dossierAction" class="font-medium text-black">
+            Immediate quarantine notice dispatched to licensed dispensary network.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button 
+          onclick="closeDossierModal()" 
+          class="px-5 py-2.5 rounded-full bg-[#F7F7F9] text-xs font-medium text-black hover:bg-[#EAEAEF] transition-colors cursor-pointer"
+        >
+          Dismiss
+        </button>
+        <button 
+          onclick="downloadDossierText()" 
+          class="px-6 py-2.5 rounded-full bg-black text-white text-xs font-medium hover:bg-neutral-800 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer"
+        >
+          Download dossier (.txt)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-white mt-16 py-8 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
+    <div class="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold text-black">Asali</span>
+        <span class="text-xs text-black/40">Pharmaceutical Authentication Network</span>
+      </div>
+      <div class="text-xs text-black/45">
+        Interoperable with GS1 India DataMatrix and CDSCO registry standards.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Accordion Toggle for 4 Federated Databases
+    function toggleDbAccordion(dbKey) {
+      const dropdown = document.getElementById(dbKey + "Dropdown");
+      const chevron = document.getElementById(dbKey + "Chevron");
+      if (!dropdown) return;
+      const isHidden = dropdown.classList.contains("hidden");
+      if (isHidden) {
+        dropdown.classList.remove("hidden");
+        if (chevron) chevron.classList.add("rotate-180");
+      } else {
+        dropdown.classList.add("hidden");
+        if (chevron) chevron.classList.remove("rotate-180");
+      }
+    }
+
+    // Accordion Toggle for Chain of Custody Timeline
+    function toggleCustodyAccordion(idx) {
+      const dropdown = document.getElementById("custodyDropdown" + idx);
+      const chevron = document.getElementById("custodyChevron" + idx);
+      if (!dropdown) return;
+      const isHidden = dropdown.classList.contains("hidden");
+      if (isHidden) {
+        dropdown.classList.remove("hidden");
+        if (chevron) chevron.classList.add("rotate-180");
+      } else {
+        dropdown.classList.add("hidden");
+        if (chevron) chevron.classList.remove("rotate-180");
+      }
+    }
+
+    // Technical Inspection Drawer Helper
+    function toggleTechnicalDrawer() {
+      const body = document.getElementById("technicalAccordionBody");
+      const icon = document.getElementById("accordionIcon");
+      if (body) {
+        const isHidden = body.classList.contains("hidden");
+        if (isHidden) {
+          body.classList.remove("hidden");
+          if (icon) icon.classList.add("rotate-180");
+        } else {
+          body.classList.add("hidden");
+          if (icon) icon.classList.remove("rotate-180");
+        }
+      }
+    }
+  </script>
+  <script src="app.js?v=12"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+{
+  "_comment": "GAV Ontology Bridge  -  Asali/Nakali Heterogeneous Database Integration System.",
+  "_description": [
+    "Global-as-View (GAV) schema mapping that defines the global canonical schema",
+    "and maps it to local source schemas across 4 isolated heterogeneous databases.",
+    "The canonical integration key is 'item_code'  -  the same physical value stored",
+    "under different column names in each DB due to independent system design.",
+    "",
+    "Regulatory context: India Ministry of Consumer Affairs (MCA) + CDSCO",
+    "  (Central Drugs Standard Control Organisation, under Ministry of Health).",
+    "Real-world mandate: Schedule H2, Drugs Rules 1945 (G.S.R. 823(E), effective",
+    "  August 1, 2023)  -  mandates QR/barcode with unique product ID on top 300 brands."
+  ],
+  "version": "2.0",
+  "regulatory_context": {
+    "country": "India",
+    "ministry": "Ministry of Consumer Affairs, Food and Public Distribution (MCA)",
+    "drug_regulator": "Central Drugs Standard Control Organisation (CDSCO)",
+    "mandate": "Schedule H2  -  Drugs Rules 1945",
+    "gazette_notification": "G.S.R. 823(E), dated November 17, 2022",
+    "effective_date": "2023-08-01",
+    "scope": "Top 300 pharmaceutical brands + vaccines + antimicrobials + anti-cancer + narcotics",
+    "id_format_example": "MED-IND-2026-001",
+    "cdsco_license_format": "CDSCO/MFG/IND/KA/001/2020"
+  },
+  "canonical_key": "item_code",
+  "canonical_description": "Unique serialized medicine identifier, equivalent to GS1 SGTIN in the real-world CDSCO track-and-trace system. Same physical value stored under different column names in each database due to isolated, independently-designed systems.",
+  "gav_pipeline": [
+    "1. identifier_normalizer.py   -  normalize raw code variants to canonical form",
+    "2. schema_mapping.json        -  GAV ontology: map canonical key to each source alias",
+    "3. resolver.py                -  query each source via its local column name (wrapper layer)",
+    "4. canonical_model.py         -  materialize GlobalItemHistory (virtual unified view)",
+    "5. hard_veto_engine.py        -  Tier-1: deterministic zero-tolerance gates",
+    "6. trust_engine.py            -  Tier-2: soft probabilistic compliance scoring",
+    "7. anomaly_detector.py        -  cross-signal anomaly patterns",
+    "8. ministry_reporter.py       -  auto-generate MCA complaint dossier"
+  ],
+  "databases": {
+    "db1_purchase": {
+      "file": "db1_purchase_registry.sqlite",
+      "owner": "Retail Pharmacy POS System",
+      "owner_type": "Retail Vendor",
+      "country_context": "India",
+      "integration_table": "purchase_events",
+      "integration_column": "scan_code",
+      "column_alias_note": "Same as canonical item_code  -  column named 'scan_code' by POS system designers",
+      "lookup_query": "SELECT pe.*, v.vendor_name, v.vendor_type, v.location_county, v.active as vendor_active, v.license_no as vendor_license FROM purchase_events pe LEFT JOIN vendors v ON pe.vendor_id = v.vendor_id WHERE pe.scan_code = ? ORDER BY pe.scan_timestamp DESC",
+      "vendor_table": "vendors",
+      "anomaly_table": "scan_anomaly_log"
+    },
+    "db2_distributor": {
+      "file": "db2_distributor_ledger.sqlite",
+      "owner": "Distribution Company ERP",
+      "owner_type": "Licensed Distributor",
+      "country_context": "India",
+      "integration_table": "distribution_batches",
+      "integration_column": "batch_serial",
+      "column_alias_note": "Same as canonical item_code  -  column named 'batch_serial' by distributor ERP developers",
+      "lookup_query": "SELECT db.*, d.company_name as dist_name, d.is_authorized, d.license_no as dist_license, d.license_expiry as dist_license_expiry FROM distribution_batches db LEFT JOIN distributors d ON db.distributor_id = d.distributor_id WHERE db.batch_serial = ? ORDER BY db.dispatch_date DESC",
+      "distributor_table": "distributors",
+      "contract_table": "distributor_vendor_contracts",
+      "return_table": "return_log"
+    },
+    "db3_manufacturer": {
+      "file": "db3_manufacturer_registry.sqlite",
+      "owner": "Pharmaceutical Manufacturer (CDSCO-licensed)",
+      "owner_type": "Manufacturer",
+      "country_context": "India",
+      "integration_table": "products",
+      "integration_column": "product_uid",
+      "column_alias_note": "Same as canonical item_code  -  column named 'product_uid' by manufacturer's internal registry system",
+      "lookup_query": "SELECT p.*, m.company_name as mfg_name, m.gmp_certified, m.cdsco_license_no, m.license_expiry as mfg_license_expiry FROM products p JOIN manufacturers m ON p.manufacturer_id = m.manufacturer_id WHERE p.product_uid = ?",
+      "manufacturer_table": "manufacturers",
+      "auth_dist_table": "authorized_distributors",
+      "cert_table": "batch_release_certs",
+      "lifecycle_table": "item_lifecycle"
+    },
+    "db4_ministry": {
+      "file": "db4_ministry_reports.sqlite",
+      "owner": "Ministry of Consumer Affairs + CDSCO",
+      "owner_type": "Government Regulator",
+      "country_context": "India",
+      "integration_table": "complaints",
+      "integration_column": "complaint_item_ref",
+      "column_alias_note": "Same as canonical item_code  -  column named 'complaint_item_ref' by Ministry's INGRAM grievance portal schema",
+      "lookup_query": "SELECT * FROM complaints WHERE complaint_item_ref = ? ORDER BY complaint_date DESC",
+      "blacklist_table": "ministry_blacklist",
+      "lab_table": "lab_reports",
+      "alert_table": "public_alerts"
+    }
+  },
+  "gav_column_alias_map": {
+    "_comment": "The core heterogeneity demonstration: same canonical item_code stored under 4 different column names",
+    "canonical": "item_code",
+    "db1_purchase.purchase_events": "scan_code",
+    "db2_distributor.distribution_batches": "batch_serial",
+    "db3_manufacturer.products": "product_uid",
+    "db4_ministry.complaints": "complaint_item_ref"
+  },
+  "trust_score_weights": {
+    "_comment": "Tier-2 soft compliance deductions. Tier-1 hard veto forces score=0 regardless of these.",
+    "_rationale": {
+      "cold_chain_broken":       "Temperature-sensitive APIs (insulin, vaccines) degrade irreversibly  -  high safety risk",
+      "distributor_unauthorized": "Unauthorized distribution is a criminal offense under Drugs Act 1940, s.18B",
+      "vendor_custody_bypass":   "Chain-of-custody break is primary indicator of diverted/stolen stock",
+      "price_below_mrp":         "Counterfeits sold below 40% MRP  -  genuine API cost makes this impossible legitimately",
+      "open_complaints":         "Existing MCA complaints indicate known consumer harm",
+      "near_expiry":             "30-day window  -  pharmacist must warn consumer",
+      "supply_chain_gap":        "No distributor record = medicine materialized from nowhere",
+      "distributor_unlicensed":  "Operating without valid drug license under Drugs Act 1940, s.18",
+      "product_recalled":        "CDSCO/manufacturer recall = product safety concern confirmed",
+      "product_expired":         "Selling expired medicine is illegal under Drugs Act 1940, s.18A",
+      "lab_test_fail":           "NABL-accredited lab failure = confirmed quality issue",
+      "multi_location_anomaly":  "Physical impossibility = 100% confirmation of cloned barcode"
+    },
+    "cold_chain_broken":        -25,
+    "distributor_unauthorized":  -20,
+    "vendor_custody_bypass":     -20,
+    "price_below_mrp":           -15,
+    "open_complaints":           -10,
+    "near_expiry":               -10,
+    "supply_chain_gap":          -20,
+    "distributor_unlicensed":    -15,
+    "product_recalled":          -15,
+    "product_expired":           -10,
+    "lab_test_fail":             -15,
+    "multi_location_anomaly":    -25,
+    "price_suspicious":           -8,
+    "lab_test_pass_bonus":         5,
+    "all_checks_clean_bonus":      5
+  },
+  "verdict_thresholds": {
+    "_comment": "Adjusted from v1: ASALI threshold lowered to 80 (was 85) to correctly classify items with minor soft issues as SUSPICIOUS not NAKALI. Tier-1 veto always overrides to 0.",
+    "ASALI":      80,
+    "SUSPICIOUS":  50,
+    "NAKALI":       0
+  },
+  "lifecycle_states": {
+    "MINTED":     "Registered in DB3 Manufacturer Registry. Not yet dispatched.",
+    "DISPATCHED": "In transit with licensed distributor (DB2, IN_TRANSIT).",
+    "DELIVERED":  "Received at authorized vendor (DB2, DELIVERED).",
+    "DISPENSED":  "Sold to consumer (DB1 purchase event exists).",
+    "RECALLED":   "Manufacturer/CDSCO recall issued (DB3, is_recalled=1).",
+    "FLAGGED":    "Active MCA complaint or blacklist entry (DB4).",
+    "UNKNOWN":    "Not in manufacturer DB  -  cannot determine legitimate state."
+  },
+  "hard_veto_gates": {
+    "_comment": "These are Tier-1 gates. Any trigger -> score=0, verdict=NAKALI, auto-FIR draft.",
+    "V1_PHANTOM_SERIAL":     "Item code not in CDSCO-registered Manufacturer DB (DB3)",
+    "V2_MINISTRY_BLACKLIST": "Item or batch on active MCA/CDSCO blacklist (DB4)",
+    "V3_TEMPORAL_PARADOX":   "Cross-DB: sold/dispatched BEFORE manufacture date",
+    "V4_REPLAY_SCAN":        "Serial already DISPENSED  -  barcode clone/replay attack",
+    "V5_CUSTODY_BYPASS":     "Sold by vendor not in authorized dispatch route (DB1 x DB2)"
+  }
+}

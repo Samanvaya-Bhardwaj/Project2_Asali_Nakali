@@ -1,0 +1,59 @@
+services:
+  # ---------------------------------------------------------------------------
+  # Node 1 (Simulates PC 1: Retail & Supply Chain Edge Machine)
+  # Hosts DB1 (NoSQL Document Store) and DB2 (Relational SQL ERP)
+  # ---------------------------------------------------------------------------
+  asali-pc1-retail:
+    build: .
+    container_name: asali-pc1-retail
+    command: ["python3", "api/node_pc1.py", "--port", "8011"]
+    ports:
+      - "8011:8011"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - asali-network
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Node 2 (Simulates PC 2: Regulatory Authority & Central CDSCO Cloud Machine)
+  # Hosts DB3 (Central MDM Relational Catalog) and DB4 (Ministry REST Microservice)
+  # ---------------------------------------------------------------------------
+  asali-pc2-authority:
+    build: .
+    container_name: asali-pc2-authority
+    command: ["python3", "api/node_pc2.py", "--port", "8012"]
+    ports:
+      - "8012:8012"
+      - "8001:8001"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - asali-network
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Mediator Node (Central GAV Federated Mediator & Web Dashboard)
+  # Integrates data across PC 1 and PC 2 via HTTP Network Wrappers
+  # ---------------------------------------------------------------------------
+  asali-mediator:
+    build: .
+    container_name: asali-mediator
+    command: ["python3", "-m", "http.server", "8000", "--directory", "dashboard"]
+    ports:
+      - "8000:8000"
+    environment:
+      - PC1_HOST=asali-pc1-retail
+      - PC1_PORT=8011
+      - PC2_HOST=asali-pc2-authority
+      - PC2_PORT=8012
+    depends_on:
+      - asali-pc1-retail
+      - asali-pc2-authority
+    networks:
+      - asali-network
+    restart: unless-stopped
+
+networks:
+  asali-network:
+    driver: bridge

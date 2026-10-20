@@ -1,0 +1,615 @@
+{
+ "generated_at": "2026-10-20T01:55:36",
+ "elapsed_s": 168.1,
+ "dataset": {
+  "catalogue_size": 201,
+  "train": 2884,
+  "test": 2887,
+  "test_positives": 2808,
+  "test_counterfeits": 79,
+  "test_by_kind": {
+   "clean": 887,
+   "delete": 200,
+   "ocr": 526,
+   "keyboard": 312,
+   "transpose": 216,
+   "insert": 95,
+   "format": 307,
+   "truncate": 38,
+   "mixed": 208,
+   "valid_but_wrong": 8,
+   "ocr_demo": 1,
+   "master_duplicate_ref": 4,
+   "missing_code": 6
+  },
+  "test_by_source": {
+   "db1": 2186,
+   "db2": 523,
+   "db4": 178
+  },
+  "cleansing_changes_applied": 0
+ },
+ "blocking": {
+  "method": "inverted index on confusion-folded character bigrams",
+  "pairs_completeness": 1.0,
+  "mean_block_size": 29.2,
+  "reduction_ratio": 0.8547,
+  "train_pairs_completeness": 1.0
+ },
+ "methods": [
+  {
+   "name": "Levenshtein",
+   "family": "string similarity on the code",
+   "threshold": 0.4,
+   "n_pos": 2802,
+   "n_noisy": 1915,
+   "n_neg": 79,
+   "top1": 0.9375,
+   "top1_noisy": 0.9086,
+   "recall_at_5": 0.9986,
+   "mrr": 0.9625,
+   "precision": 0.9118,
+   "recall": 0.9375,
+   "f1": 0.9245,
+   "false_link_rate_fakes": 1.0,
+   "tied_top1_rate": 0.0796,
+   "by_kind": {
+    "clean": 1.0,
+    "delete": 0.95,
+    "format": 1.0,
+    "insert": 0.9895,
+    "keyboard": 0.9295,
+    "master_duplicate_ref": 1.0,
+    "mixed": 0.8702,
+    "ocr": 0.8954,
+    "ocr_demo": 1.0,
+    "transpose": 0.8981,
+    "truncate": 0.2105,
+    "valid_but_wrong": 0.0
+   }
+  },
+  {
+   "name": "Damerau-Levenshtein",
+   "family": "string similarity on the code",
+   "threshold": 0.7,
+   "n_pos": 2802,
+   "n_noisy": 1915,
+   "n_neg": 79,
+   "top1": 0.9461,
+   "top1_noisy": 0.9211,
+   "recall_at_5": 0.9996,
+   "mrr": 0.9681,
+   "precision": 0.9256,
+   "recall": 0.9458,
+   "f1": 0.9356,
+   "false_link_rate_fakes": 0.7975,
+   "tied_top1_rate": 0.0742,
+   "by_kind": {
+    "clean": 1.0,
+    "delete": 0.95,
+    "format": 1.0,
+    "insert": 0.9895,
+    "keyboard": 0.9295,
+    "master_duplicate_ref": 1.0,
+    "mixed": 0.899,
+    "ocr": 0.8935,
+    "ocr_demo": 1.0,
+    "transpose": 0.9861,
+    "truncate": 0.2105,
+    "valid_but_wrong": 0.0
+   }
+  },
+  {
+   "name": "Jaro-Winkler",
+   "family": "string similarity on the code",
+   "threshold": 0.4,
+   "n_pos": 2802,
+   "n_noisy": 1915,
+   "n_neg": 79,
+   "top1": 0.9343,
+   "top1_noisy": 0.9039,
+   "recall_at_5": 0.9993,
+   "mrr": 0.9606,
+   "precision": 0.9087,
+   "recall": 0.9343,
+   "f1": 0.9213,
+   "false_link_rate_fakes": 1.0,
+   "tied_top1_rate": 0.0828,
+   "by_kind": {
+    "clean": 1.0,
+    "delete": 0.95,
+    "format": 1.0,
+    "insert": 0.9895,
+    "keyboard": 0.9071,
+    "master_duplicate_ref": 1.0,
+    "mixed": 0.8654,
+    "ocr": 0.8536,
+    "ocr_demo": 1.0,
+    "transpose": 0.9954,
+    "truncate": 0.2105,
+    "valid_but_wrong": 0.0
+   }
+  },
+  {
+   "name": "Bigram Jaccard",
+   "family": "string similarity on the code",
+   "threshold": 0.4,
+   "n_pos": 2802,
+   "n_noisy": 1915,
+   "n_neg": 79,
+   "top1": 0.9404,
+   "top1_noisy": 0.9128,
+   "recall_at_5": 0.9989,
+   "mrr": 0.9647,
+   "precision": 0.92,
+   "recall": 0.94,
+   "f1": 0.9299,
+   "false_link_rate_fakes": 0.7975,
+   "tied_top1_rate": 0.0639,
+   "by_kind": {
+    "clean": 1.0,
+    "delete": 0.955,
+    "format": 1.0,
+    "insert": 1.0,
+    "keyboard": 0.9263,
+    "master_duplicate_ref": 1.0,
+    "mixed": 0.8702,
+    "ocr": 0.8935,
+    "ocr_demo": 1.0,
+    "transpose": 0.9352,
+    "truncate": 0.2105,
+    "valid_but_wrong": 0.0
+   }
+  },
+  {
+   "name": "Soundex",
+   "family": "string similarity on the code",
+   "threshold": 0.76,
+   "n_pos": 2802,
+   "n_noisy": 1915,
+   "n_neg": 79,
+   "top1": 0.0696,
+   "top1_noisy": 0.0595,
+   "recall_at_5": 0.2894,
+   "mrr": 0.1688,
+   "precision": 0.0818,
+   "recall": 0.0689,
+   "f1": 0.0748,
+   "false_link_rate_fakes": 0.8481,
+   "tied_top1_rate": 1.0,
+   "by_kind": {
+    "clean": 0.0913,
+    "delete": 0.09,
+    "format": 0.0945,
+    "insert": 0.0842,
+    "keyboard": 0.0577,
+    "master_duplicate_ref": 0.0,
+    "mixed": 0.0433,
+    "ocr": 0.0399,
+    "ocr_demo": 1.0,
+    "transpose": 0.037,
+    "truncate": 0.0263,
+    "valid_but_wrong": 0.125
+   }
+  },
+  {
+   "name": "Learned OCR distance",
+   "family": "string similarity on the code",
+   "threshold": 0.4,
+   "n_pos": 2802,
+   "n_noisy": 1915,
+   "n_neg": 79,
+   "top1": 0.9686,
+   "top1_noisy": 0.954,
+   "recall_at_5": 1.0,
+   "mrr": 0.9817,
+   "precision": 0.942,
+   "recall": 0.9686,
+   "f1": 0.9551,
+   "false_link_rate_fakes": 1.0,
+   "tied_top1_rate": 0.0243,
+   "by_kind": {
+    "clean": 1.0,
+    "delete": 0.95,
+    "format": 1.0,
+    "insert": 1.0,
+    "keyboard": 0.9391,
+    "master_duplicate_ref": 0.75,
+    "mixed": 0.9423,
+    "ocr": 0.9905,
+    "ocr_demo": 1.0,
+    "transpose": 0.9861,
+    "truncate": 0.2105,
+    "valid_but_wrong": 0.0
+   }
+  },
+  {
+   "name": "Fellegi-Sunter, code only",
+   "family": "probabilistic linkage, learned code distance, no context",
+   "threshold": null,
+   "n_pos": 2808,
+   "n_noisy": 1921,
+   "n_neg": 79,
+   "top1": 0.9665,
+   "top1_noisy": 0.9511,
+   "recall_at_5": 0.9979,
+   "mrr": 0.9795,
+   "precision": 0.986,
+   "recall": 0.5524,
+   "f1": 0.7081,
+   "false_link_rate_fakes": 0.0,
+   "tied_top1_rate": null,
+   "by_kind": {
+    "clean": 1.0,
+    "delete": 0.95,
+    "format": 1.0,
+    "insert": 1.0,
+    "keyboard": 0.9359,
+    "master_duplicate_ref": 1.0,
+    "missing_code": 0.0,
+    "mixed": 0.9423,
+    "ocr": 0.9905,
+    "ocr_demo": 1.0,
+    "transpose": 0.9861,
+    "truncate": 0.2105,
+    "valid_but_wrong": 0.0
+   },
+   "review_rate": 0.406,
+   "review_top1_correct": 0.9283,
+   "no_match_precision": 0.4085,
+   "fakes_caught": 0.7342
+  },
+  {
+   "name": "Fellegi-Sunter + context (chosen)",
+   "family": "probabilistic linkage, learned code distance + custody, price, dates, label",
+   "threshold": null,
+   "n_pos": 2808,
+   "n_noisy": 1921,
+   "n_neg": 79,
+   "top1": 0.9879,
+   "top1_noisy": 0.9839,
+   "recall_at_5": 1.0,
+   "mrr": 0.9935,
+   "precision": 0.9985,
+   "recall": 0.9387,
+   "f1": 0.9677,
+   "false_link_rate_fakes": 0.0,
+   "tied_top1_rate": null,
+   "by_kind": {
+    "clean": 0.9966,
+    "delete": 0.955,
+    "format": 0.9967,
+    "insert": 1.0,
+    "keyboard": 0.984,
+    "master_duplicate_ref": 1.0,
+    "missing_code": 1.0,
+    "mixed": 0.9904,
+    "ocr": 0.9867,
+    "ocr_demo": 1.0,
+    "transpose": 1.0,
+    "truncate": 0.8421,
+    "valid_but_wrong": 0.875
+   },
+   "review_rate": 0.0558,
+   "review_top1_correct": 0.8137,
+   "no_match_precision": 0.9186,
+   "fakes_caught": 1.0
+  }
+ ],
+ "thresholds": {
+  "link": 0.9,
+  "none": 0.8,
+  "alt": 0.6
+ },
+ "pi0": {
+  "db1": 0.0277,
+  "db2": 0.0385,
+  "db4": 0.1057
+ },
+ "confusions": [
+  {
+   "truth": "M",
+   "observed": "N",
+   "cost": 0.1,
+   "seen": 119
+  },
+  {
+   "truth": "R",
+   "observed": "B",
+   "cost": 0.1,
+   "seen": 68
+  },
+  {
+   "truth": "V",
+   "observed": "U",
+   "cost": 0.1,
+   "seen": 61
+  },
+  {
+   "truth": "T",
+   "observed": "7",
+   "cost": 0.1,
+   "seen": 33
+  },
+  {
+   "truth": "A",
+   "observed": "4",
+   "cost": 0.1,
+   "seen": 28
+  },
+  {
+   "truth": "C",
+   "observed": "G",
+   "cost": 0.1,
+   "seen": 19
+  },
+  {
+   "truth": "H",
+   "observed": "N",
+   "cost": 0.1,
+   "seen": 11
+  },
+  {
+   "truth": "Z",
+   "observed": "2",
+   "cost": 0.113,
+   "seen": 4
+  },
+  {
+   "truth": "2",
+   "observed": "Z",
+   "cost": 0.121,
+   "seen": 33
+  },
+  {
+   "truth": "N",
+   "observed": "M",
+   "cost": 0.141,
+   "seen": 35
+  },
+  {
+   "truth": "4",
+   "observed": "A",
+   "cost": 0.143,
+   "seen": 15
+  },
+  {
+   "truth": "F",
+   "observed": "E",
+   "cost": 0.143,
+   "seen": 6
+  },
+  {
+   "truth": "0",
+   "observed": "O",
+   "cost": 0.156,
+   "seen": 16
+  },
+  {
+   "truth": "S",
+   "observed": "5",
+   "cost": 0.156,
+   "seen": 12
+  },
+  {
+   "truth": "P",
+   "observed": "O",
+   "cost": 0.156,
+   "seen": 4
+  },
+  {
+   "truth": "3",
+   "observed": "8",
+   "cost": 0.169,
+   "seen": 18
+  },
+  {
+   "truth": "6",
+   "observed": "G",
+   "cost": 0.18,
+   "seen": 31
+  },
+  {
+   "truth": "7",
+   "observed": "1",
+   "cost": 0.193,
+   "seen": 19
+  }
+ ],
+ "weights": {
+  "db1": {
+   "code": {
+    "manual:L2_one_edit": 4.24,
+    "ocr:L0_exact": 8.23,
+    "scan:L4_far": -15.02,
+    "ocr:L2_one_edit": 2.15,
+    "scan:L3_two_edits": -4.88,
+    "scan:L2_one_edit": -2.97,
+    "ocr:L1_confusable": 7.38,
+    "manual:L3_two_edits": 0.12,
+    "manual:L4_far": -15.29,
+    "scan:L1_confusable": -6.44,
+    "manual:L0_exact": 8.78,
+    "manual:L1_confusable": 6.04,
+    "ocr:L4_far": -9.34,
+    "scan:L0_exact": 22.28,
+    "ocr:L3_two_edits": 0.28
+   },
+   "custody": {
+    "to_vendor": 3.46,
+    "elsewhere": -9.17,
+    "same_city": -2.02,
+    "never": 1.53
+   },
+   "price": {
+    "extreme": -5.18,
+    "dump": -13.9,
+    "match": 2.72,
+    "low": -10.93,
+    "high": -12.39
+   },
+   "date": {
+    "pre_mfg": -13.12,
+    "pre_arrival": -7.7,
+    "expired": -6.72,
+    "ok": 0.18
+   },
+   "label_brand": {
+    "close": -0.17,
+    "agree": 2.55,
+    "disagree": -9.72
+   },
+   "label_strength": {
+    "agree": 3.09,
+    "disagree": -4.28
+   },
+   "label_batch": {
+    "exact": 19.28,
+    "far": -9.29,
+    "near": 2.52
+   },
+   "label_expiry": {
+    "agree": 4.73,
+    "disagree": -6.73
+   },
+   "label_mrp": {
+    "agree": 3.42,
+    "disagree": -9.23
+   }
+  },
+  "db2": {
+   "code": {
+    "erp:L1_confusable": 4.24,
+    "erp:L0_exact": 11.2,
+    "erp:L3_two_edits": -1.33,
+    "erp:L2_one_edit": 2.17,
+    "erp:L4_far": -13.33
+   },
+   "mfr": {
+    "agree": 1.94,
+    "disagree": -4.97,
+    "unknown_claim": -7.93
+   },
+   "auth": {
+    "authorized": 0.11,
+    "ghost": -3.11,
+    "not_authorized": -1.94
+   },
+   "dest": {
+    "unlicensed": -2.99,
+    "licensed": 0.05
+   },
+   "sold_at_dest": {
+    "no": -4.82,
+    "yes": 3.52
+   },
+   "date": {
+    "ok_fresh": 2.39,
+    "pre_mfg": -13.18,
+    "ok_old": -9.66,
+    "ok_aged": -7.99,
+    "expired": -0.66
+   }
+  },
+  "db4": {
+   "code": {
+    "citizen:L2_one_edit": 2.68,
+    "citizen:L0_exact": 17.67,
+    "citizen:L3_two_edits": -0.24,
+    "citizen:L1_confusable": 3.64,
+    "citizen:L4_far": -6.61
+   },
+   "brand_mention": {
+    "agree": 2.67,
+    "other_brand": -8.19
+   },
+   "vendor_mention": {
+    "agree": 3.62,
+    "disagree": -6.06
+   },
+   "date": {
+    "pre_mfg": -9.41,
+    "ok": 0.24
+   }
+  },
+  "ref": {}
+ },
+ "names": {
+  "n_queries": 720,
+  "n_brands": 55,
+  "methods": [
+   {
+    "name": "Levenshtein",
+    "top1": 0.9917,
+    "by_kind": {
+     "keyboard": 1.0,
+     "transpose": 0.9583,
+     "delete": 1.0,
+     "insert": 1.0,
+     "phonetic": 1.0,
+     "ocr": 0.9917
+    }
+   },
+   {
+    "name": "Damerau-Levenshtein",
+    "top1": 0.9986,
+    "by_kind": {
+     "keyboard": 1.0,
+     "transpose": 1.0,
+     "delete": 1.0,
+     "insert": 1.0,
+     "phonetic": 1.0,
+     "ocr": 0.9917
+    }
+   },
+   {
+    "name": "Jaro-Winkler",
+    "top1": 0.9958,
+    "by_kind": {
+     "keyboard": 0.9917,
+     "transpose": 1.0,
+     "delete": 1.0,
+     "insert": 1.0,
+     "phonetic": 1.0,
+     "ocr": 0.9833
+    }
+   },
+   {
+    "name": "Bigram Jaccard",
+    "top1": 0.9889,
+    "by_kind": {
+     "keyboard": 1.0,
+     "transpose": 0.9583,
+     "delete": 1.0,
+     "insert": 1.0,
+     "phonetic": 1.0,
+     "ocr": 0.975
+    }
+   },
+   {
+    "name": "Soundex",
+    "top1": 0.7778,
+    "by_kind": {
+     "keyboard": 0.675,
+     "transpose": 0.775,
+     "delete": 0.75,
+     "insert": 0.9167,
+     "phonetic": 0.8667,
+     "ocr": 0.6833
+    }
+   },
+   {
+    "name": "Jaro-Winkler + Soundex",
+    "top1": 0.9833,
+    "by_kind": {
+     "keyboard": 0.9583,
+     "transpose": 1.0,
+     "delete": 0.9833,
+     "insert": 0.9917,
+     "phonetic": 1.0,
+     "ocr": 0.9667
+    }
+   }
+  ]
+ }
+}

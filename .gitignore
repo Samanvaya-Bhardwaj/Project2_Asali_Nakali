@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Runtime state: cleansing lineage is rebuilt per demo, and the pre-phase-2 backup is local only
+databases/data_quality.sqlite
+databases/backup_before_phase2/

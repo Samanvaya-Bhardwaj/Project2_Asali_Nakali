@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verification terminal · Asali — Nakali</title>
+<meta name="description" content="Query one medicine serial across five autonomous data silos and read the arbitrated verdict with its evidence.">
+<link rel="icon" type="image/svg+xml" href="assets/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  /* Applies a saved theme choice before first paint. "system" writes nothing,
+     because the stylesheet already follows prefers-color-scheme. */
+  (function(){try{var t=localStorage.getItem("asali_theme");
+  if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);
+  document.documentElement.style.colorScheme=t;}}catch(e){}})();
+</script>
+<link rel="preload" href="assets/fonts/iosevka-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script src="assets/theme.js" defer></script>
+<script src="assets/transition.js" defer></script>
+</head>
+<body class="has-subnav">
+
+<!-- ========================= NAV ========================= -->
+<header class="nav">
+  <div class="shell nav-inner">
+    <div class="row gap-3">
+    <a href="index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#D8FF3E"/><path d="M16 7.5a8.5 8.5 0 0 0 0 17z" fill="#0A0B0D"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#0A0B0D" stroke-width="1.8"/><g stroke="#0A0B0D" stroke-width="1.5" stroke-linecap="round"><path d="M17.8 10.4 L21.6 14.2"/><path d="M17.8 14.2 L22.4 18.8"/><path d="M17.8 18 L20.6 20.8"/></g></svg></span>
+      <span>Asali<span class="brand-slash"> / </span>Nakali</span>
+    </a>
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span>Overview</span>
+    </a>
+    </div>
+    <div class="row gap-2">
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+      <span class="badge" id="navClusterBadge"><span class="dot dot-amber dot-pulse"></span> Checking nodes</span>
+      <a href="explorer.html" class="btn btn-accent btn-sm">Explorer</a>
+    </div>
+  </div>
+</header>
+
+<!-- ========================= SECTION BAR ========================= -->
+<div class="subnav">
+  <div class="shell subnav-inner">
+    <span class="subnav-label">Jump to</span>
+    <nav class="nav-links seg" style="display:flex;">
+      <a href="#query" class="seg-item is-active">Search</a>
+      <a href="#verdict" class="seg-item">Verdict</a>
+      <a href="#pack" class="seg-item">Pack &amp; custody</a>
+      <a href="#silos" class="seg-item">What each silo said</a>
+      <a href="#evidence" class="seg-item">Evidence</a>
+    </nav>
+  </div>
+</div>
+
+<main>
+
+<!-- ========================= QUERY ========================= -->
+<section class="shell section-tight" id="query">
+  <div class="stack gap-6">
+    <div class="stack gap-4" style="max-width:68ch;">
+      <p class="eyebrow eyebrow-lime">Verification terminal</p>
+      <h1 class="display display-lg">
+        Check a pack against <span class="hl-lime">every record</span>
+      </h1>
+      <p class="lede">
+        Enter a serial and the mediator splits it into four sub-queries, sends them to both nodes,
+        and reconciles the answers. Everything below is the reasoning behind the verdict, not just
+        the verdict itself.
+      </p>
+    </div>
+
+    <!-- Query bar -->
+    <div class="card card-pad-lg">
+      <div class="stack gap-5">
+        <div class="row-wrap gap-3">
+          <div class="grow" style="min-width: 240px;">
+            <label class="eyebrow" for="itemCodeInput" style="display:block; margin-bottom:8px;">Serial, barcode or batch number</label>
+            <input id="itemCodeInput" class="field" type="text" value="MED-ASALI-001"
+                   placeholder="MED-ASALI-001" autocomplete="off" spellcheck="false">
+          </div>
+          <button id="btnSearch" class="btn btn-primary btn-lg" style="align-self:flex-end;">
+            Run verification
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <hr class="divider-dashed">
+
+        <div class="stack gap-3">
+          <p class="eyebrow">Benchmark cases</p>
+          <div class="row-wrap gap-2" id="scenarioPills">
+            <button class="pill-btn scenario-pill is-active" data-code="MED-ASALI-001" onclick="loadScenario('MED-ASALI-001')">Genuine batch</button>
+            <button class="pill-btn scenario-pill" data-code="MED-NAKALI-001" onclick="loadScenario('MED-NAKALI-001')">Unregistered serial</button>
+            <button class="pill-btn scenario-pill" data-code="MED-ASALI-009" onclick="loadScenario('MED-ASALI-009')">Cold-chain failure</button>
+            <button class="pill-btn scenario-pill" data-code="MED-ASALI-002" onclick="loadScenario('MED-ASALI-002')">Cloned barcode</button>
+            <button class="pill-btn scenario-pill" data-code="MED-NAKALI-002" onclick="loadScenario('MED-NAKALI-002')">Blacklisted batch</button>
+          </div>
+          <p class="small faint">
+            Try misspelling one. Entering <span class="mono">MED-ASAL1-OO1</span> or a batch number
+            like <span class="mono">BATCH-A001</span> still resolves to the right record.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Where this answer came from -->
+    <div class="card card-2" style="padding:15px 18px;">
+      <div class="row-wrap gap-3 between">
+        <div class="row gap-3 grow" style="min-width:240px;">
+          <span class="chip chip-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>
+          </span>
+          <div class="grow">
+            <p class="eyebrow">Source of this verdict</p>
+            <p class="small muted" id="dataSourceNote" style="margin-top:3px;">Checking the cluster…</p>
+          </div>
+        </div>
+        <div class="row-wrap gap-2">
+          <span class="badge" id="dataSourceBadge">Checking…</span>
+          <button class="btn btn-ghost btn-sm" onclick="Cluster.openPanel()">Change connection</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Identifier resolution notice -->
+    <div id="fuzzyResolutionBanner" class="card card-2 hidden fade-in" style="padding:15px 18px;">
+      <div class="row-wrap gap-3 between">
+        <div class="row gap-3 grow">
+          <span class="chip chip-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 7h8M8 12h8M8 17h5"/></svg>
+          </span>
+          <div class="grow">
+            <p class="eyebrow">Identifier resolved</p>
+            <p class="small" id="fuzzyBannerText" style="margin-top:3px;">—</p>
+          </div>
+        </div>
+        <span class="badge badge-blue" id="fuzzyConfidenceBadge">—</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= VERDICT ========================= -->
+<section class="shell" id="verdict" style="padding-bottom: 8px;">
+  <div class="bento">
+
+    <!-- Trust gauge -->
+    <div class="col-4">
+      <div class="card card-pad-lg" id="verdictCard" style="height:100%;">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Trust index</p>
+            <p class="serial" id="itemCodeDisplay" style="margin-top:6px;">MED-ASALI-001</p>
+          </div>
+          <span class="badge" id="verdictBadge">—</span>
+        </div>
+
+        <div class="gauge" style="margin-inline:auto;">
+          <svg viewBox="0 0 200 124" role="img" aria-labelledby="gaugeLabel">
+            <title id="gaugeLabel">Trust index gauge</title>
+            <defs>
+              <pattern id="gaugeHatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                <line x1="0" y="0" x2="0" y2="7" stroke="var(--hatch-ink)" stroke-width="2.4"/>
+              </pattern>
+            </defs>
+            <path d="M 18 112 A 82 82 0 0 1 182 112" fill="none" stroke="url(#gaugeHatch)" stroke-width="15" stroke-linecap="round"/>
+            <path d="M 18 112 A 82 82 0 0 1 182 112" fill="none" class="gauge-track" stroke-width="15" stroke-linecap="round" opacity="0.5"/>
+            <path id="gaugeArc" class="gauge-arc" d="M 18 112 A 82 82 0 0 1 182 112"
+                  fill="none" stroke-width="15" stroke-dasharray="257.6" stroke-dashoffset="257.6"/>
+            <circle id="gaugeKnob" class="gauge-knob" cx="18" cy="112" r="6"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="readout">
+              <span class="readout-num tnum" id="gaugeScoreNum">0</span>
+              <span class="readout-den">/100</span>
+            </div>
+            <p class="eyebrow" id="trustScoreLabel" style="margin-top:6px;">—</p>
+          </div>
+        </div>
+
+        <hr class="divider-dashed" style="margin-block:18px 14px;">
+
+        <div class="kv" style="padding-top:0;">
+          <span class="kv-key">Mediator confidence</span>
+          <span class="kv-val mono" id="confidenceVal">—</span>
+        </div>
+        <div class="kv">
+          <span class="kv-key">Silos answering</span>
+          <span class="kv-val"><span class="badge" id="dbCoverageBadge">—</span></span>
+        </div>
+        <div class="kv">
+          <span class="kv-key">Lifecycle state</span>
+          <span class="kv-val mono" id="lifecycleVal">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verdict statement -->
+    <div class="col-8">
+      <div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column;">
+        <div class="card-head">
+          <p class="eyebrow">Verdict</p>
+          <span class="badge" id="tierBadge">—</span>
+        </div>
+
+        <h2 class="display display-md" id="verdictWordMark" style="margin-bottom:10px;">Asali</h2>
+        <h3 class="h-lg" id="verdictTitle">—</h3>
+        <p class="muted" id="verdictSubtitle" style="margin-top:10px; max-width:68ch;">—</p>
+
+        <hr class="divider-dashed" style="margin-block:20px;">
+
+        <p class="eyebrow" style="margin-bottom:12px;">How the verdict was reached</p>
+        <div class="bento" style="gap:10px;">
+          <div class="col-3"><div class="card card-inset card-pad-sm" id="step1Node">
+            <div class="row gap-3">
+              <span class="custody-marker custody-marker-ok" id="step1Num">1</span>
+              <div class="grow" style="min-width:0;">
+                <p class="xsmall" style="font-weight:600;">Serial read</p>
+                <p class="xsmall faint trunc" id="step1Status">Resolved</p>
+              </div>
+            </div>
+          </div></div>
+          <div class="col-3"><div class="card card-inset card-pad-sm" id="step2Node">
+            <div class="row gap-3">
+              <span class="custody-marker" id="step2Num">2</span>
+              <div class="grow" style="min-width:0;">
+                <p class="xsmall" style="font-weight:600;">Registry checked</p>
+                <p class="xsmall faint trunc" id="step2Status">—</p>
+              </div>
+            </div>
+          </div></div>
+          <div class="col-3"><div class="card card-inset card-pad-sm" id="step3Node">
+            <div class="row gap-3">
+              <span class="custody-marker" id="step3Num">3</span>
+              <div class="grow" style="min-width:0;">
+                <p class="xsmall" style="font-weight:600;">Veto gate</p>
+                <p class="xsmall faint trunc" id="step3Status">—</p>
+              </div>
+            </div>
+          </div></div>
+          <div class="col-3"><div class="card card-inset card-pad-sm" id="step4Node">
+            <div class="row gap-3">
+              <span class="custody-marker" id="step4Num">4</span>
+              <div class="grow" style="min-width:0;">
+                <p class="xsmall" style="font-weight:600;">Dispensing</p>
+                <p class="xsmall faint trunc" id="step4Status">—</p>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="mt-auto"></div>
+        <div class="row-wrap gap-2" style="margin-top:20px;">
+          <button class="btn btn-ghost btn-sm" onclick="openDossierModal()">View incident report</button>
+          <button class="btn btn-outline btn-sm" onclick="downloadDossierText()">Download as text</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- What the registry said -->
+    <div class="col-12">
+      <div id="backendStatusAlert" class="card hidden fade-in">
+        <div class="row-wrap gap-4 start">
+          <span class="chip chip-red" id="backendAlertIconContainer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          </span>
+          <div class="grow" style="min-width:220px;">
+            <div class="row-wrap gap-2" style="margin-bottom:6px;">
+              <span class="badge badge-red" id="backendAlertBadge">—</span>
+              <span class="badge" id="backendAlertDbSource">—</span>
+            </div>
+            <h3 class="h-md" id="backendAlertTitle">—</h3>
+            <p class="small muted" id="backendAlertDesc" style="margin-top:6px; max-width:84ch;">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regulatory notice -->
+    <div class="col-12">
+      <div id="regulatoryAlertCard" class="card card-lime hidden fade-in">
+        <div class="row-wrap gap-4 between">
+          <div class="row gap-3 grow" style="min-width:240px;">
+            <span class="chip" style="background:#0A0B0D; color:var(--lime); box-shadow:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+            </span>
+            <div>
+              <p class="eyebrow">Reported to the regulator</p>
+              <p class="small" id="regulatoryNoticeText" style="margin-top:4px; font-weight:500;">—</p>
+            </div>
+          </div>
+          <button class="btn btn-sm" style="background:#0A0B0D; color:var(--lime);" onclick="openDossierModal()">Read the report</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========================= PACK + CUSTODY ========================= -->
+<section class="shell section-tight" id="pack">
+  <div class="bento">
+
+    <!-- Unit pack -->
+    <div class="col-5">
+      <div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column;">
+        <div class="card-head">
+          <p class="eyebrow">The pack, as it claims to be</p>
+          <span class="badge" id="packSealBadge">—</span>
+        </div>
+
+        <div class="card card-inset" style="padding:20px; flex:1 1 auto; display:flex; flex-direction:column;">
+          <p class="eyebrow" id="packManufacturer">—</p>
+          <h3 class="display display-sm" id="packBrand" style="margin-block:8px 4px;">—</h3>
+          <p class="small muted" id="packGeneric">—</p>
+
+          <hr class="divider-dashed" style="margin-block:16px;">
+
+          <div class="kv" style="padding-top:0;"><span class="kv-key">Batch</span><span class="kv-val mono" id="packBatch">—</span></div>
+          <div class="kv"><span class="kv-key">Manufactured</span><span class="kv-val mono" id="packMfgDate">—</span></div>
+          <div class="kv"><span class="kv-key">Expires</span><span class="kv-val mono" id="packExpDate">—</span></div>
+          <div class="kv"><span class="kv-key">Printed price</span><span class="kv-val mono" id="packPrice">—</span></div>
+
+          <div style="margin-top:auto; padding:14px 14px 12px; border-radius:var(--r-sm); background:var(--wash-1);">
+            <div id="barcodeStripe" style="display:flex; gap:0; height:46px; align-items:stretch;"></div>
+            <p class="mono xsmall faint" id="barcodeCaption" style="margin-top:8px; text-align:center; letter-spacing:0.14em;">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chain of custody -->
+    <div class="col-7">
+      <div class="card card-pad-lg" style="height:100%;">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Chain of custody</p>
+            <h3 class="h-md" style="margin-top:6px;">From factory to counter</h3>
+          </div>
+          <span class="index-num">3 stages</span>
+        </div>
+
+        <div class="custody">
+          <div class="custody-node">
+            <div class="custody-rail">
+              <span class="custody-marker" id="custodyMarker1">1</span>
+              <span class="custody-line"></span>
+            </div>
+            <div class="grow">
+              <div class="row-wrap gap-2 between">
+                <p class="h-sm" id="custodyTitle1">—</p>
+                <span class="badge" id="custodyBadge1">—</span>
+              </div>
+              <p class="small muted" id="custodySub1" style="margin-top:4px;">—</p>
+              <p class="xsmall faint" style="margin-top:6px;">Source: drug registry (DB3)</p>
+            </div>
+          </div>
+
+          <div class="custody-node">
+            <div class="custody-rail">
+              <span class="custody-marker" id="custodyMarker2">2</span>
+              <span class="custody-line"></span>
+            </div>
+            <div class="grow">
+              <div class="row-wrap gap-2 between">
+                <p class="h-sm" id="custodyTitle2">—</p>
+                <span class="badge" id="custodyBadge2">—</span>
+              </div>
+              <p class="small muted" id="custodySub2" style="margin-top:4px;">—</p>
+              <p class="xsmall faint" style="margin-top:6px;">Source: distributor ledger and temperature sensors (DB2)</p>
+            </div>
+          </div>
+
+          <div class="custody-node">
+            <div class="custody-rail">
+              <span class="custody-marker" id="custodyMarker3">3</span>
+              <span class="custody-line"></span>
+            </div>
+            <div class="grow">
+              <div class="row-wrap gap-2 between">
+                <p class="h-sm" id="custodyTitle3">—</p>
+                <span class="badge" id="custodyBadge3">—</span>
+              </div>
+              <p class="small muted" id="custodySub3" style="margin-top:4px;">—</p>
+              <p class="xsmall faint" style="margin-top:6px;">Source: retail checkout scans (DB1)</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider-dashed" style="margin-block:18px;">
+
+        <p class="eyebrow" style="margin-bottom:12px;">Reconciled details</p>
+        <div class="bento" style="gap:10px;">
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Manufacturer</span><span class="kv-val trunc" id="metaManufacturer">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Licence</span><span class="kv-val mono trunc" id="metaRegNo">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Batch</span><span class="kv-val mono trunc" id="metaBatch">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Expiry</span><span class="kv-val mono trunc" id="metaExpiry">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Distributor</span><span class="kv-val trunc" id="metaDistributor">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Cold chain</span><span class="kv-val trunc" id="metaColdChain">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Sold by</span><span class="kv-val trunc" id="metaPharmacy">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Price paid</span><span class="kv-val mono trunc" id="metaPrice">—</span></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========================= SILOS ========================= -->
+<section class="shell section-tight" id="silos">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:32ch;">
+        <p class="eyebrow eyebrow-lime">Sub-queries</p>
+        <h2 class="display display-md" style="margin-top:8px;">What each silo returned</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        The same question, asked four different ways. Open a card to see the query that was
+        actually sent and what came back.
+      </p>
+    </div>
+
+    <div class="bento">
+      <!-- DB1 -->
+      <div class="col-6"><div class="card" id="db1Card">
+        <div class="card-head" style="margin-bottom:12px;">
+          <div class="row gap-3">
+            <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 5-5"/></svg></span>
+            <div>
+              <p class="h-sm">Retail checkouts</p>
+              <p class="xsmall faint">DB1, JSON documents on node PC1</p>
+            </div>
+          </div>
+          <span class="badge" id="db1Badge">—</span>
+        </div>
+        <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD1Status">—</span></div>
+        <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD1Detail">—</span></div>
+        <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db1')">
+          <span>Query and findings</span>
+          <svg class="chev" id="db1Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div id="db1Dropdown" class="hidden" style="margin-top:12px;">
+          <pre class="terminal" style="max-height:none;" id="db1QueryCode">—</pre>
+          <p class="small muted" id="db1CaseDetail" style="margin-top:10px;">—</p>
+        </div>
+      </div></div>
+
+      <!-- DB2 -->
+      <div class="col-6"><div class="card" id="db2Card">
+        <div class="card-head" style="margin-bottom:12px;">
+          <div class="row gap-3">
+            <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span>
+            <div>
+              <p class="h-sm">Distribution and transit</p>
+              <p class="xsmall faint">DB2, SQLite on node PC1</p>
+            </div>
+          </div>
+          <span class="badge" id="db2Badge">—</span>
+        </div>
+        <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD2Status">—</span></div>
+        <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD2Detail">—</span></div>
+        <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db2')">
+          <span>Query and findings</span>
+          <svg class="chev" id="db2Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div id="db2Dropdown" class="hidden" style="margin-top:12px;">
+          <pre class="terminal" style="max-height:none;" id="db2QueryCode">—</pre>
+          <p class="small muted" id="db2CaseDetail" style="margin-top:10px;">—</p>
+        </div>
+      </div></div>
+
+      <!-- DB3 -->
+      <div class="col-6"><div class="card" id="db3Card">
+        <div class="card-head" style="margin-bottom:12px;">
+          <div class="row gap-3">
+            <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></span>
+            <div>
+              <p class="h-sm">Drug registry</p>
+              <p class="xsmall faint">DB3, master catalogue on node PC2</p>
+            </div>
+          </div>
+          <span class="badge" id="db3Badge">—</span>
+        </div>
+        <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD3Status">—</span></div>
+        <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD3Detail">—</span></div>
+        <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db3')">
+          <span>Query and findings</span>
+          <svg class="chev" id="db3Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div id="db3Dropdown" class="hidden" style="margin-top:12px;">
+          <pre class="terminal" style="max-height:none;" id="db3QueryCode">—</pre>
+          <p class="small muted" id="db3CaseDetail" style="margin-top:10px;">—</p>
+        </div>
+      </div></div>
+
+      <!-- DB4 -->
+      <div class="col-6"><div class="card" id="db4Card">
+        <div class="card-head" style="margin-bottom:12px;">
+          <div class="row gap-3">
+            <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span>
+            <div>
+              <p class="h-sm">Complaints and recalls</p>
+              <p class="xsmall faint">DB4, REST service on node PC2</p>
+            </div>
+          </div>
+          <span class="badge" id="db4Badge">—</span>
+        </div>
+        <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD4Status">—</span></div>
+        <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD4Detail">—</span></div>
+        <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db4')">
+          <span>Query and findings</span>
+          <svg class="chev" id="db4Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div id="db4Dropdown" class="hidden" style="margin-top:12px;">
+          <pre class="terminal" style="max-height:none;" id="db4QueryCode">—</pre>
+          <p class="small muted" id="db4CaseDetail" style="margin-top:10px;">—</p>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= EVIDENCE ========================= -->
+<section class="shell section-tight" id="evidence">
+  <div class="bento">
+    <div class="col-7">
+      <div class="card card-pad-lg" style="height:100%;">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Evidence</p>
+            <h3 class="h-md" style="margin-top:6px;">Signals that moved the score</h3>
+          </div>
+          <span class="badge" id="evidenceCountBadge">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr><th>Signal</th><th>Change</th><th>Source</th><th>Finding</th></tr>
+            </thead>
+            <tbody id="auditSignalsTbody"></tbody>
+          </table>
+        </div>
+        <div class="row-wrap gap-3 between" style="margin-top:14px;">
+          <span class="eyebrow">Audit entry</span>
+          <span class="hash-chip" id="auditHashDisplay" onclick="copyHash(this)">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-5">
+      <div class="card card-pad-lg" style="height:100%;">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Arbitration</p>
+            <h3 class="h-md" style="margin-top:6px;">Where the silos disagreed</h3>
+          </div>
+          <span class="badge" id="conflictCountBadge">—</span>
+        </div>
+        <p class="small faint" style="margin-bottom:12px;">Item <span class="mono" id="conflictActiveItem">—</span></p>
+        <div class="stack gap-3" id="conflictListContainer"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= NEXT ========================= -->
+<section class="shell section-tight">
+  <div class="card card-pad-lg">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:52ch;">
+        <p class="eyebrow eyebrow-lime">Next</p>
+        <h3 class="h-lg" style="margin-top:8px;">Want to see where these answers come from?</h3>
+        <p class="small muted" style="margin-top:8px;">
+          The explorer shows every schema and live row behind this verdict, lets you run operations
+          against either node, and includes the entity resolution and unit conversion tools.
+        </p>
+      </div>
+      <a href="explorer.html" class="btn btn-primary">
+        Open the explorer
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ========================= FOOTER ========================= -->
+<footer class="footer">
+  <div class="shell row-wrap gap-4 between">
+    <div>
+      <p class="brand" style="font-size:1.1rem;"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#D8FF3E"/><path d="M16 7.5a8.5 8.5 0 0 0 0 17z" fill="#0A0B0D"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#0A0B0D" stroke-width="1.8"/><g stroke="#0A0B0D" stroke-width="1.5" stroke-linecap="round"><path d="M17.8 10.4 L21.6 14.2"/><path d="M17.8 14.2 L22.4 18.8"/><path d="M17.8 18 L20.6 20.8"/></g></svg></span> Asali<span class="brand-slash"> / </span>Nakali</p>
+      <p class="small muted" style="margin-top:8px;">Federated anti-counterfeit verification.</p>
+    </div>
+    <div class="row-wrap gap-2">
+      <a href="index.html" class="pill-btn">Overview</a>
+      <a href="explorer.html" class="pill-btn">Database explorer</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ========================= INCIDENT REPORT ========================= -->
+<div id="dossierModal" class="modal hidden">
+  <div class="modal-panel">
+    <div class="card-head">
+      <div>
+        <p class="eyebrow eyebrow-lime">Generated for regulatory filing</p>
+        <h3 class="display display-sm" style="margin-top:6px;">Incident report</h3>
+      </div>
+      <button class="icon-btn" onclick="closeDossierModal()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="card card-inset" style="padding:18px;">
+      <div class="kv" style="padding-top:0;"><span class="kv-key">Report number</span><span class="kv-val mono" id="dossierId">—</span></div>
+      <div class="kv"><span class="kv-key">Item</span><span class="kv-val mono" id="dossierItemCode">—</span></div>
+      <div class="kv"><span class="kv-key">Violation</span><span class="kv-val" id="dossierViolation">—</span></div>
+      <div class="kv"><span class="kv-key">Filed with</span><span class="kv-val">Drug controller and consumer affairs ministry</span></div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <p class="eyebrow" style="margin-bottom:8px;">Recommended action</p>
+      <p class="small muted" id="dossierAction">—</p>
+    </div>
+
+    <div class="row-wrap gap-2" style="margin-top:22px; justify-content:flex-end;">
+      <button class="btn btn-ghost btn-sm" onclick="closeDossierModal()">Close</button>
+      <button class="btn btn-primary btn-sm" onclick="downloadDossierText()">Download as text</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/engines.js"></script>
+<script src="assets/cluster.js"></script>
+<script src="app.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

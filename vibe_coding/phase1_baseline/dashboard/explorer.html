@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database explorer · Asali — Nakali</title>
+<meta name="description" content="Inspect every schema, browse live records, run operations against either node, and validate the audit chain.">
+<link rel="icon" type="image/svg+xml" href="assets/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  /* Applies a saved theme choice before first paint. "system" writes nothing,
+     because the stylesheet already follows prefers-color-scheme. */
+  (function(){try{var t=localStorage.getItem("asali_theme");
+  if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);
+  document.documentElement.style.colorScheme=t;}}catch(e){}})();
+</script>
+<link rel="preload" href="assets/fonts/iosevka-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script src="assets/theme.js" defer></script>
+<script src="assets/transition.js" defer></script>
+</head>
+<body class="has-subnav">
+
+<!-- ========================= NAV ========================= -->
+<header class="nav">
+  <div class="shell nav-inner">
+    <div class="row gap-3">
+    <a href="index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#D8FF3E"/><path d="M16 7.5a8.5 8.5 0 0 0 0 17z" fill="#0A0B0D"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#0A0B0D" stroke-width="1.8"/><g stroke="#0A0B0D" stroke-width="1.5" stroke-linecap="round"><path d="M17.8 10.4 L21.6 14.2"/><path d="M17.8 14.2 L22.4 18.8"/><path d="M17.8 18 L20.6 20.8"/></g></svg></span>
+      <span>Asali<span class="brand-slash"> / </span>Nakali</span>
+    </a>
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span>Overview</span>
+    </a>
+    </div>
+    <div class="row gap-2">
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+      <span class="badge" id="navClusterBadge"><span class="dot dot-amber dot-pulse"></span> Checking nodes</span>
+      <a href="verify.html" class="btn btn-primary btn-sm">Verify a medicine</a>
+    </div>
+  </div>
+</header>
+
+<!-- ========================= SECTION BAR ========================= -->
+<div class="subnav">
+  <div class="shell subnav-inner">
+    <span class="subnav-label">Jump to</span>
+    <nav class="nav-links seg" style="display:flex;">
+      <a href="#cluster" class="seg-item is-active">Cluster</a>
+      <a href="#schemas" class="seg-item">Schemas</a>
+      <a href="#sectionLiveEntries" class="seg-item">Live records</a>
+      <a href="#operations" class="seg-item">Operations</a>
+      <a href="#conflicts" class="seg-item">Disagreements</a>
+      <a href="#tools" class="seg-item">Tools</a>
+      <a href="#sectionActivity" class="seg-item">Activity</a>
+      <a href="#audit" class="seg-item">Audit chain</a>
+    </nav>
+  </div>
+</div>
+
+<main>
+
+<!-- ========================= INTRO + TOPOLOGY ========================= -->
+<section class="shell section-tight" id="cluster">
+  <div class="stack gap-6">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:52ch;">
+        <p class="eyebrow eyebrow-lime">Database explorer</p>
+        <h1 class="display display-lg" style="margin-top:10px;">Everything <span class="hl-lime">behind</span> the verdict</h1>
+      </div>
+      <p class="lede" style="max-width:44ch;">
+        The verification page shows a conclusion. This page shows the raw material: the schemas,
+        the live rows, and the operations you can run against either node yourself.
+      </p>
+    </div>
+
+    <!-- Cluster -->
+    <div class="card card-pad-lg">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">Cluster</p>
+          <h2 class="h-lg" style="margin-top:6px;">Two nodes, five silos</h2>
+        </div>
+        <button class="icon-btn" onclick="pingClusterNodes()" title="Check both nodes again" aria-label="Check both nodes again">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+        </button>
+      </div>
+
+      <div class="bento" style="gap:12px;">
+        <div class="col-6"><div class="card card-inset" style="padding:20px; height:100%;">
+          <div class="row-wrap gap-2 between" style="margin-bottom:12px;">
+            <span class="badge badge-lime">Node PC1</span>
+            <span class="badge" id="pc1StatusBadge">Checking…</span>
+          </div>
+          <h3 class="h-md">Retail and logistics</h3>
+          <p class="mono xsmall faint" id="pc1Latency" style="margin-top:6px;">—</p>
+          <hr class="divider-dashed" style="margin-block:14px;">
+          <div class="kv" style="padding-top:0;"><span class="kv-key">Retail checkouts</span><span class="kv-val mono xsmall">DB1</span></div>
+          <div class="kv"><span class="kv-key">Distributor ledger</span><span class="kv-val mono xsmall">DB2</span></div>
+        </div></div>
+
+        <div class="col-6"><div class="card card-inset" style="padding:20px; height:100%;">
+          <div class="row-wrap gap-2 between" style="margin-bottom:12px;">
+            <span class="badge badge-blue">Node PC2</span>
+            <span class="badge" id="pc2StatusBadge">Checking…</span>
+          </div>
+          <h3 class="h-md">Regulator and ministry</h3>
+          <p class="mono xsmall faint" id="pc2Latency" style="margin-top:6px;">—</p>
+          <hr class="divider-dashed" style="margin-block:14px;">
+          <div class="kv" style="padding-top:0;"><span class="kv-key">Drug registry</span><span class="kv-val mono xsmall">DB3</span></div>
+          <div class="kv"><span class="kv-key">Consumer grievances</span><span class="kv-val mono xsmall">DB4</span></div>
+          <div class="kv"><span class="kv-key">Audit ledger</span><span class="kv-val mono xsmall">chain</span></div>
+        </div></div>
+      </div>
+
+      <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleClusterGuide()">
+        <span>Change endpoints, or start the nodes</span>
+        <svg class="chev" id="clusterGuideChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <div id="clusterGuideDrawer" class="hidden" style="margin-top:14px;">
+        <div class="bento" style="gap:12px;">
+          <div class="col-6">
+            <label class="eyebrow" for="inputPc1Endpoint" style="display:block; margin-bottom:8px;">Node PC1 address</label>
+            <input id="inputPc1Endpoint" class="field field-sm" value="http://127.0.0.1:8011" spellcheck="false">
+          </div>
+          <div class="col-6">
+            <label class="eyebrow" for="inputPc2Endpoint" style="display:block; margin-bottom:8px;">Node PC2 address</label>
+            <input id="inputPc2Endpoint" class="field field-sm" value="http://127.0.0.1:8012" spellcheck="false">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="saveClusterEndpoints()">Save and reconnect</button>
+        <hr class="divider-dashed" style="margin-block:16px;">
+        <p class="eyebrow" style="margin-bottom:8px;">Starting the nodes</p>
+        <pre class="terminal" style="max-height:none;">python3 scripts/run_cluster.py --mode all
+
+# or one machine each, on the same network:
+python3 scripts/run_cluster.py --mode pc1
+python3 scripts/run_cluster.py --mode pc2</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SCHEMAS ========================= -->
+<section class="shell section-tight" id="schemas">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:30ch;">
+        <span class="index-num">Section 1</span>
+        <h2 class="display display-md" style="margin-top:6px;">Schemas</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        Four storage paradigms with four different vocabularies. The same pack is
+        <span class="mono xsmall">scan_code</span> at the counter, <span class="mono xsmall">batch_serial</span>
+        in transit and <span class="mono xsmall">product_uid</span> in the registry, which is the whole
+        reason a mediator is needed.
+      </p>
+    </div>
+
+    <div class="card card-pad-lg">
+      <div class="row-wrap gap-2" style="margin-bottom:20px;">
+        <button class="pill-btn schema-db-pill is-active" data-db="db1" onclick="selectSchemaDb('db1')">Retail checkouts</button>
+        <button class="pill-btn schema-db-pill" data-db="db2" onclick="selectSchemaDb('db2')">Distribution</button>
+        <button class="pill-btn schema-db-pill" data-db="db3" onclick="selectSchemaDb('db3')">Drug registry</button>
+        <button class="pill-btn schema-db-pill" data-db="db4" onclick="selectSchemaDb('db4')">Grievances</button>
+        <button class="pill-btn schema-db-pill" data-db="audit" onclick="selectSchemaDb('audit')">Audit ledger</button>
+      </div>
+
+      <div id="schemaMetaContainer"></div>
+
+      <hr class="divider-dashed" style="margin-block:20px;">
+
+      <p class="eyebrow" style="margin-bottom:10px;">Tables</p>
+      <div class="row-wrap gap-2" id="schemaTablePills" style="margin-bottom:18px;"></div>
+
+      <div class="row-wrap gap-3 between" style="margin-bottom:12px;">
+        <p class="small" id="schemaActiveTableTitle">—</p>
+        <button class="btn btn-ghost btn-sm" id="schemaJumpBtn" onclick="jumpToLiveEntries('db1','purchase_events')">
+          See the rows
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraint</th><th>What it holds</th></tr></thead>
+          <tbody id="schemaTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= LIVE RECORDS ========================= -->
+<section class="shell section-tight" id="sectionLiveEntries">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:30ch;">
+        <span class="index-num">Section 2</span>
+        <h2 class="display display-md" style="margin-top:6px;">Live records</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        Read directly from the nodes with no caching in between. Search any column, page through
+        the results, and click a hash to copy it.
+      </p>
+    </div>
+
+    <div class="card card-pad-lg">
+      <div class="row-wrap gap-2" style="margin-bottom:14px;">
+        <button class="pill-btn entries-db-pill is-active" data-db="db1" onclick="selectEntriesDb('db1')">Retail checkouts</button>
+        <button class="pill-btn entries-db-pill" data-db="db2" onclick="selectEntriesDb('db2')">Distribution</button>
+        <button class="pill-btn entries-db-pill" data-db="db3" onclick="selectEntriesDb('db3')">Drug registry</button>
+        <button class="pill-btn entries-db-pill" data-db="db4" onclick="selectEntriesDb('db4')">Grievances</button>
+        <button class="pill-btn entries-db-pill" data-db="audit" onclick="selectEntriesDb('audit')">Audit ledger</button>
+      </div>
+
+      <div class="row-wrap gap-2" id="entriesTablePillsContainer" style="margin-bottom:16px;"></div>
+
+      <hr class="divider-dashed" style="margin-bottom:16px;">
+
+      <div class="row-wrap gap-3 between" style="margin-bottom:14px;">
+        <div class="row gap-2 grow" style="min-width:220px;">
+          <input id="entriesSearchInput" class="field field-sm grow" placeholder="Search any column" spellcheck="false">
+          <span id="entriesRefreshSpinner" class="hidden">
+            <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.2-8.6" stroke-linecap="round"/></svg>
+          </span>
+        </div>
+        <div class="seg">
+          <button class="seg-item limit-pill" data-limit="10" onclick="setEntriesLimit(10)">10</button>
+          <button class="seg-item limit-pill is-active" data-limit="20" onclick="setEntriesLimit(20)">20</button>
+          <button class="seg-item limit-pill" data-limit="50" onclick="setEntriesLimit(50)">50</button>
+          <button class="seg-item limit-pill" data-limit="100" onclick="setEntriesLimit(100)">100</button>
+          <button class="seg-item limit-pill" data-limit="500" onclick="setEntriesLimit(500)">500</button>
+          <button class="seg-item limit-pill" data-limit="all" onclick="setEntriesLimit('all')">All</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="max-height:560px; overflow-y:auto;">
+        <table class="data">
+          <thead id="entriesThead"></thead>
+          <tbody id="entriesTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="row-wrap gap-3 between" style="margin-top:14px;">
+        <p class="xsmall muted" id="entriesMetricsText">—</p>
+        <div class="row gap-2">
+          <button class="icon-btn" onclick="paginateEntries(-1)" aria-label="Previous page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <button class="icon-btn" onclick="paginateEntries(1)" aria-label="Next page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= OPERATIONS ========================= -->
+<section class="shell section-tight" id="operations">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:30ch;">
+        <span class="index-num">Section 3</span>
+        <h2 class="display display-md" style="margin-top:6px;">Run an operation</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        These write to the real databases. A federated operation fans out across both nodes and
+        comes back with the arbitrated result rather than four separate answers.
+      </p>
+    </div>
+
+    <div class="card card-pad-lg">
+      <div class="row-wrap gap-2" style="margin-bottom:12px;">
+        <button class="pill-btn bench-scope-pill is-active" data-scope="db1" onclick="selectBenchScope('db1')">Retail checkouts</button>
+        <button class="pill-btn bench-scope-pill" data-scope="db2" onclick="selectBenchScope('db2')">Distribution</button>
+        <button class="pill-btn bench-scope-pill" data-scope="db3" onclick="selectBenchScope('db3')">Drug registry</button>
+        <button class="pill-btn bench-scope-pill" data-scope="db4" onclick="selectBenchScope('db4')">Grievances</button>
+        <button class="pill-btn bench-scope-pill" data-scope="all" onclick="selectBenchScope('all')">All silos at once</button>
+      </div>
+
+      <div class="row-wrap gap-2" id="benchOpButtons" style="margin-bottom:16px;"></div>
+
+      <div class="row-wrap gap-3 between" style="margin-bottom:12px;">
+        <p class="small muted grow" id="benchOperationDesc" style="min-width:240px;">—</p>
+        <span class="badge" id="benchTargetNodeIndicator">—</span>
+      </div>
+
+      <div class="bento" style="gap:14px;">
+        <div class="col-6">
+          <p class="eyebrow" style="margin-bottom:8px;">Request</p>
+          <textarea id="benchCodeEditor" class="textarea" spellcheck="false"></textarea>
+          <div class="row-wrap gap-2" style="margin-top:12px;">
+            <button class="btn btn-primary btn-sm" id="btnExecuteBench" onclick="executeCodeBench()">Run it</button>
+            <button class="btn btn-ghost btn-sm" onclick="formatBenchPayload()">Tidy the JSON</button>
+            <button class="btn btn-outline btn-sm" onclick="resetBenchPayload()">Reset</button>
+          </div>
+        </div>
+        <div class="col-6">
+          <p class="eyebrow" style="margin-bottom:8px;">Response</p>
+          <pre class="terminal" id="benchResultTerminal" style="min-height:190px;">Nothing run yet.</pre>
+          <div class="row-wrap gap-3" id="benchResultMeta" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <hr class="divider-dashed" style="margin-block:18px;">
+      <p class="small faint">
+        Two constraints worth knowing before an insert fails on you. In the distribution tables
+        <span class="mono">transport_mode</span> has to be lowercase, one of
+        <span class="mono">road</span>, <span class="mono">air</span>, <span class="mono">rail</span> or
+        <span class="mono">courier</span>, and <span class="mono">status</span> has to be one of
+        <span class="mono">delivered</span>, <span class="mono">dispatched</span>,
+        <span class="mono">in_transit</span>, <span class="mono">returned</span>,
+        <span class="mono">lost</span> or <span class="mono">damaged</span>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= DISAGREEMENTS ========================= -->
+<section class="shell section-tight" id="conflicts">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:30ch;">
+        <span class="index-num">Section 4</span>
+        <h2 class="display display-md" style="margin-top:6px;">When the silos disagree</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        Four cases where the records contradict each other. Run one to see which source the
+        arbitration policy sides with, and why.
+      </p>
+    </div>
+
+    <div class="bento" id="conflictScenariosContainer"></div>
+
+    <div class="card card-pad-lg">
+      <p class="eyebrow" style="margin-bottom:12px;">Result</p>
+      <div id="conflictSimulationResult">
+        <p class="small muted">Pick a case above to run it against the live mediator.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= INTEGRATION TOOLS ========================= -->
+<section class="shell section-tight" id="tools">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:30ch;">
+        <span class="index-num">Section 5</span>
+        <h2 class="display display-md" style="margin-top:6px;">Integration tools</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        Three problems the mediator solves before it can compare anything, each one small enough
+        to try by hand.
+      </p>
+    </div>
+
+    <div class="bento">
+
+      <!-- Entity resolution -->
+      <div class="col-6"><div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column;">
+        <p class="eyebrow">Matching a damaged serial</p>
+        <h3 class="h-lg" style="margin-top:6px;">Entity resolution</h3>
+        <p class="small muted" style="margin-top:8px;">
+          Scanners misread characters and staff type batch numbers by mistake. Three string metrics
+          decide which known pack the input really refers to.
+        </p>
+
+        <div class="row-wrap gap-2" style="margin-block:14px 12px;">
+          <input id="fuzzyTestInput" class="field field-sm grow" style="min-width:180px;" value="MED-ASAL1-OO2" spellcheck="false">
+          <button class="btn btn-primary btn-sm" onclick="runFuzzyResolution()">Match it</button>
+        </div>
+        <div class="row-wrap gap-2" style="margin-bottom:16px;">
+          <button class="pill-btn" onclick="testFuzzyPreset('MED-ASAL1-OO2')">Misread characters</button>
+          <button class="pill-btn" onclick="testFuzzyPreset('BATCH-A001')">A batch number</button>
+          <button class="pill-btn" onclick="testFuzzyPreset('med asali 001')">Loose spacing</button>
+        </div>
+
+        <div class="bento" style="gap:10px;">
+          <div class="col-6"><div class="card card-inset card-pad-sm">
+            <p class="eyebrow">Jaro-Winkler</p><p class="stat-num mono" id="fuzzyJwMetric" style="margin-top:4px;">—</p>
+          </div></div>
+          <div class="col-6"><div class="card card-inset card-pad-sm">
+            <p class="eyebrow">Levenshtein</p><p class="stat-num mono" id="fuzzyLevMetric" style="margin-top:4px;">—</p>
+          </div></div>
+          <div class="col-6"><div class="card card-inset card-pad-sm">
+            <p class="eyebrow">Soundex</p><p class="stat-num mono" id="fuzzySoundexMetric" style="margin-top:4px;">—</p>
+          </div></div>
+          <div class="col-6"><div class="card card-inset card-pad-sm">
+            <p class="eyebrow">Best match</p><p class="serial" id="fuzzyTargetMetric" style="margin-top:10px;">—</p>
+          </div></div>
+        </div>
+
+        <p class="small muted" id="fuzzyExplanationText" style="margin-top:12px;">—</p>
+        <a class="btn btn-ghost btn-sm full mt-auto" id="btnVerifyResolved" href="verify.html" style="margin-top:14px;">Verify this pack</a>
+      </div></div>
+
+      <!-- Units -->
+      <div class="col-6"><div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column;">
+        <p class="eyebrow">Making values comparable</p>
+        <h3 class="h-lg" style="margin-top:6px;">Units and semantics</h3>
+        <p class="small muted" style="margin-top:8px;">
+          Each silo records temperature, money and time in whatever unit suited it. A cold-chain
+          breach is only visible once everything is in the same one.
+        </p>
+
+        <div class="row-wrap gap-2" style="margin-block:14px 12px;">
+          <input id="semanticInput" class="field field-sm grow" style="min-width:180px;" value="52.5 F" spellcheck="false">
+          <button class="btn btn-primary btn-sm" onclick="runUnitConversion()">Convert</button>
+        </div>
+        <div class="row-wrap gap-2" style="margin-bottom:14px;">
+          <button class="pill-btn" onclick="testUnitPreset('52.5 F')">Fahrenheit</button>
+          <button class="pill-btn" onclick="testUnitPreset('284.15 K')">Kelvin</button>
+          <button class="pill-btn" onclick="testUnitPreset('$12.50')">Dollars</button>
+          <button class="pill-btn" onclick="testUnitPreset('1741593600000')">Epoch time</button>
+          <button class="pill-btn" onclick="testUnitPreset('10/03/2025')">Day-first date</button>
+        </div>
+
+        <div class="card card-inset card-pad-sm">
+          <p class="small" id="semanticOutputBox">Enter a value to convert.</p>
+        </div>
+      </div></div>
+
+      <!-- Schema drift -->
+      <div class="col-12"><div class="card card-pad-lg">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">When a silo changes format without telling you</p>
+            <h3 class="h-lg" style="margin-top:6px;">Schema drift</h3>
+          </div>
+          <span class="badge" id="schemaVersionBadge">Version 1, original format</span>
+        </div>
+
+        <div class="row-wrap gap-2" style="margin-bottom:14px;">
+          <button class="pill-btn is-active" id="schemaV1Pill" onclick="testSchemaVersion('v1')">Original format</button>
+          <button class="pill-btn" id="schemaV2Pill" onclick="testSchemaVersion('v2')">After the upgrade</button>
+        </div>
+
+        <div class="bento" style="gap:12px;">
+          <div class="col-6">
+            <p class="eyebrow" style="margin-bottom:8px;">What arrives</p>
+            <pre class="terminal" id="schemaPayloadDisplay">—</pre>
+          </div>
+          <div class="col-6">
+            <p class="eyebrow" style="margin-bottom:8px;">What the mediator stores</p>
+            <pre class="terminal" id="schemaAdaptedDisplay">—</pre>
+          </div>
+        </div>
+        <p class="small muted" id="schemaDriftNote" style="margin-top:14px; max-width:80ch;">—</p>
+      </div></div>
+
+      <!-- Partition -->
+      <div class="col-12"><div class="card card-pad-lg">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Losing half the network</p>
+            <h3 class="h-lg" style="margin-top:6px;">Partition and the circuit breaker</h3>
+          </div>
+          <span class="badge badge-green" id="circuitBreakerStateBadge">Circuit closed</span>
+        </div>
+
+        <p class="small muted" style="max-width:78ch;">
+          If the regulatory node stops answering, the honest options are to fail or to answer with
+          less certainty and say so. This system does the second.
+        </p>
+
+        <div class="card card-inset card-pad-sm" style="margin-top:14px;">
+          <p class="small muted" id="partitionDescText">Both nodes are reachable, so every verdict is backed by all five silos.</p>
+          <p class="small faint" style="margin-top:8px;" id="partitionAuditImpact">No confidence penalty is applied.</p>
+        </div>
+
+        <button class="btn btn-danger btn-sm" id="btnTogglePartition" style="margin-top:14px;" onclick="togglePartitionSimulation()">
+          Simulate losing node PC2
+        </button>
+      </div></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========================= ACTIVITY ========================= -->
+<section class="shell section-tight" id="sectionActivity">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:30ch;">
+        <span class="index-num">Section 6</span>
+        <h2 class="display display-md" style="margin-top:6px;">Activity log</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        Every read, search, insert, update and delete performed against each silo, in order, with
+        the node that served it. Both nodes keep their own log and this merges them.
+      </p>
+    </div>
+
+    <div class="card card-pad-lg">
+      <div class="row-wrap gap-2" style="margin-bottom:14px;">
+        <button class="pill-btn activity-db-pill is-active" data-db="all" onclick="selectActivityDb('all')">Everything</button>
+        <button class="pill-btn activity-db-pill" data-db="db1" onclick="selectActivityDb('db1')">Retail checkouts</button>
+        <button class="pill-btn activity-db-pill" data-db="db2" onclick="selectActivityDb('db2')">Distribution</button>
+        <button class="pill-btn activity-db-pill" data-db="db3" onclick="selectActivityDb('db3')">Drug registry</button>
+        <button class="pill-btn activity-db-pill" data-db="db4" onclick="selectActivityDb('db4')">Grievances</button>
+        <button class="pill-btn activity-db-pill" data-db="audit" onclick="selectActivityDb('audit')">Audit ledger</button>
+      </div>
+
+      <div class="bento" style="gap:10px; margin-bottom:16px;" id="activityCounts"></div>
+
+      <hr class="divider-dashed" style="margin-bottom:14px;">
+
+      <div class="table-wrap" style="max-height:520px; overflow-y:auto;">
+        <table class="data">
+          <thead>
+            <tr><th>When</th><th>Silo</th><th>Action</th><th>Target</th><th>What happened</th><th>Rows</th><th>Took</th><th>Node</th></tr>
+          </thead>
+          <tbody id="activityTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="row-wrap gap-3 between" style="margin-top:14px;">
+        <p class="xsmall muted" id="activityMetrics">—</p>
+        <div class="row-wrap gap-2">
+          <button class="btn btn-ghost btn-sm" onclick="loadActivity()">Refresh</button>
+          <button class="btn btn-danger btn-sm" id="btnClearActivity" onclick="clearActivity()">Clear log</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= AUDIT ========================= -->
+<section class="shell section-tight" id="audit">
+  <div class="stack gap-5">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:30ch;">
+        <span class="index-num">Section 7</span>
+        <h2 class="display display-md" style="margin-top:6px;">The audit ledger</h2>
+      </div>
+      <p class="small muted" style="max-width:46ch;">
+        Every verification is appended as a block holding the verdict, the score, which silos
+        answered, and the hash of the block before it. Edit any earlier row and every hash after
+        it stops matching.
+      </p>
+    </div>
+
+    <div class="card card-pad-lg">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">Integrity check</p>
+          <h3 class="h-lg" style="margin-top:6px;">Walk the chain back to the first block</h3>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btnValidateChain" onclick="validateAuditLedger()">Check every hash</button>
+      </div>
+      <div id="auditValidationResult">
+        <p class="small muted">Not checked yet. The ledger lives on node PC2.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ========================= FOOTER ========================= -->
+<footer class="footer">
+  <div class="shell row-wrap gap-4 between">
+    <div>
+      <p class="brand" style="font-size:1.1rem;"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#D8FF3E"/><path d="M16 7.5a8.5 8.5 0 0 0 0 17z" fill="#0A0B0D"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#0A0B0D" stroke-width="1.8"/><g stroke="#0A0B0D" stroke-width="1.5" stroke-linecap="round"><path d="M17.8 10.4 L21.6 14.2"/><path d="M17.8 14.2 L22.4 18.8"/><path d="M17.8 18 L20.6 20.8"/></g></svg></span> Asali<span class="brand-slash"> / </span>Nakali</p>
+      <p class="small muted" style="margin-top:8px;">Federated anti-counterfeit verification.</p>
+    </div>
+    <div class="row-wrap gap-2">
+      <a href="index.html" class="pill-btn">Overview</a>
+      <a href="verify.html" class="pill-btn">Verification terminal</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cluster.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/engines.js"></script>
+<script src="assets/workbench.js"></script>
+<script src="explorer.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

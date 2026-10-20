@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Explorer & Code Bench - Asali</title>
+  <meta name="description" content="Direct inspection of distributed database schemas, live record browsing across 5 isolated silos hosted on separate physical nodes, and real-time execution bench.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=8">
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-[#F8F8FA] text-black antialiased min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
+
+  <!-- TOP NAVIGATION: Polished frosted glass header -->
+  <header class="w-full bg-[#F8F8FA]/85 backdrop-blur-xl sticky top-0 z-50 transition-all shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- LogoIcon + Wordmark -->
+      <a href="index.html" class="flex items-center gap-3 group">
+        <svg class="w-7 h-7 text-black transition-transform duration-300 group-hover:rotate-45" viewBox="0 0 256 256" fill="currentColor">
+          <path d="M 128.005 191.173 C 128.448 156.208 156.93 128 192 128 L 192 64 L 128 64 C 128 99.346 99.346 128 64 128 L 64 192 L 128 192 Z M 192 256 L 64 256 C 28.654 256 0 227.346 0 192 L 0 64 L 64 64 L 64 0 L 192 0 C 227.346 0 256 28.654 256 64 L 256 192 L 192 192 Z"/>
+        </svg>
+        <span class="text-2xl font-medium tracking-tight text-black font-tight leading-none">Asali</span>
+      </a>
+
+      <!-- Nav links + Back Button -->
+      <nav class="flex items-center gap-3 sm:gap-6">
+        <a href="index.html" class="hidden sm:inline-block text-sm text-black/60 hover:text-black transition-colors font-medium">Architecture</a>
+        <a href="verify.html" class="hidden sm:inline-block text-sm text-black/60 hover:text-black transition-colors font-medium">Verify Medicine</a>
+        <a href="ASALI_COMPLETE_SYSTEM_GUIDE.html" target="_blank" class="hidden md:inline-block text-sm text-black/60 hover:text-black transition-colors font-medium">System Guide</a>
+        
+        <!-- Prominent Back to Landing Page Pill Button -->
+        <a href="index.html" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-xs font-medium text-black/80 hover:text-black shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow transition-all group">
+          <svg class="w-3.5 h-3.5 text-black/50 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span>Landing Page</span>
+        </a>
+
+        <span class="px-4 py-2 rounded-full bg-black text-white text-xs font-semibold shadow-sm">DB Explorer &amp; Bench</span>
+      </nav>
+    </div>
+    <div class="h-6 w-full bg-gradient-to-b from-[#F8F8FA] to-transparent pointer-events-none -mb-6"></div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-10 w-full">
+
+    <!-- HERO / TITLE -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <a href="index.html" class="inline-flex items-center gap-1.5 text-xs font-medium text-black/50 hover:text-black transition-colors group">
+            <svg class="w-3.5 h-3.5 text-black/40 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Back to Overview</span>
+          </a>
+          <span class="text-black/20">&bull;</span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 text-[11px] font-semibold text-black/70">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            <span>Distributed Multi-Silo Database Architecture</span>
+          </div>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-black font-tight">Database Explorer &amp; Code Bench</h1>
+        <p class="text-sm text-black/60 mt-2 max-w-2xl leading-relaxed">
+          Inspect isolated database schemas across 2 distributed physical PC nodes, browse live records with custom limits (10 to all), execute atomic CRUD operations in real time, and simulate multi-silo conflict resolution.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="toggleClusterGuide()" class="px-4 py-2 rounded-full bg-white text-xs font-medium text-black/80 hover:text-black shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] transition-all cursor-pointer">
+          Multi-PC Hosting Guide
+        </button>
+        <button onclick="pingClusterNodes()" class="px-4 py-2 rounded-full bg-black text-white text-xs font-medium hover:bg-neutral-800 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] transition-all cursor-pointer flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Ping Cluster
+        </button>
+      </div>
+    </div>
+
+    <!-- HOW TO HOST ON 2 PHYSICAL PCS DRAWER -->
+    <div id="clusterGuideDrawer" class="hidden bg-white rounded-3xl p-6 sm:p-8 space-y-4 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] transition-all">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+          <h3 class="text-base font-semibold text-black">How to Host Databases Across 2 Different Physical PCs</h3>
+        </div>
+        <button onclick="toggleClusterGuide()" class="text-xs text-black/40 hover:text-black cursor-pointer">Close</button>
+      </div>
+      <p class="text-xs sm:text-sm text-black/60 leading-relaxed">
+        In real-world public governance, pharmaceutical entities (retailers, distributors, and the statutory drug controller) operate on physically isolated networks. Asali-Nakali natively supports running on 2 separate physical computers over your local Wi-Fi / Ethernet LAN.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        <!-- Machine 1 Setup -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-black">PC 1: Retail & Supply Chain Node</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-900">Port 8011</span>
+          </div>
+          <p class="text-xs text-black/60">Hosts <strong>DB1 (Retail POS NoSQL)</strong> and <strong>DB2 (Logistics ERP SQL)</strong>.</p>
+          <div class="bg-black text-white p-3 rounded-xl font-mono text-[11px] select-all leading-relaxed">
+            # Run on Laptop 1:<br>
+            python3 scripts/run_cluster.py --mode pc1<br>
+            # Or manually: python3 api/node_pc1.py --host 0.0.0.0 --port 8011
+          </div>
+          <p class="text-[11px] text-black/50">Find your LAN IP via <code class="text-black/80 font-mono">ifconfig</code> or <code class="text-black/80 font-mono">ipconfig</code> (e.g. <code class="text-black/80 font-mono">http://192.168.1.15:8011</code>).</p>
+        </div>
+
+        <!-- Machine 2 Setup -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-black">PC 2: Regulatory Authority Node</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-900">Port 8012</span>
+          </div>
+          <p class="text-xs text-black/60">Hosts <strong>DB3 (CDSCO Master MDM)</strong>, <strong>DB4 (Ministry REST)</strong>, and <strong>Audit Ledger</strong>.</p>
+          <div class="bg-black text-white p-3 rounded-xl font-mono text-[11px] select-all leading-relaxed">
+            # Run on Laptop 2:<br>
+            python3 scripts/run_cluster.py --mode pc2<br>
+            # Or manually: python3 api/node_pc2.py --host 0.0.0.0 --port 8012
+          </div>
+          <p class="text-[11px] text-black/50">Enter Laptop 2's LAN IP below (e.g. <code class="text-black/80 font-mono">http://192.168.1.20:8012</code>) and click Connect.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MULTI-PC CLUSTER TOPOLOGY & CONNECTION BAR -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+      
+      <!-- Top Bar: Title & Save Action -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h2 class="text-base font-semibold text-black">Distributed Cluster Network Topology</h2>
+          <p class="text-xs text-black/50 mt-0.5">Physical node boundaries, database silo allocation, and real-time socket endpoints.</p>
+        </div>
+        <button onclick="saveClusterEndpoints()" class="px-5 py-2 rounded-full bg-black text-white text-xs font-medium hover:bg-neutral-800 shadow-sm transition-all cursor-pointer self-start sm:self-auto">
+          Save &amp; Re-Connect
+        </button>
+      </div>
+
+      <!-- Visual Multi-PC Topology Schematic -->
+      <div class="p-5 rounded-2xl bg-[#F7F7F9] space-y-4">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+          
+          <!-- Node PC 1 Card Representation -->
+          <div class="w-full lg:w-5/12 bg-white rounded-2xl p-4 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                <span class="text-xs font-bold text-black uppercase tracking-wider">Physical Machine 1 (PC 1)</span>
+              </div>
+              <span id="topoPc1Badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#DDEBE1] text-[#0A291A]">ONLINE</span>
+            </div>
+            <div class="text-xs text-black/60 leading-relaxed">
+              Edge Retail &amp; Logistics Gateway &bull; <code class="font-mono text-black font-medium">Port 8011</code>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <div class="p-2 rounded-xl bg-black/[0.03] space-y-1">
+                <div class="text-[10px] font-bold text-black/50 uppercase">DB1: Retail POS</div>
+                <div class="text-xs font-mono font-medium text-black">NoSQL JSON</div>
+                <div class="text-[10px] text-black/40">25 checkout scans</div>
+              </div>
+              <div class="p-2 rounded-xl bg-black/[0.03] space-y-1">
+                <div class="text-[10px] font-bold text-black/50 uppercase">DB2: Logistics ERP</div>
+                <div class="text-xs font-mono font-medium text-black">Relational SQL</div>
+                <div class="text-[10px] text-black/40">5 batch routes</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inter-Node Network Link Bridge -->
+          <div class="flex flex-col items-center justify-center shrink-0 py-2 lg:py-0 px-2">
+            <div class="hidden lg:flex items-center gap-1 text-[11px] font-mono font-medium text-black/50">
+              <span>&larr; LAN Inter-Node Link &rarr;</span>
+            </div>
+            <div class="w-24 h-0.5 bg-black/10 my-1 hidden lg:block"></div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-black/5 text-black/60 font-mono">TCP / HTTP REST</span>
+          </div>
+
+          <!-- Node PC 2 Card Representation -->
+          <div class="w-full lg:w-5/12 bg-white rounded-2xl p-4 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                <span class="text-xs font-bold text-black uppercase tracking-wider">Physical Machine 2 (PC 2)</span>
+              </div>
+              <span id="topoPc2Badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#DDEBE1] text-[#0A291A]">ONLINE</span>
+            </div>
+            <div class="text-xs text-black/60 leading-relaxed">
+              Regulatory Sovereign Controller &bull; <code class="font-mono text-black font-medium">Port 8012</code>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <div class="p-2 rounded-xl bg-black/[0.03] space-y-1">
+                <div class="text-[10px] font-bold text-black/50 uppercase">DB3: CDSCO MDM</div>
+                <div class="text-xs font-mono font-medium text-black">Master Registry</div>
+                <div class="text-[10px] text-black/40">5 products &amp; QC</div>
+              </div>
+              <div class="p-2 rounded-xl bg-black/[0.03] space-y-1">
+                <div class="text-[10px] font-bold text-black/50 uppercase">DB4: INGRAM REST</div>
+                <div class="text-xs font-mono font-medium text-black">Complaints &amp; Veto</div>
+                <div class="text-[10px] text-black/40">6 adverse dossiers</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Endpoint Configuration Inputs -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- PC1 Node Endpoint Input Card -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <span class="text-xs font-semibold text-black">Node PC 1: Retail & Supply Chain</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="pc1Latency" class="text-[10px] text-black/50 font-mono">--</span>
+              <span id="pc1StatusBadge" class="px-3 py-1 rounded-full text-[11px] font-medium bg-[#E5E5EA] text-black/70">PROBING...</span>
+            </div>
+          </div>
+          <div class="text-[11px] text-black/60">
+            Hosted Services: <strong>DB1 (Retail POS NoSQL)</strong> &bull; <strong>DB2 (Distributor Logistics ERP)</strong>
+          </div>
+          <div class="bg-white rounded-xl p-1.5 pl-3 flex items-center gap-2 shadow-sm">
+            <span class="text-xs text-black/40 font-mono">Host:</span>
+            <input id="inputPc1Endpoint" type="text" value="http://127.0.0.1:8011" class="w-full text-xs font-mono bg-transparent focus:outline-none text-black" placeholder="http://192.168.1.X:8011">
+          </div>
+        </div>
+
+        <!-- PC2 Node Endpoint Input Card -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+              <span class="text-xs font-semibold text-black">Node PC 2: Regulatory Authority</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="pc2Latency" class="text-[10px] text-black/50 font-mono">--</span>
+              <span id="pc2StatusBadge" class="px-3 py-1 rounded-full text-[11px] font-medium bg-[#E5E5EA] text-black/70">PROBING...</span>
+            </div>
+          </div>
+          <div class="text-[11px] text-black/60">
+            Hosted Services: <strong>DB3 (CDSCO MDM)</strong> &bull; <strong>DB4 (Ministry INGRAM REST)</strong> &bull; <strong>Audit Ledger</strong>
+          </div>
+          <div class="bg-white rounded-xl p-1.5 pl-3 flex items-center gap-2 shadow-sm">
+            <span class="text-xs text-black/40 font-mono">Host:</span>
+            <input id="inputPc2Endpoint" type="text" value="http://127.0.0.1:8012" class="w-full text-xs font-mono bg-transparent focus:outline-none text-black" placeholder="http://192.168.1.Y:8012">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- SECTION 1: DATABASE-WISE SCHEMA DETAILS -->
+    <!-- ================================================================= -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-black/50 uppercase tracking-wider mb-1">
+            <span>Section 1</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-black tracking-tight">Database-Wise Schema Details</h2>
+        </div>
+        <span class="text-xs text-black/50">Comprehensive table structures &amp; architectural purposes</span>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+        
+        <!-- Database Switcher Pills (Active is Black, Inactive is Gray) -->
+        <div class="flex flex-wrap gap-2">
+          <button onclick="selectSchemaDb('db1')" data-db="db1" class="schema-db-pill px-4 py-2 rounded-full text-xs font-semibold bg-black text-white shadow-sm transition-all cursor-pointer">
+            DB1: Retail POS (PC1)
+          </button>
+          <button onclick="selectSchemaDb('db2')" data-db="db2" class="schema-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            DB2: Logistics ERP (PC1)
+          </button>
+          <button onclick="selectSchemaDb('db3')" data-db="db3" class="schema-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            DB3: CDSCO Master MDM (PC2)
+          </button>
+          <button onclick="selectSchemaDb('db4')" data-db="db4" class="schema-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            DB4: Ministry INGRAM REST (PC2)
+          </button>
+          <button onclick="selectSchemaDb('audit')" data-db="audit" class="schema-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            Audit Chain: SHA-256 Ledger (PC2)
+          </button>
+        </div>
+
+        <!-- Database Architecture Metadata Container -->
+        <div id="schemaMetaContainer" class="bg-[#F7F7F9] rounded-2xl p-6 transition-all">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Table Selector Pills for Chosen DB -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-xs font-semibold text-black/50">Select Table / Document Collection:</div>
+            <div id="schemaActiveTableTitle" class="text-xs text-black/60"></div>
+          </div>
+          <div id="schemaTablePills" class="flex flex-wrap gap-2">
+            <!-- Dynamically populated with row count tags -->
+          </div>
+        </div>
+
+        <!-- Schema Field Table -->
+        <div class="overflow-x-auto rounded-2xl bg-white shadow-sm">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="bg-[#F7F7F9]">
+                <th class="px-6 py-3.5 text-[11px] font-semibold text-black/60 uppercase tracking-wider">Field Name</th>
+                <th class="px-6 py-3.5 text-[11px] font-semibold text-black/60 uppercase tracking-wider">Data Type</th>
+                <th class="px-6 py-3.5 text-[11px] font-semibold text-black/60 uppercase tracking-wider">Constraints</th>
+                <th class="px-6 py-3.5 text-[11px] font-semibold text-black/60 uppercase tracking-wider">Field Purpose &amp; Anti-Counterfeit Role</th>
+              </tr>
+            </thead>
+            <tbody id="schemaTableBody" class="divide-y divide-black/[0.03]">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Cross-Silo Lineage Summary -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-5 space-y-2">
+          <span class="text-xs font-semibold text-black">Federated Semantic Schema Lineage (Global-As-View):</span>
+          <p class="text-xs text-black/60 leading-relaxed">
+            The Asali-Nakali query mediator reconciles disparate field identities across silos without centralized replication:
+            <code class="text-black font-mono text-[11px]">DB1 purchase_events.scan_code</code> &harr;
+            <code class="text-black font-mono text-[11px]">DB2 distribution_batches.batch_serial</code> &harr;
+            <code class="text-black font-mono text-[11px]">DB3 products.product_uid</code> &harr;
+            <code class="text-black font-mono text-[11px]">DB4 complaints.complaint_item_ref</code>.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- SECTION 2: LIVE DATABASE ENTRIES BROWSER -->
+    <!-- ================================================================= -->
+    <section id="sectionLiveEntries" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-black/50 uppercase tracking-wider mb-1">
+            <span>Section 2</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-black tracking-tight">Live Database Entries Browser</h2>
+        </div>
+        <span class="text-xs text-black/50">Real-time table queries with flexible limit options</span>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+        
+        <!-- Controls Toolbar -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          
+          <!-- DB Selector Pills -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="selectEntriesDb('db1')" data-db="db1" class="entries-db-pill px-4 py-2 rounded-full text-xs font-semibold bg-black text-white shadow-sm transition-all cursor-pointer">
+              DB1: POS
+            </button>
+            <button onclick="selectEntriesDb('db2')" data-db="db2" class="entries-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+              DB2: Logistics
+            </button>
+            <button onclick="selectEntriesDb('db3')" data-db="db3" class="entries-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+              DB3: CDSCO MDM
+            </button>
+            <button onclick="selectEntriesDb('db4')" data-db="db4" class="entries-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+              DB4: Ministry
+            </button>
+            <button onclick="selectEntriesDb('audit')" data-db="audit" class="entries-db-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+              Audit Ledger
+            </button>
+          </div>
+
+          <!-- Refresh Button -->
+          <button onclick="loadDbEntries()" class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#F3F3F6] hover:bg-[#EAEAEF] text-xs font-medium text-black/70 hover:text-black shadow-sm transition-all cursor-pointer self-start lg:self-auto" title="Refresh records">
+            <svg id="entriesRefreshSpinner" class="w-3.5 h-3.5 hidden animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh Grid</span>
+          </button>
+        </div>
+
+        <!-- Table Selector Pills for Section 2 -->
+        <div>
+          <div class="text-xs font-semibold text-black/50 mb-2">Select Active Table:</div>
+          <div id="entriesTablePillsContainer" class="flex flex-wrap gap-2">
+            <!-- Dynamically populated table pills -->
+          </div>
+        </div>
+
+        <!-- Limit Pill Selector (10, 20, 50, 100, 500, all) & Search Filter -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
+          
+          <!-- Limit Selector -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-black/50 font-medium mr-1">Show Entries:</span>
+            <button onclick="setEntriesLimit(10)" data-limit="10" class="limit-pill px-3 py-1 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">10</button>
+            <button onclick="setEntriesLimit(20)" data-limit="20" class="limit-pill px-3 py-1 rounded-full text-xs font-semibold bg-black text-white shadow-sm transition-all cursor-pointer">20</button>
+            <button onclick="setEntriesLimit(50)" data-limit="50" class="limit-pill px-3 py-1 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">50</button>
+            <button onclick="setEntriesLimit(100)" data-limit="100" class="limit-pill px-3 py-1 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">100</button>
+            <button onclick="setEntriesLimit(500)" data-limit="500" class="limit-pill px-3 py-1 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">500</button>
+            <button onclick="setEntriesLimit('all')" data-limit="all" class="limit-pill px-3 py-1 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">All entries</button>
+          </div>
+
+          <!-- Instant Search Box -->
+          <div class="bg-[#F3F3F6] rounded-full px-4 py-1.5 flex items-center gap-2 shadow-sm w-full md:w-80">
+            <svg class="w-4 h-4 text-black/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input 
+              id="entriesSearchInput" 
+              type="text" 
+              placeholder="Search all columns..." 
+              oninput="handleEntriesSearch(this.value)" 
+              class="w-full bg-transparent text-xs text-black placeholder-black/35 focus:outline-none"
+            >
+          </div>
+        </div>
+
+        <!-- Telemetry & Count Header -->
+        <div id="entriesMetricsText" class="text-xs text-black/60 flex flex-wrap items-center">
+          Loading metrics...
+        </div>
+
+        <!-- Data Grid Table -->
+        <div class="overflow-x-auto rounded-2xl bg-white shadow-sm max-h-[520px] overflow-y-auto">
+          <table class="w-full text-left">
+            <thead id="entriesThead" class="sticky top-0 z-10">
+              <!-- Dynamically populated -->
+            </thead>
+            <tbody id="entriesTbody" class="divide-y divide-black/[0.03]">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Bar -->
+        <div class="flex items-center justify-between pt-2">
+          <button onclick="paginateEntries(-1)" class="px-4 py-1.5 rounded-full bg-[#F3F3F6] hover:bg-[#EAEAEF] text-xs font-medium text-black transition-all cursor-pointer">
+            &larr; Previous Page
+          </button>
+          <span class="text-xs text-black/50">Interactive Grid Explorer</span>
+          <button onclick="paginateEntries(1)" class="px-4 py-1.5 rounded-full bg-[#F3F3F6] hover:bg-[#EAEAEF] text-xs font-medium text-black transition-all cursor-pointer">
+            Next Page &rarr;
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- SECTION 3: INTERACTIVE LIVE CODE BENCH -->
+    <!-- ================================================================= -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-black/50 uppercase tracking-wider mb-1">
+            <span>Section 3</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-black tracking-tight">Interactive Live Code Bench</h2>
+        </div>
+        <span class="text-xs text-black/50">Complete example sets for Insert, Delete, View &amp; Federated operations</span>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+        
+        <!-- Target Scope Tabs -->
+        <div class="flex flex-wrap gap-2">
+          <button onclick="selectBenchScope('db1')" data-scope="db1" class="bench-scope-pill px-4 py-2 rounded-full text-xs font-semibold bg-black text-white shadow-sm transition-all cursor-pointer">
+            DB1 (Retail POS)
+          </button>
+          <button onclick="selectBenchScope('db2')" data-scope="db2" class="bench-scope-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            DB2 (Logistics ERP)
+          </button>
+          <button onclick="selectBenchScope('db3')" data-scope="db3" class="bench-scope-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            DB3 (CDSCO MDM)
+          </button>
+          <button onclick="selectBenchScope('db4')" data-scope="db4" class="bench-scope-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            DB4 (Ministry REST)
+          </button>
+          <button onclick="selectBenchScope('all')" data-scope="all" class="bench-scope-pill px-4 py-2 rounded-full text-xs font-medium bg-[#F3F3F6] text-black/70 hover:bg-[#EAEAEF] hover:text-black transition-all cursor-pointer">
+            All DBs Together (Federated)
+          </button>
+        </div>
+
+        <!-- Operation Selector Buttons -->
+        <div>
+          <div class="text-xs font-semibold text-black/50 mb-2">Operation Type:</div>
+          <div id="benchOpButtons" class="flex flex-wrap gap-2">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Operation Description Banner -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+            <span id="benchOperationDesc" class="text-xs font-medium text-black/80">Loading example operation details...</span>
+          </div>
+          <span id="benchTargetNodeIndicator" class="text-[11px] font-mono text-black/50 shrink-0">Target: Node PC1</span>
+        </div>
+
+        <!-- Editor & Live Console Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- Code / Payload Editor -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-black">Input Payload (JSON):</span>
+              <div class="flex items-center gap-2">
+                <button onclick="formatBenchPayload()" class="text-[11px] text-black/60 hover:text-black cursor-pointer">Format</button>
+                <span class="text-black/20">&bull;</span>
+                <button onclick="resetBenchPayload()" class="text-[11px] text-black/60 hover:text-black cursor-pointer">Reset Example</button>
+              </div>
+            </div>
+            
+            <textarea 
+              id="benchCodeEditor" 
+              rows="13" 
+              class="w-full bg-[#121214] text-[#F1F5F9] font-mono text-xs p-4 rounded-2xl focus:outline-none shadow-inner leading-relaxed selection:bg-white selection:text-black"
+              spellcheck="false"
+            ></textarea>
+
+            <button 
+              id="btnExecuteBench" 
+              onclick="executeCodeBench()" 
+              class="w-full py-3 rounded-full bg-black text-white text-xs font-semibold hover:bg-neutral-800 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all cursor-pointer"
+            >
+              Execute Operation
+            </button>
+          </div>
+
+          <!-- Execution Terminal Output (High-Contrast Slate/Mint/Gold) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-black">Execution Result Console:</span>
+              <div id="benchResultMeta">
+                <span class="text-[11px] text-black/40">Ready to execute</span>
+              </div>
+            </div>
+
+            <div class="bg-[#121214] rounded-2xl p-4 min-h-[340px] max-h-[380px] overflow-y-auto shadow-inner">
+              <pre id="benchResultTerminal" class="font-mono text-xs text-[#E2E8F0] leading-relaxed select-all">// Press 'Execute Operation' to run against the live cluster.
+// The selected node will process the request and return real-time metrics.</pre>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- SECTION 4: MULTI-SILO CONFLICT & ANOMALY SIMULATION MATRIX -->
+    <!-- ================================================================= -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-black/50 uppercase tracking-wider mb-1">
+            <span>Section 4</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-black tracking-tight">Multi-Silo Conflict &amp; Anomaly Simulation Matrix</h2>
+        </div>
+        <span class="text-xs text-black/50">Simulate cross-database contradictions, velocity anomalies, and statutory quarantine overrides</span>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+        
+        <p class="text-xs sm:text-sm text-black/60 leading-relaxed max-w-3xl">
+          In real-world anti-counterfeiting, individual silos may provide contradictory claims. Click any scenario card below to trigger the <strong>Asali Federated Conflict Resolver</strong> across PC1 and PC2 in real time.
+        </p>
+
+        <!-- Scenario Cards Grid -->
+        <div id="conflictScenariosContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamically populated with 4 realistic demo scenarios -->
+        </div>
+
+        <!-- Live Simulation Result Container -->
+        <div class="bg-[#F7F7F9] rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-black">Federated Arbitration Engine Verdict:</span>
+            <span class="text-[11px] font-mono text-black/40">Real-Time Consensus</span>
+          </div>
+          <div id="conflictSimulationResult" class="text-xs text-black/60">
+            Select a scenario above to run the live multi-silo dispute simulation.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- SECTION 5: CRYPTOGRAPHIC AUDIT LEDGER & BLOCKCHAIN VALIDATOR -->
+    <!-- ================================================================= -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-black/50 uppercase tracking-wider mb-1">
+            <span>Section 5</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-black tracking-tight">Cryptographic Audit Ledger &amp; Blockchain Validator</h2>
+        </div>
+        <span class="text-xs text-black/50">Tamper-proof SHA-256 hash-chained block verification across all transactions</span>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-semibold text-black">Immutable Append-Only Audit Trail</h3>
+            <p class="text-xs text-black/50 mt-0.5">Every verification query is cryptographically signed with parent hash pointers.</p>
+          </div>
+          <button 
+            id="btnValidateChain"
+            onclick="validateAuditLedger()" 
+            class="px-5 py-2.5 rounded-full bg-black text-white text-xs font-medium hover:bg-neutral-800 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span>Validate Cryptographic Hashes</span>
+          </button>
+        </div>
+
+        <!-- Visual Block Sequence Diagram -->
+        <div class="p-5 rounded-2xl bg-[#F7F7F9] space-y-4">
+          <div class="text-xs font-semibold text-black/60">Sequential Block Structure (SHA-256 Hash Chaining):</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            
+            <!-- Genesis Block -->
+            <div class="bg-white p-3.5 rounded-xl shadow-sm space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-black">Genesis Block #0</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-mono bg-black/5 text-black/70">ROOT</span>
+              </div>
+              <div class="text-[10px] font-mono text-black/50 truncate">
+                Prev: <span class="text-black/30">0000000000000000...</span>
+              </div>
+              <div class="text-[10px] font-mono text-black/80 truncate">
+                Hash: e3b0c44298fc1c149afbf4c89...
+              </div>
+            </div>
+
+            <!-- Transaction Block -->
+            <div class="bg-white p-3.5 rounded-xl shadow-sm space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-black">Verification Blocks (1..N)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-100 text-emerald-900">VERIFIED</span>
+              </div>
+              <div class="text-[10px] font-mono text-black/50 truncate">
+                Prev: <span class="text-black/70">Hash(Block_{N-1})</span>
+              </div>
+              <div class="text-[10px] font-mono text-black/80 truncate">
+                Payload: Trust Score + Silo Witnesses
+              </div>
+            </div>
+
+            <!-- Latest Block -->
+            <div class="bg-white p-3.5 rounded-xl shadow-sm space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-black">Latest Head Block</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-mono bg-indigo-100 text-indigo-900">HEAD</span>
+              </div>
+              <div class="text-[10px] font-mono text-black/50 truncate">
+                Sequential Pointer Intact
+              </div>
+              <div class="text-[10px] font-mono text-black/80 truncate">
+                Signed by Node PC 2
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Verification Result Container -->
+        <div id="auditValidationResult" class="transition-all">
+          <div class="p-4 rounded-2xl bg-[#F7F7F9] text-xs text-black/50 text-center">
+            Click &ldquo;Validate Cryptographic Hashes&rdquo; above to audit all block signatures against Genesis.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-white mt-16 py-8 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-black/50">
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="font-semibold text-black hover:underline">Asali-Nakali</a>
+        <span>&bull;</span>
+        <span>National Pharmaceutical Anti-Counterfeit Verification Infrastructure</span>
+      </div>
+      <div>CDSCO &bull; NABL Forensic Assays &bull; Distributed Multi-Silo Architecture</div>
+    </div>
+  </footer>
+
+  <!-- CONTROLLER SCRIPT -->
+  <script src="explorer.js?v=4"></script>
+</body>
+</html>

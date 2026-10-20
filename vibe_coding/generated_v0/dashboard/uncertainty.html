@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integration under uncertainty · Asali — Nakali</title>
+<meta name="description" content="Approximate matching of noisy pack codes, contextual cleansing of the silos, and the evidence for the chosen algorithm.">
+<link rel="icon" type="image/svg+xml" href="assets/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  (function(){try{var t=localStorage.getItem("asali_theme");
+  if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);
+  document.documentElement.style.colorScheme=t;}}catch(e){}})();
+</script>
+<link rel="preload" href="assets/fonts/iosevka-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script src="assets/theme.js" defer></script>
+<script src="assets/transition.js" defer></script>
+<style>
+  .u-grid { display:grid; grid-template-columns:1fr; gap:14px; }
+  @media (min-width:1040px){ .u-grid { grid-template-columns: minmax(0,5fr) minmax(0,7fr); } }
+  .u-field-label { display:block; margin:12px 0 6px; }
+  .u-two { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .u-three { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  @media (max-width:520px){ .u-three { grid-template-columns:1fr 1fr; } }
+  .u-select { appearance:none; -webkit-appearance:none; cursor:pointer; }
+  .u-chip { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px;
+            font-size:0.7rem; background:var(--wash-2); color:var(--ink-muted); white-space:nowrap; margin:2px 4px 2px 0; }
+  .u-chip.pos { background:var(--green-soft); color:var(--green-ink); }
+  .u-chip.neg { background:var(--red-soft); color:var(--red-ink); }
+  .u-chip.neu { background:var(--wash-2); color:var(--ink-muted); }
+  .u-code { font-family:var(--mono); font-variant-ligatures:none; color:var(--ink); }
+  .u-diff { background:var(--amber-soft); color:var(--amber-ink); border-radius:3px; padding:0 1px; }
+  .u-preview { width:100%; border-radius:var(--r-md); background:var(--inset); display:block; max-height:260px; object-fit:contain; }
+  .u-tile { padding:16px; border-radius:var(--r-md); background:var(--inset); cursor:pointer; transition:box-shadow 160ms; height:100%; }
+  .u-tile:hover, .u-tile.is-active { box-shadow: inset 0 0 0 1px var(--lime-dim); }
+  .u-tile .num { font-family:var(--sans); font-size:1.6rem; font-weight:600; letter-spacing:-0.03em; line-height:1.1; }
+  .u-row-chosen td { background: rgba(216,255,62,0.07); }
+  .u-row-chosen td:first-child { box-shadow: inset 3px 0 0 var(--lime); }
+  .u-banner { border-radius:var(--r-md); padding:18px; background:var(--inset); }
+  .u-banner.ok { box-shadow: inset 0 0 0 1px rgba(61,220,132,0.45); }
+  .u-banner.warn { box-shadow: inset 0 0 0 1px rgba(255,197,61,0.45); }
+  .u-banner.bad { box-shadow: inset 0 0 0 1px rgba(255,77,61,0.5); }
+  .u-mini-track { height:7px; border-radius:999px; background:var(--wash-2); overflow:hidden; min-width:70px; }
+  .u-mini-fill { height:100%; border-radius:999px; background:var(--lime); }
+  .u-scroll { max-height:560px; overflow:auto; }
+  .u-cell-right { text-align:right; white-space:nowrap; }
+  .u-muted-note { font-size:0.74rem; color:var(--ink-faint); }
+  details.u-details > summary { cursor:pointer; list-style:none; }
+  details.u-details > summary::-webkit-details-marker { display:none; }
+  .u-heat { font-variant-numeric: tabular-nums; text-align:right; }
+  table.data td.u-heat { white-space:nowrap; }
+</style>
+</head>
+<body class="has-subnav">
+
+<header class="nav">
+  <div class="shell nav-inner">
+    <div class="row gap-3">
+      <a href="index.html" class="brand">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#D8FF3E"/><path d="M16 7.5a8.5 8.5 0 0 0 0 17z" fill="#0A0B0D"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#0A0B0D" stroke-width="1.8"/><g stroke="#0A0B0D" stroke-width="1.5" stroke-linecap="round"><path d="M17.8 10.4 L21.6 14.2"/><path d="M17.8 14.2 L22.4 18.8"/><path d="M17.8 18 L20.6 20.8"/></g></svg></span>
+        <span>Asali<span class="brand-slash"> / </span>Nakali</span>
+      </a>
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <span>Overview</span>
+      </a>
+    </div>
+    <div class="row gap-2">
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+      <span class="badge" id="navClusterBadge"><span class="dot dot-amber dot-pulse"></span> Checking nodes</span>
+      <a href="explorer.html" class="btn btn-accent btn-sm">Explorer</a>
+      <a href="verify.html" class="btn btn-primary btn-sm">Verify a medicine</a>
+    </div>
+  </div>
+</header>
+
+<div class="subnav">
+  <div class="shell subnav-inner">
+    <span class="subnav-label">Jump to</span>
+    <nav class="nav-links seg" style="display:flex;">
+      <a href="#match" class="seg-item is-active">Match</a>
+      <a href="#reverse" class="seg-item">Reverse</a>
+      <a href="#algorithms" class="seg-item">Why this algorithm</a>
+      <a href="#cleanse" class="seg-item">Cleanse</a>
+      <a href="#lineage" class="seg-item">Lineage</a>
+      <a href="#test" class="seg-item">Test it</a>
+      <a href="#vibe" class="seg-item">Vibe coding</a>
+    </nav>
+  </div>
+</div>
+
+<main>
+
+<!-- ========================= INTRO ========================= -->
+<section class="shell section-tight" style="padding-bottom:12px;">
+  <div class="row-wrap gap-4 between">
+    <div style="max-width:60ch;">
+      <p class="eyebrow eyebrow-lime">Phase 2 · Integration under uncertainty</p>
+      <h1 class="display display-lg" style="margin-top:10px;">The same pack, <span class="hl-lime">recorded four ways</span></h1>
+    </div>
+    <p class="lede" style="max-width:48ch;">
+      A pharmacist types a smudged serial. A phone camera reads a label through glare. A clerk re-keys a
+      dispatch note; a citizen types a code into a complaint form. This page links those imperfect
+      records back to the registry, cleanses the silos, and keeps every counterfeit signal intact.
+    </p>
+  </div>
+  <div class="bento" style="gap:12px; margin-top:22px;" id="introStats">
+    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statProducts">—</p><p class="xsmall faint">Registered products (DB3)</p></div></div>
+    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statVendors">—</p><p class="xsmall faint">Pharmacies (DB1)</p></div></div>
+    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statModel">—</p><p class="xsmall faint">Linkage model</p></div></div>
+    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statThreshold">—</p><p class="xsmall faint">Auto-link threshold</p></div></div>
+  </div>
+</section>
+
+<!-- ========================= 1. MATCH ========================= -->
+<section class="shell section-tight" id="match">
+  <div class="stack gap-4">
+    <div>
+      <p class="eyebrow">1 · Approximate match</p>
+      <h2 class="display display-md" style="margin-top:8px;">Which registered products could this be?</h2>
+      <p class="muted small" style="margin-top:8px; max-width:80ch;">
+        Give a noisy code, a photo of the label, or both. Every registered product close enough to be a
+        candidate is listed with the evidence for and against it, and with an explicit probability that the
+        code belongs to <em>no</em> registered product, which is what a counterfeit looks like.
+      </p>
+    </div>
+
+    <div class="u-grid">
+      <!-- input -->
+      <div class="card card-pad-lg">
+        <div class="row-wrap gap-2">
+          <button class="pill-btn is-active" data-demo="ciplox">Smudged Ciplox, typed</button>
+          <button class="pill-btn" data-demo="novamox">Novamox, read by camera</button>
+          <button class="pill-btn" data-demo="fake">Counterfeit near-miss</button>
+          <button class="pill-btn" data-demo="random">Random noisy record</button>
+        </div>
+
+        <label class="eyebrow u-field-label" for="mCode">Scanned or typed code</label>
+        <input id="mCode" class="field mono" spellcheck="false" placeholder="e.g. MED-ASAL1-OO7">
+
+        <div class="u-two">
+          <div>
+            <label class="eyebrow u-field-label" for="mChannel">Captured by</label>
+            <select id="mChannel" class="field field-sm u-select">
+              <option value="manual">Typed by hand</option>
+              <option value="ocr">Camera / OCR of the label</option>
+              <option value="scan">Barcode / QR scanner</option>
+            </select>
+          </div>
+          <div>
+            <label class="eyebrow u-field-label" for="mVendor">Sold at (context)</label>
+            <select id="mVendor" class="field field-sm u-select"><option value="">— unknown —</option></select>
+          </div>
+        </div>
+        <div class="u-three">
+          <div>
+            <label class="eyebrow u-field-label" for="mPrice">Price paid (Rs)</label>
+            <input id="mPrice" class="field field-sm" inputmode="decimal" placeholder="95">
+          </div>
+          <div>
+            <label class="eyebrow u-field-label" for="mQty">Quantity</label>
+            <input id="mQty" class="field field-sm" inputmode="numeric" placeholder="1">
+          </div>
+          <div>
+            <label class="eyebrow u-field-label" for="mDate">Sale date</label>
+            <input id="mDate" class="field field-sm" placeholder="2025-06-02 11:20">
+          </div>
+        </div>
+
+        <hr class="divider-dashed" style="margin-block:18px 4px;">
+        <p class="eyebrow u-field-label">Scanned image of the pack (optional)</p>
+        <div class="u-two">
+          <select id="mSample" class="field field-sm u-select"><option value="">Pick a captured pack…</option></select>
+          <label class="btn btn-ghost btn-sm" style="justify-content:center;">
+            Upload a photo
+            <input id="mUpload" type="file" accept="image/*" class="hidden">
+          </label>
+        </div>
+        <img id="mPreview" class="u-preview hidden" alt="Selected label image" style="margin-top:10px;">
+        <div class="row-wrap gap-2" style="margin-top:10px;">
+          <button class="btn btn-outline btn-sm" id="btnOcr" disabled>Read image with OCR</button>
+          <span class="u-muted-note" id="ocrStatus">OCR runs in the browser (Tesseract.js, first use downloads ~10 MB).</span>
+        </div>
+        <label class="eyebrow u-field-label" for="mLabel">Text read off the label</label>
+        <textarea id="mLabel" class="textarea" rows="3" style="width:100%; min-height:72px; padding:10px;" spellcheck="false" placeholder="NOVAMOX 500MG | Amoxycillin | B.No. BATCH-A001 | EXP 01/2027 | MRP Rs.115.00 | MED-ASALI-0O1"></textarea>
+
+        <button class="btn btn-primary full" style="margin-top:16px;" id="btnMatch">Find matching products</button>
+      </div>
+
+      <!-- results -->
+      <div class="card card-pad-lg">
+        <div id="matchResult"><p class="muted small">Run a match to see the candidates.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 2. REVERSE ========================= -->
+<section class="shell section-tight" id="reverse">
+  <div class="stack gap-4">
+    <div>
+      <p class="eyebrow">2 · And the other way round</p>
+      <h2 class="display display-md" style="margin-top:8px;">Every record that is really about this product</h2>
+      <p class="muted small" style="margin-top:8px; max-width:80ch;">
+        Pick a registered product. Every checkout, shipment, complaint and regulatory entry that
+        approximately refers to it is found across DB1, DB2 and DB4, including the ones whose stored code is damaged.
+      </p>
+    </div>
+    <div class="card card-pad-lg">
+      <div class="row-wrap gap-2">
+        <input id="rUid" class="field field-sm mono" list="productList" placeholder="MED-ASALI-007" style="max-width:280px;" spellcheck="false">
+        <datalist id="productList"></datalist>
+        <button class="btn btn-primary btn-sm" id="btnReverse">Find its records</button>
+        <span class="u-muted-note">Try MED-ASALI-001, or any code from the registry.</span>
+      </div>
+      <div id="reverseResult" style="margin-top:16px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 3. ALGORITHMS ========================= -->
+<section class="shell section-tight" id="algorithms">
+  <div class="stack gap-4">
+    <div class="row-wrap gap-4 between">
+      <div>
+        <p class="eyebrow">3 · Justification</p>
+        <h2 class="display display-md" style="margin-top:8px;">Why this algorithm, measured</h2>
+      </div>
+      <div class="row-wrap gap-2">
+        <span class="u-muted-note" id="trainStatus"></span>
+        <button class="btn btn-outline btn-sm" id="btnRetrain">Refit and re-run benchmark</button>
+      </div>
+    </div>
+    <div id="benchResult"><div class="card card-pad-lg"><p class="muted small">Loading the benchmark…</p></div></div>
+  </div>
+</section>
+
+<!-- ========================= 4. CLEANSE ========================= -->
+<section class="shell section-tight" id="cleanse">
+  <div class="stack gap-4">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:70ch;">
+        <p class="eyebrow">4 · Cleansing</p>
+        <h2 class="display display-md" style="margin-top:8px;">Scan the silos, fix what is safe, ask about the rest</h2>
+        <p class="muted small" style="margin-top:8px;">
+          Each anomaly gets a proposed fix, a confidence and a reason. Automatic fixes are deterministic or above the
+          link threshold; uncertain ones wait for a person; codes that belong to no product are quarantined, never rewritten.
+        </p>
+      </div>
+      <div class="row-wrap gap-2">
+        <button class="btn btn-outline btn-sm" id="btnScan">Scan all silos</button>
+        <button class="btn btn-primary btn-sm" id="btnApply" disabled>Apply automatic fixes</button>
+      </div>
+    </div>
+    <p class="u-muted-note" id="scanStatus">Not scanned yet.</p>
+    <div class="bento" style="gap:10px;" id="scanTiles"></div>
+    <div id="applyResult"></div>
+    <div class="card card-pad-lg">
+      <div class="row-wrap gap-2 between" style="margin-bottom:12px;">
+        <div class="row-wrap gap-2">
+          <select id="fDecision" class="field field-sm u-select" style="width:auto;">
+            <option value="open">Open issues</option>
+            <option value="AUTO">Automatic</option>
+            <option value="REVIEW">Needs review</option>
+            <option value="RETAIN">Quarantined</option>
+            <option value="DISMISSED">Dismissed</option>
+            <option value="all">Everything</option>
+          </select>
+          <select id="fCategory" class="field field-sm u-select" style="width:auto;"><option value="">All categories</option></select>
+          <input id="fSearch" class="field field-sm" placeholder="Filter by code or id" style="width:200px;" spellcheck="false">
+        </div>
+        <span class="u-muted-note" id="issueCount"></span>
+      </div>
+      <div class="table-wrap u-scroll">
+        <table class="data"><thead><tr>
+          <th>Category</th><th>Where</th><th>Recorded</th><th>Proposed</th><th>Confidence</th><th>Decision</th><th>Why</th>
+        </tr></thead><tbody id="issueRows"><tr><td colspan="7" class="muted">Run a scan.</td></tr></tbody></table>
+      </div>
+      <div class="row-wrap gap-2" style="margin-top:12px; justify-content:flex-end;">
+        <button class="btn btn-ghost btn-sm" id="btnPrev">Previous</button>
+        <span class="u-muted-note" id="pageInfo"></span>
+        <button class="btn btn-ghost btn-sm" id="btnNext">Next</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 5. LINEAGE ========================= -->
+<section class="shell section-tight" id="lineage">
+  <div class="stack gap-4">
+    <div class="row-wrap gap-4 between">
+      <div>
+        <p class="eyebrow">5 · Lineage</p>
+        <h2 class="display display-md" style="margin-top:8px;">Every change, and how to take it back</h2>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btnLineage">Refresh</button>
+    </div>
+    <div class="card card-pad-lg" id="lineageResult"><p class="muted small">Nothing applied yet.</p></div>
+  </div>
+</section>
+
+<!-- ========================= 6. TEST ========================= -->
+<section class="shell section-tight" id="test">
+  <div class="stack gap-4">
+    <div>
+      <p class="eyebrow">6 · Insert, modify, delete</p>
+      <h2 class="display display-md" style="margin-top:8px;">Change the data and watch the answer change</h2>
+      <p class="muted small" style="margin-top:8px; max-width:80ch;">
+        Each test writes through the same explorer operation endpoint as the Explorer page, so the change lands in
+        the real silo. The write response already carries the matcher's reading of the row. Every test can be reverted.
+      </p>
+    </div>
+    <div class="bento" style="gap:12px;">
+      <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
+        <p class="eyebrow">Insert · DB1</p>
+        <h3 class="h-md" style="margin-top:6px;">A checkout typed with a damaged code</h3>
+        <div class="u-two" style="margin-top:10px;">
+          <input id="tCode" class="field field-sm mono" value="med asali 0O8" spellcheck="false">
+          <select id="tVendor" class="field field-sm u-select"></select>
+        </div>
+        <div class="u-three">
+          <input id="tPrice" class="field field-sm" style="margin-top:10px;" value="85">
+          <select id="tMethod" class="field field-sm u-select" style="margin-top:10px;">
+            <option value="manual">manual</option><option value="ocr">ocr</option><option value="barcode">barcode</option>
+          </select>
+          <input id="tDate" class="field field-sm" style="margin-top:10px;" value="2025-04-20 10:15:00">
+        </div>
+        <div class="row-wrap gap-2" style="margin-top:12px;">
+          <button class="btn btn-primary btn-sm" id="btnInsert">Insert into DB1</button>
+          <button class="btn btn-ghost btn-sm" id="btnInsertUndo" disabled>Delete it again</button>
+        </div>
+        <div id="tInsertOut" style="margin-top:12px;"></div>
+      </div></div>
+
+      <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
+        <p class="eyebrow">Insert · DB1</p>
+        <h3 class="h-md" style="margin-top:6px;">A counterfeit one edit from a real code</h3>
+        <p class="small muted" style="margin-top:6px;">Code <span class="u-code">MED-ASALI-011</span> scanned by barcode at an unlicensed kiosk for Rs 30. String similarity alone would call it Omez or Calcirol.</p>
+        <div class="row-wrap gap-2" style="margin-top:12px;">
+          <button class="btn btn-primary btn-sm" id="btnFake">Insert counterfeit sale</button>
+          <button class="btn btn-ghost btn-sm" id="btnFakeUndo" disabled>Delete it again</button>
+        </div>
+        <div id="tFakeOut" style="margin-top:12px;"></div>
+      </div></div>
+
+      <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
+        <p class="eyebrow">Modify · DB3</p>
+        <h3 class="h-md" style="margin-top:6px;">Change a product's MRP</h3>
+        <p class="small muted" style="margin-top:6px;">Price agreement is evidence. Change the registered MRP of a product and re-run the match for a noisy sale of it.</p>
+        <div class="u-two" style="margin-top:10px;">
+          <input id="tMrpUid" class="field field-sm mono" value="MED-ASALI-007" spellcheck="false">
+          <input id="tMrp" class="field field-sm" value="400">
+        </div>
+        <div class="row-wrap gap-2" style="margin-top:12px;">
+          <button class="btn btn-primary btn-sm" id="btnMrp">Update MRP and re-match</button>
+          <button class="btn btn-ghost btn-sm" id="btnMrpUndo" disabled>Restore</button>
+        </div>
+        <div id="tMrpOut" style="margin-top:12px;"></div>
+      </div></div>
+
+      <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
+        <p class="eyebrow">Delete · DB3</p>
+        <h3 class="h-md" style="margin-top:6px;">Remove a product from the registry</h3>
+        <p class="small muted" style="margin-top:6px;">Its noisy records lose their best candidate. Watch them fall to review or to "no registered product".</p>
+        <div class="u-two" style="margin-top:10px;">
+          <input id="tDelUid" class="field field-sm mono" value="MED-ASALI-008" spellcheck="false">
+          <span></span>
+        </div>
+        <div class="row-wrap gap-2" style="margin-top:12px;">
+          <button class="btn btn-danger btn-sm" id="btnDel">Delete and re-check</button>
+          <button class="btn btn-ghost btn-sm" id="btnDelUndo" disabled>Restore it</button>
+        </div>
+        <div id="tDelOut" style="margin-top:12px;"></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 7. VIBE ========================= -->
+<section class="shell section-tight" id="vibe">
+  <div class="card card-pad-lg">
+    <div class="row-wrap gap-4 between">
+      <div style="max-width:70ch;">
+        <p class="eyebrow">7 · Vibe coding</p>
+        <h2 class="h-lg" style="margin-top:6px;">The prompts, the generated code, and what was changed in it</h2>
+        <p class="small muted" style="margin-top:8px;">
+          The report shows the prompts used, the code exactly as first generated, and a highlighted diff of every
+          change made after it, plus what phase 2 changed in the phase-1 files. Regenerate it with
+          <span class="u-code">python vibe_coding/make_diff_report.py</span> after any further edit.
+        </p>
+      </div>
+      <a href="vibe/index.html" class="btn btn-primary">Open the report</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="shell row-wrap gap-4 between">
+    <div>
+      <p class="brand" style="font-size:1.1rem;">Asali<span class="brand-slash"> / </span>Nakali</p>
+      <p class="small muted" style="margin-top:8px;">Federated anti-counterfeit verification.</p>
+    </div>
+    <div class="row-wrap gap-2">
+      <a href="index.html" class="pill-btn">Overview</a>
+      <a href="explorer.html" class="pill-btn">Explorer</a>
+      <a href="verify.html" class="pill-btn">Verification terminal</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cluster.js"></script>
+<script src="uncertainty.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>
