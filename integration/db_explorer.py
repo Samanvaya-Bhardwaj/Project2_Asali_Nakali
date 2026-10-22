@@ -486,6 +486,11 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
             "veto_codes": resolution.get("veto_codes", []),
             "contradictions": resolution.get("contradictions", []),
             "audit_entry": resolution.get("audit_entry"),
+            "complaint_id": resolution.get("complaint_id"),
+            "dossier": resolution.get("dossier"),
+            "resolved_code": resolution.get("resolved_code"),
+            "resolution": resolution.get("resolution"),
+            "suggestion": resolution.get("suggestion"),
             "execution_ms": round((time.perf_counter() - t0) * 1000, 2)
         }
 
@@ -574,7 +579,7 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
         item_code = data.get("item_code") or "MED-NAKALI-001"
         # Blacklist in DB4 to trigger instant statutory freeze
         db4_blacklist = {
-            "blacklist_id": f"BLK-{int(time.time())}",
+            "blacklist_id": data.get("blacklist_id") or f"BLK-{int(time.time())}",
             "item_ref": item_code,
             "blacklisted_on": "2026-09-16",
             "blacklisted_by": "Dr. V. K. Paul (CDSCO Committee)",
@@ -589,6 +594,7 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
             "success": True,
             "operation": "FEDERATED_BLACKLIST",
             "item_code": item_code,
+            "blacklist_id": db4_blacklist["blacklist_id"],
             "blacklisted_in_db4": r4.get("success"),
             "impact": "Tier-1 Hard Veto Gate V2 will now trigger fail-stop (Trust Score: 0) on all future verification requests for this item",
             "execution_ms": round((time.perf_counter() - t0) * 1000, 2)
@@ -914,7 +920,7 @@ def get_conflict_scenarios() -> List[Dict[str, Any]]:
                 "db1_pos": "Licensed pharmacy, one scan, checksum valid",
                 "db4_ministry": "No complaints on file"
             },
-            "description": "The baseline case. Four independent record-keepers describe the same pack the same way, so there is nothing for the mediator to arbitrate."
+            "description": "The normal case. All four databases describe the same pack the same way, so there is nothing to settle."
         },
         {
             "id": "scenario_coldchain",
@@ -928,7 +934,7 @@ def get_conflict_scenarios() -> List[Dict[str, Any]]:
                 "db1_pos": "Counter scan valid",
                 "db4_ministry": "Patients reported it had no effect"
             },
-            "description": "The registry is right that the pack was made legitimately, and the sensors are right that it was ruined on the way. Both are true, so the mediator has to decide which one governs the outcome."
+            "description": "The registry is right that the pack was made legitimately, and the sensors are right that it was ruined on the way. Both are true, so the system has to decide which one decides the outcome."
         },
         {
             "id": "scenario_duplicate",
@@ -956,7 +962,7 @@ def get_conflict_scenarios() -> List[Dict[str, Any]]:
                 "db1_pos": "Counter scan logged",
                 "db4_ministry": "Laboratory found no active ingredient; gazetted as counterfeit"
             },
-            "description": "A laboratory result and a gazette notice outrank everything else. Whatever the other silos report, this one finding ends the matter on its own."
+            "description": "A failed lab test and a government notice outrank everything else. Whatever the other databases say, this one finding decides the result on its own."
         }
     ]
 
@@ -1242,6 +1248,8 @@ def execute_operation(db_id: str, operation: str, table: str, data: Dict[str, An
     else:
         key = data.get("_key_value") or data.get("scan_code") or data.get("item_code") or ""
         summary = f'{op.title()} affected {res.get("rows_affected", 0)} row(s)' + (f" — {key}" if key else "")
+    if client.startswith("copy"):
+        summary += " (copy from the other PC)"
 
     _activity.record(
         db_id=db_id,

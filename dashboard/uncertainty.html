@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Integration under uncertainty · Asali — Nakali</title>
-<meta name="description" content="Approximate matching of noisy pack codes, contextual cleansing of the silos, and the evidence for the chosen algorithm.">
+<title>Matching &amp; cleaning · Asali — Nakali</title>
+<meta name="description" content="Phase 2: find which registered product a messy record belongs to, and clean the four databases.">
 <link rel="icon" type="image/svg+xml" href="assets/mark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,9 +19,8 @@
 <script src="assets/theme.js" defer></script>
 <script src="assets/transition.js" defer></script>
 <style>
-  .u-grid { display:grid; grid-template-columns:1fr; gap:14px; }
+  .u-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:14px; }
   @media (min-width:1040px){ .u-grid { grid-template-columns: minmax(0,5fr) minmax(0,7fr); } }
-  .u-field-label { display:block; margin:12px 0 6px; }
   .u-two { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .u-three { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
   @media (max-width:520px){ .u-three { grid-template-columns:1fr 1fr; } }
@@ -52,6 +51,8 @@
   details.u-details > summary::-webkit-details-marker { display:none; }
   .u-heat { font-variant-numeric: tabular-nums; text-align:right; }
   table.data td.u-heat { white-space:nowrap; }
+  .u-steps { margin:10px 0 0 18px; font-size:0.85rem; line-height:1.7; color:var(--ink-muted); }
+  .u-steps strong { color:var(--ink); font-weight:600; }
 </style>
 </head>
 <body class="has-subnav">
@@ -65,115 +66,132 @@
       </a>
       <a href="index.html" class="back-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        <span>Overview</span>
+        <span>Home</span>
       </a>
     </div>
     <div class="row gap-2">
       <button class="icon-btn" id="themeToggle" type="button" aria-label="Colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
-      <span class="badge" id="navClusterBadge"><span class="dot dot-amber dot-pulse"></span> Checking nodes</span>
-      <a href="explorer.html" class="btn btn-accent btn-sm">Explorer</a>
-      <a href="verify.html" class="btn btn-primary btn-sm">Verify a medicine</a>
+      <span class="badge" id="navClusterBadge"><span class="dot dot-amber dot-pulse"></span> Checking PCs</span>
+      <a href="verify.html" class="btn btn-outline btn-sm nav-page">Check a medicine</a>
+      <a href="explorer.html" class="btn btn-outline btn-sm nav-page">Databases</a>
+      <a href="uncertainty.html" class="btn btn-primary btn-sm nav-page" aria-current="page">Matching &amp; cleaning</a>
     </div>
   </div>
 </header>
 
 <div class="subnav">
   <div class="shell subnav-inner">
-    <span class="subnav-label">Jump to</span>
+    <span class="subnav-label">Go to</span>
     <nav class="nav-links seg" style="display:flex;">
-      <a href="#match" class="seg-item is-active">Match</a>
-      <a href="#reverse" class="seg-item">Reverse</a>
-      <a href="#algorithms" class="seg-item">Why this algorithm</a>
-      <a href="#cleanse" class="seg-item">Cleanse</a>
-      <a href="#lineage" class="seg-item">Lineage</a>
-      <a href="#test" class="seg-item">Test it</a>
-      <a href="#vibe" class="seg-item">Vibe coding</a>
+      <a href="#guide" class="seg-item is-active">This page</a>
+      <a href="#match" class="seg-item">1 · Match a code</a>
+      <a href="#reverse" class="seg-item">2 · Records of a product</a>
+      <a href="#algorithms" class="seg-item">3 · Why this method</a>
+      <a href="#cleanse" class="seg-item">4 · Clean the data</a>
+      <a href="#lineage" class="seg-item">5 · Undo history</a>
+      <a href="#test" class="seg-item">6 · Try it</a>
+      <a href="#vibe" class="seg-item">7 · Vibe coding</a>
     </nav>
   </div>
 </div>
 
 <main>
 
-<!-- ========================= INTRO ========================= -->
-<section class="shell section-tight" style="padding-bottom:12px;">
-  <div class="row-wrap gap-4 between">
-    <div style="max-width:60ch;">
-      <p class="eyebrow eyebrow-lime">Phase 2 · Integration under uncertainty</p>
-      <h1 class="display display-lg" style="margin-top:10px;">The same pack, <span class="hl-lime">recorded four ways</span></h1>
-    </div>
-    <p class="lede" style="max-width:48ch;">
-      A pharmacist types a smudged serial. A phone camera reads a label through glare. A clerk re-keys a
-      dispatch note; a citizen types a code into a complaint form. This page links those imperfect
-      records back to the registry, cleanses the silos, and keeps every counterfeit signal intact.
-    </p>
-  </div>
-  <div class="bento" style="gap:12px; margin-top:22px;" id="introStats">
-    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statProducts">—</p><p class="xsmall faint">Registered products (DB3)</p></div></div>
+<!-- ========================= PAGE GUIDE ========================= -->
+<section class="shell section-tight" id="guide" style="padding-bottom:12px;">
+  <p class="eyebrow eyebrow-lime">Phase 2 · Data integration under uncertainty</p>
+  <h1 class="page-title" style="margin-top:8px;">Matching and cleaning messy data</h1>
+  <p class="part-use" style="font-size:1rem;">
+    The same medicine pack is recorded in four databases, and the records are often wrong: a mistyped code, a camera
+    misreading <span class="u-code">0</span> as <span class="u-code">O</span>, the same sale saved twice, two databases
+    giving different prices. This page works out <strong>which registered product each messy record belongs to</strong>,
+    and <strong>cleans the databases</strong>. Codes that match no registered product are kept as evidence of fakes.
+  </p>
+
+  <div class="bento" style="gap:12px; margin-top:20px;" id="introStats">
+    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statProducts">—</p><p class="xsmall faint">Products in the registry (DB3)</p></div></div>
     <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statVendors">—</p><p class="xsmall faint">Pharmacies (DB1)</p></div></div>
-    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statModel">—</p><p class="xsmall faint">Linkage model</p></div></div>
-    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statThreshold">—</p><p class="xsmall faint">Auto-link threshold</p></div></div>
+    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statModel">—</p><p class="xsmall faint">Matching model</p></div></div>
+    <div class="col-3"><div class="card card-inset card-pad-sm"><p class="stat-num" id="statThreshold">—</p><p class="xsmall faint">Accepted automatically when at least this sure</p></div></div>
+  </div>
+  <p class="u-muted-note" style="margin-top:8px;" id="statFresh">These numbers are read live from the databases. A product registered on the Databases page shows up here too.</p>
+
+  <p class="eyebrow" style="margin:26px 0 10px;">What you can do on this page</p>
+  <div class="guide">
+    <a class="guide-item" href="#match"><span class="guide-num">1</span><span><span class="guide-title">Match a code to a product</span><span class="guide-text">Type or scan a code (or use a photo of the pack). See which registered products it could be, and how sure we are.</span></span></a>
+    <a class="guide-item" href="#reverse"><span class="guide-num">2</span><span><span class="guide-title">Find all records of a product</span><span class="guide-text">Pick a product. See every sale, shipment and complaint about it, even where its code was saved with mistakes.</span></span></a>
+    <a class="guide-item" href="#algorithms"><span class="guide-num">3</span><span><span class="guide-title">Why we chose this method</span><span class="guide-text">Accuracy of each matching method, measured on test data with known answers.</span></span></a>
+    <a class="guide-item" href="#cleanse"><span class="guide-num">4</span><span><span class="guide-title">Clean the databases</span><span class="guide-text">Find duplicates, typos, conflicts and missing values. Fix the safe ones; decide the rest yourself.</span></span></a>
+    <a class="guide-item" href="#lineage"><span class="guide-num">5</span><span><span class="guide-title">Undo history</span><span class="guide-text">Every fix that was made, with the old value. Undo a whole cleaning run with one click.</span></span></a>
+    <a class="guide-item" href="#test"><span class="guide-num">6</span><span><span class="guide-title">Try it: add, change or delete data</span><span class="guide-text">Change the real data and watch the matching result change. Every test can be undone.</span></span></a>
+    <a class="guide-item" href="#vibe"><span class="guide-num">7</span><span><span class="guide-title">Vibe-coding report</span><span class="guide-text">The prompts used, the code that was generated, and every change made to it.</span></span></a>
   </div>
 </section>
 
 <!-- ========================= 1. MATCH ========================= -->
 <section class="shell section-tight" id="match">
   <div class="stack gap-4">
-    <div>
-      <p class="eyebrow">1 · Approximate match</p>
-      <h2 class="display display-md" style="margin-top:8px;">Which registered products could this be?</h2>
-      <p class="muted small" style="margin-top:8px; max-width:80ch;">
-        Give a noisy code, a photo of the label, or both. Every registered product close enough to be a
-        candidate is listed with the evidence for and against it, and with an explicit probability that the
-        code belongs to <em>no</em> registered product, which is what a counterfeit looks like.
-      </p>
+    <div class="part-head">
+      <span class="part-num">1</span>
+      <div>
+        <h2 class="part-title">Match a code to a registered product</h2>
+        <p class="part-use">
+          <strong>Use this to</strong> find out which product a messy code really means. Enter the code on the left
+          (the other boxes are optional, but they help), then press <strong>Find matching products</strong>.
+          The right side lists every product it could be, with the clues for and against each one, and the chance
+          that it is <em>not</em> a registered product at all, which is what a fake looks like.
+        </p>
+      </div>
     </div>
 
     <div class="u-grid">
       <!-- input -->
       <div class="card card-pad-lg">
-        <div class="row-wrap gap-2">
-          <button class="pill-btn is-active" data-demo="ciplox">Smudged Ciplox, typed</button>
-          <button class="pill-btn" data-demo="novamox">Novamox, read by camera</button>
-          <button class="pill-btn" data-demo="fake">Counterfeit near-miss</button>
-          <button class="pill-btn" data-demo="random">Random noisy record</button>
+        <p class="eyebrow">The record to check</p>
+        <div class="row-wrap gap-2" style="margin-top:8px;">
+          <span class="xsmall faint" style="align-self:center;">Examples:</span>
+          <button class="pill-btn is-active" data-demo="ciplox">Mistyped code</button>
+          <button class="pill-btn" data-demo="novamox">Read by camera</button>
+          <button class="pill-btn" data-demo="fake">Fake, one letter off</button>
+          <button class="pill-btn" data-demo="random">Random record</button>
         </div>
 
-        <label class="eyebrow u-field-label" for="mCode">Scanned or typed code</label>
+        <label class="step-label" for="mCode" style="margin-top:18px;">1. The code</label>
         <input id="mCode" class="field mono" spellcheck="false" placeholder="e.g. MED-ASAL1-OO7">
 
+        <p class="step-label">2. Where and how it was sold <span class="faint">(optional, helps the match)</span></p>
         <div class="u-two">
           <div>
-            <label class="eyebrow u-field-label" for="mChannel">Captured by</label>
+            <label class="field-label" for="mChannel">How the code was entered</label>
             <select id="mChannel" class="field field-sm u-select">
               <option value="manual">Typed by hand</option>
-              <option value="ocr">Camera / OCR of the label</option>
+              <option value="ocr">Read by a camera (OCR)</option>
               <option value="scan">Barcode / QR scanner</option>
             </select>
           </div>
           <div>
-            <label class="eyebrow u-field-label" for="mVendor">Sold at (context)</label>
-            <select id="mVendor" class="field field-sm u-select"><option value="">— unknown —</option></select>
+            <label class="field-label" for="mVendor">Pharmacy that sold it</label>
+            <select id="mVendor" class="field field-sm u-select"><option value="">— not known —</option></select>
           </div>
         </div>
         <div class="u-three">
           <div>
-            <label class="eyebrow u-field-label" for="mPrice">Price paid (Rs)</label>
+            <label class="field-label" for="mPrice">Price paid (Rs)</label>
             <input id="mPrice" class="field field-sm" inputmode="decimal" placeholder="95">
           </div>
           <div>
-            <label class="eyebrow u-field-label" for="mQty">Quantity</label>
+            <label class="field-label" for="mQty">Quantity</label>
             <input id="mQty" class="field field-sm" inputmode="numeric" placeholder="1">
           </div>
           <div>
-            <label class="eyebrow u-field-label" for="mDate">Sale date</label>
+            <label class="field-label" for="mDate">Sale date</label>
             <input id="mDate" class="field field-sm" placeholder="2025-06-02 11:20">
           </div>
         </div>
 
-        <hr class="divider-dashed" style="margin-block:18px 4px;">
-        <p class="eyebrow u-field-label">Scanned image of the pack (optional)</p>
+        <p class="step-label">3. Photo of the pack <span class="faint">(optional)</span></p>
         <div class="u-two">
-          <select id="mSample" class="field field-sm u-select"><option value="">Pick a captured pack…</option></select>
+          <select id="mSample" class="field field-sm u-select"><option value="">Pick a saved pack photo…</option></select>
           <label class="btn btn-ghost btn-sm" style="justify-content:center;">
             Upload a photo
             <input id="mUpload" type="file" accept="image/*" class="hidden">
@@ -181,10 +199,10 @@
         </div>
         <img id="mPreview" class="u-preview hidden" alt="Selected label image" style="margin-top:10px;">
         <div class="row-wrap gap-2" style="margin-top:10px;">
-          <button class="btn btn-outline btn-sm" id="btnOcr" disabled>Read image with OCR</button>
-          <span class="u-muted-note" id="ocrStatus">OCR runs in the browser (Tesseract.js, first use downloads ~10 MB).</span>
+          <button class="btn btn-outline btn-sm" id="btnOcr" disabled>OCR Reading</button>
+          <span class="u-muted-note" id="ocrStatus">The text is read in your browser (Tesseract.js; the first time downloads about 10 MB).</span>
         </div>
-        <label class="eyebrow u-field-label" for="mLabel">Text read off the label</label>
+        <label class="field-label" for="mLabel">Text printed on the label</label>
         <textarea id="mLabel" class="textarea" rows="3" style="width:100%; min-height:72px; padding:10px;" spellcheck="false" placeholder="NOVAMOX 500MG | Amoxycillin | B.No. BATCH-A001 | EXP 01/2027 | MRP Rs.115.00 | MED-ASALI-0O1"></textarea>
 
         <button class="btn btn-primary full" style="margin-top:16px;" id="btnMatch">Find matching products</button>
@@ -192,7 +210,8 @@
 
       <!-- results -->
       <div class="card card-pad-lg">
-        <div id="matchResult"><p class="muted small">Run a match to see the candidates.</p></div>
+        <p class="eyebrow" style="margin-bottom:10px;">Result</p>
+        <div id="matchResult"><p class="muted small">Press “Find matching products” to see the result.</p></div>
       </div>
     </div>
   </div>
@@ -201,20 +220,24 @@
 <!-- ========================= 2. REVERSE ========================= -->
 <section class="shell section-tight" id="reverse">
   <div class="stack gap-4">
-    <div>
-      <p class="eyebrow">2 · And the other way round</p>
-      <h2 class="display display-md" style="margin-top:8px;">Every record that is really about this product</h2>
-      <p class="muted small" style="margin-top:8px; max-width:80ch;">
-        Pick a registered product. Every checkout, shipment, complaint and regulatory entry that
-        approximately refers to it is found across DB1, DB2 and DB4, including the ones whose stored code is damaged.
-      </p>
+    <div class="part-head">
+      <span class="part-num">2</span>
+      <div>
+        <h2 class="part-title">Find all records of a product</h2>
+        <p class="part-use">
+          <strong>Use this to</strong> go the other way: start from a registered product and find every sale (DB1),
+          shipment (DB2) and complaint or lab report (DB4) that is about it, including records where its code was saved
+          with mistakes. Type or pick a product code and press <strong>Find its records</strong>.
+        </p>
+      </div>
     </div>
     <div class="card card-pad-lg">
+      <label class="field-label" for="rUid" style="margin-top:0;">Product code</label>
       <div class="row-wrap gap-2">
         <input id="rUid" class="field field-sm mono" list="productList" placeholder="MED-ASALI-007" style="max-width:280px;" spellcheck="false">
         <datalist id="productList"></datalist>
         <button class="btn btn-primary btn-sm" id="btnReverse">Find its records</button>
-        <span class="u-muted-note">Try MED-ASALI-001, or any code from the registry.</span>
+        <span class="u-muted-note">Try MED-ASALI-001. The list contains every product in the registry, including newly registered ones.</span>
       </div>
       <div id="reverseResult" style="margin-top:16px;"></div>
     </div>
@@ -225,59 +248,72 @@
 <section class="shell section-tight" id="algorithms">
   <div class="stack gap-4">
     <div class="row-wrap gap-4 between">
-      <div>
-        <p class="eyebrow">3 · Justification</p>
-        <h2 class="display display-md" style="margin-top:8px;">Why this algorithm, measured</h2>
+      <div class="part-head">
+        <span class="part-num">3</span>
+        <div>
+          <h2 class="part-title">Why we chose this matching method</h2>
+          <p class="part-use">
+            <strong>Use this to</strong> justify the method. Each method was tested on records with known answers.
+            The chosen method (highlighted) combines the code with clues from the other databases: was the product
+            shipped to that pharmacy, does the price fit, do the dates fit, does the label agree.
+          </p>
+        </div>
       </div>
       <div class="row-wrap gap-2">
         <span class="u-muted-note" id="trainStatus"></span>
-        <button class="btn btn-outline btn-sm" id="btnRetrain">Refit and re-run benchmark</button>
+        <button class="btn btn-outline btn-sm" id="btnRetrain">Retrain and re-test</button>
       </div>
     </div>
-    <div id="benchResult"><div class="card card-pad-lg"><p class="muted small">Loading the benchmark…</p></div></div>
+    <div id="benchResult"><div class="card card-pad-lg"><p class="muted small">Loading the test results…</p></div></div>
   </div>
 </section>
 
 <!-- ========================= 4. CLEANSE ========================= -->
 <section class="shell section-tight" id="cleanse">
   <div class="stack gap-4">
-    <div class="row-wrap gap-4 between">
-      <div style="max-width:70ch;">
-        <p class="eyebrow">4 · Cleansing</p>
-        <h2 class="display display-md" style="margin-top:8px;">Scan the silos, fix what is safe, ask about the rest</h2>
-        <p class="muted small" style="margin-top:8px;">
-          Each anomaly gets a proposed fix, a confidence and a reason. Automatic fixes are deterministic or above the
-          link threshold; uncertain ones wait for a person; codes that belong to no product are quarantined, never rewritten.
+    <div class="part-head">
+      <span class="part-num">4</span>
+      <div>
+        <h2 class="part-title">Clean the databases</h2>
+        <p class="part-use">
+          <strong>Use this to</strong> find and fix problems in the stored data. Every problem gets a suggested fix,
+          a confidence and a reason. Fakes are never “fixed” into a real product: they are kept and flagged.
         </p>
-      </div>
-      <div class="row-wrap gap-2">
-        <button class="btn btn-outline btn-sm" id="btnScan">Scan all silos</button>
-        <button class="btn btn-primary btn-sm" id="btnApply" disabled>Apply automatic fixes</button>
+        <ol class="u-steps">
+          <li>Press <strong>Find problems</strong> to check every record in DB1–DB4.</li>
+          <li>Press <strong>Fix the safe ones</strong> to apply the fixes we are sure about.</li>
+          <li>In the table, decide the ones marked <strong>needs your decision</strong>.</li>
+        </ol>
       </div>
     </div>
-    <p class="u-muted-note" id="scanStatus">Not scanned yet.</p>
+    <div class="row-wrap gap-2">
+      <button class="btn btn-outline btn-sm" id="btnScan">Find problems</button>
+      <button class="btn btn-primary btn-sm" id="btnApply" disabled>Fix the safe ones</button>
+      <span class="u-muted-note" id="scanStatus">Not checked yet.</span>
+    </div>
     <div class="bento" style="gap:10px;" id="scanTiles"></div>
     <div id="applyResult"></div>
     <div class="card card-pad-lg">
+      <p class="eyebrow" style="margin-bottom:10px;">Problems found</p>
       <div class="row-wrap gap-2 between" style="margin-bottom:12px;">
         <div class="row-wrap gap-2">
-          <select id="fDecision" class="field field-sm u-select" style="width:auto;">
-            <option value="open">Open issues</option>
-            <option value="AUTO">Automatic</option>
-            <option value="REVIEW">Needs review</option>
-            <option value="RETAIN">Quarantined</option>
-            <option value="DISMISSED">Dismissed</option>
+          <select id="fDecision" class="field field-sm u-select" style="width:auto;" aria-label="Show">
+            <option value="open">Still open</option>
+            <option value="AUTO">Will be fixed automatically</option>
+            <option value="REVIEW">Needs your decision</option>
+            <option value="RETAIN">Kept as evidence of a fake</option>
+            <option value="DISMISSED">Kept as recorded</option>
             <option value="all">Everything</option>
           </select>
-          <select id="fCategory" class="field field-sm u-select" style="width:auto;"><option value="">All categories</option></select>
-          <input id="fSearch" class="field field-sm" placeholder="Filter by code or id" style="width:200px;" spellcheck="false">
+          <select id="fCategory" class="field field-sm u-select" style="width:auto;" aria-label="Type of problem"><option value="">All types of problem</option></select>
+          <input id="fSearch" class="field field-sm" placeholder="Search by code or record id" style="width:220px;" spellcheck="false">
         </div>
         <span class="u-muted-note" id="issueCount"></span>
       </div>
       <div class="table-wrap u-scroll">
         <table class="data"><thead><tr>
-          <th>Category</th><th>Where</th><th>Recorded</th><th>Proposed</th><th>Confidence</th><th>Decision</th><th>Why</th>
-        </tr></thead><tbody id="issueRows"><tr><td colspan="7" class="muted">Run a scan.</td></tr></tbody></table>
+          <th>Problem</th><th>Where</th><th>Saved now</th><th>Suggested</th><th>How sure</th><th>Action</th><th>Reason</th>
+        </tr></thead><tbody id="issueRows"><tr><td colspan="7" class="muted">Press “Find problems” first.</td></tr></tbody></table>
       </div>
       <div class="row-wrap gap-2" style="margin-top:12px; justify-content:flex-end;">
         <button class="btn btn-ghost btn-sm" id="btnPrev">Previous</button>
@@ -292,86 +328,97 @@
 <section class="shell section-tight" id="lineage">
   <div class="stack gap-4">
     <div class="row-wrap gap-4 between">
-      <div>
-        <p class="eyebrow">5 · Lineage</p>
-        <h2 class="display display-md" style="margin-top:8px;">Every change, and how to take it back</h2>
+      <div class="part-head">
+        <span class="part-num">5</span>
+        <div>
+          <h2 class="part-title">Undo history</h2>
+          <p class="part-use">
+            <strong>Use this to</strong> see every change a cleaning run made, with the old and the new value,
+            and to take a whole run back with <strong>Undo</strong>.
+          </p>
+        </div>
       </div>
       <button class="btn btn-outline btn-sm" id="btnLineage">Refresh</button>
     </div>
-    <div class="card card-pad-lg" id="lineageResult"><p class="muted small">Nothing applied yet.</p></div>
+    <div class="card card-pad-lg" id="lineageResult"><p class="muted small">Nothing fixed yet.</p></div>
   </div>
 </section>
 
 <!-- ========================= 6. TEST ========================= -->
 <section class="shell section-tight" id="test">
   <div class="stack gap-4">
-    <div>
-      <p class="eyebrow">6 · Insert, modify, delete</p>
-      <h2 class="display display-md" style="margin-top:8px;">Change the data and watch the answer change</h2>
-      <p class="muted small" style="margin-top:8px; max-width:80ch;">
-        Each test writes through the same explorer operation endpoint as the Explorer page, so the change lands in
-        the real silo. The write response already carries the matcher's reading of the row. Every test can be reverted.
-      </p>
+    <div class="part-head">
+      <span class="part-num">6</span>
+      <div>
+        <h2 class="part-title">Try it: add, change or delete data</h2>
+        <p class="part-use">
+          <strong>Use this to</strong> test the system the way an examiner would. Each card really changes a database
+          (through the same route as the Databases page), then shows how the matching result changes. When two PCs are
+          used, the change is copied to the other PC as well. Every card has an undo button.
+        </p>
+      </div>
     </div>
     <div class="bento" style="gap:12px;">
       <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
-        <p class="eyebrow">Insert · DB1</p>
-        <h3 class="h-md" style="margin-top:6px;">A checkout typed with a damaged code</h3>
-        <div class="u-two" style="margin-top:10px;">
-          <input id="tCode" class="field field-sm mono" value="med asali 0O8" spellcheck="false">
-          <select id="tVendor" class="field field-sm u-select"></select>
+        <p class="eyebrow">Add · DB1 pharmacy sales</p>
+        <h3 class="h-md" style="margin-top:6px;">Add a sale with a mistyped code</h3>
+        <p class="small muted" style="margin-top:6px;">Saves a new sale, then shows which product the system thinks it is.</p>
+        <div class="u-two">
+          <div><label class="field-label" for="tCode">Code as typed</label><input id="tCode" class="field field-sm mono" value="med asali 0O8" spellcheck="false"></div>
+          <div><label class="field-label" for="tVendor">Pharmacy</label><select id="tVendor" class="field field-sm u-select"></select></div>
         </div>
         <div class="u-three">
-          <input id="tPrice" class="field field-sm" style="margin-top:10px;" value="85">
-          <select id="tMethod" class="field field-sm u-select" style="margin-top:10px;">
-            <option value="manual">manual</option><option value="ocr">ocr</option><option value="barcode">barcode</option>
-          </select>
-          <input id="tDate" class="field field-sm" style="margin-top:10px;" value="2025-04-20 10:15:00">
+          <div><label class="field-label" for="tPrice">Price (Rs)</label><input id="tPrice" class="field field-sm" value="85"></div>
+          <div><label class="field-label" for="tMethod">How entered</label>
+            <select id="tMethod" class="field field-sm u-select">
+              <option value="manual">typed</option><option value="ocr">camera</option><option value="barcode">barcode</option>
+            </select></div>
+          <div><label class="field-label" for="tDate">Date</label><input id="tDate" class="field field-sm" value="2025-04-20 10:15:00"></div>
         </div>
         <div class="row-wrap gap-2" style="margin-top:12px;">
-          <button class="btn btn-primary btn-sm" id="btnInsert">Insert into DB1</button>
-          <button class="btn btn-ghost btn-sm" id="btnInsertUndo" disabled>Delete it again</button>
+          <button class="btn btn-primary btn-sm" id="btnInsert">Add this sale</button>
+          <button class="btn btn-ghost btn-sm" id="btnInsertUndo" disabled>Undo (delete it)</button>
         </div>
         <div id="tInsertOut" style="margin-top:12px;"></div>
       </div></div>
 
       <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
-        <p class="eyebrow">Insert · DB1</p>
-        <h3 class="h-md" style="margin-top:6px;">A counterfeit one edit from a real code</h3>
-        <p class="small muted" style="margin-top:6px;">Code <span class="u-code">MED-ASALI-011</span> scanned by barcode at an unlicensed kiosk for Rs 30. String similarity alone would call it Novamox (<span class="u-code">-001</span>) or Calcirol (<span class="u-code">-010</span>), one edit away each.</p>
+        <p class="eyebrow">Add · DB1 pharmacy sales</p>
+        <h3 class="h-md" style="margin-top:6px;">Add a sale of a fake pack</h3>
+        <p class="small muted" style="margin-top:6px;">Code <span class="u-code">MED-ASALI-011</span> scanned at an unlicensed shop for Rs 30. It is one letter away from two real products (<span class="u-code">-001</span> and <span class="u-code">-010</span>), so simple text matching would wrongly call it real.</p>
         <div class="row-wrap gap-2" style="margin-top:12px;">
-          <button class="btn btn-primary btn-sm" id="btnFake">Insert counterfeit sale</button>
-          <button class="btn btn-ghost btn-sm" id="btnFakeUndo" disabled>Delete it again</button>
+          <button class="btn btn-primary btn-sm" id="btnFake">Add the fake sale</button>
+          <button class="btn btn-ghost btn-sm" id="btnFakeUndo" disabled>Undo (delete it)</button>
         </div>
         <div id="tFakeOut" style="margin-top:12px;"></div>
       </div></div>
 
       <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
-        <p class="eyebrow">Modify · DB3</p>
-        <h3 class="h-md" style="margin-top:6px;">Change a product's MRP</h3>
-        <p class="small muted" style="margin-top:6px;">Price agreement is evidence. Change the registered MRP of a product and re-run the match for a noisy sale of it.</p>
-        <div class="u-two" style="margin-top:10px;">
-          <input id="tMrpUid" class="field field-sm mono" value="MED-ASALI-007" spellcheck="false">
-          <input id="tMrp" class="field field-sm" value="400">
+        <p class="eyebrow">Change · DB3 registry</p>
+        <h3 class="h-md" style="margin-top:6px;">Change a product's price (MRP)</h3>
+        <p class="small muted" style="margin-top:6px;">The price is one of the clues. Change the registered price and see how the match for a mistyped sale of that product changes.</p>
+        <div class="u-two">
+          <div><label class="field-label" for="tMrpUid">Product code</label><input id="tMrpUid" class="field field-sm mono" value="MED-ASALI-007" spellcheck="false"></div>
+          <div><label class="field-label" for="tMrp">New price (Rs)</label><input id="tMrp" class="field field-sm" value="400"></div>
         </div>
         <div class="row-wrap gap-2" style="margin-top:12px;">
-          <button class="btn btn-primary btn-sm" id="btnMrp">Update MRP and re-match</button>
-          <button class="btn btn-ghost btn-sm" id="btnMrpUndo" disabled>Restore</button>
+          <button class="btn btn-primary btn-sm" id="btnMrp">Change price and re-check</button>
+          <button class="btn btn-ghost btn-sm" id="btnMrpUndo" disabled>Undo (old price)</button>
         </div>
         <div id="tMrpOut" style="margin-top:12px;"></div>
       </div></div>
 
       <div class="col-6"><div class="card card-pad-lg" style="height:100%;">
-        <p class="eyebrow">Delete · DB3</p>
-        <h3 class="h-md" style="margin-top:6px;">Remove a product from the registry</h3>
-        <p class="small muted" style="margin-top:6px;">Its noisy records lose their best candidate. Watch them fall to review or to "no registered product".</p>
-        <div class="u-two" style="margin-top:10px;">
-          <input id="tDelUid" class="field field-sm mono" value="MED-ASALI-008" spellcheck="false">
+        <p class="eyebrow">Delete · DB3 registry</p>
+        <h3 class="h-md" style="margin-top:6px;">Delete a product from the registry</h3>
+        <p class="small muted" style="margin-top:6px;">Its mistyped records lose their best match. Watch them move to “needs a person” or “not in the registry”.</p>
+        <div class="u-two">
+          <div><label class="field-label" for="tDelUid">Product code</label><input id="tDelUid" class="field field-sm mono" value="MED-ASALI-008" spellcheck="false"></div>
           <span></span>
         </div>
         <div class="row-wrap gap-2" style="margin-top:12px;">
           <button class="btn btn-danger btn-sm" id="btnDel">Delete and re-check</button>
-          <button class="btn btn-ghost btn-sm" id="btnDelUndo" disabled>Restore it</button>
+          <button class="btn btn-ghost btn-sm" id="btnDelUndo" disabled>Undo (put it back)</button>
         </div>
         <div id="tDelOut" style="margin-top:12px;"></div>
       </div></div>
@@ -383,14 +430,17 @@
 <section class="shell section-tight" id="vibe">
   <div class="card card-pad-lg">
     <div class="row-wrap gap-4 between">
-      <div style="max-width:70ch;">
-        <p class="eyebrow">7 · Vibe coding</p>
-        <h2 class="h-lg" style="margin-top:6px;">The prompts, the generated code, and what was changed in it</h2>
-        <p class="small muted" style="margin-top:8px;">
-          The report shows the prompts used, the code exactly as first generated, and a highlighted diff of every
-          change made after it, plus what phase 2 changed in the phase-1 files. Regenerate it with
-          <span class="u-code">python vibe_coding/make_diff_report.py</span> after any further edit.
-        </p>
+      <div class="part-head">
+        <span class="part-num">7</span>
+        <div>
+          <h2 class="part-title">Vibe-coding report</h2>
+          <p class="part-use">
+            <strong>Use this to</strong> show how the code was made: the prompts used, the code exactly as it was first
+            generated, and a highlighted list of every change made after it (including what Phase 2 changed in the
+            Phase 1 files). After editing the code again, rebuild it with
+            <span class="u-code">python vibe_coding/make_diff_report.py</span>.
+          </p>
+        </div>
       </div>
       <a href="vibe/index.html" class="btn btn-primary">Open the report</a>
     </div>
@@ -403,12 +453,12 @@
   <div class="shell row-wrap gap-4 between">
     <div>
       <p class="brand" style="font-size:1.1rem;">Asali<span class="brand-slash"> / </span>Nakali</p>
-      <p class="small muted" style="margin-top:8px;">Federated anti-counterfeit verification.</p>
+      <p class="small muted" style="margin-top:8px;">Checks whether a medicine is genuine (asali) or fake (nakali) using four databases.</p>
     </div>
     <div class="row-wrap gap-2">
-      <a href="index.html" class="pill-btn">Overview</a>
-      <a href="explorer.html" class="pill-btn">Explorer</a>
-      <a href="verify.html" class="pill-btn">Verification terminal</a>
+      <a href="index.html" class="pill-btn">Home</a>
+      <a href="verify.html" class="pill-btn">Check a medicine</a>
+      <a href="explorer.html" class="pill-btn">Databases</a>
     </div>
   </div>
 </footer>

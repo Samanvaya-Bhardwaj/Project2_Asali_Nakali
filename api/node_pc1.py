@@ -35,6 +35,7 @@ SQL_DB2_FILE = os.path.join(BASE_DIR, "databases", "db2_distributor_ledger.sqlit
 
 from integration import db_explorer as dbe
 from integration.uncertainty import http_api as dq_api
+from integration import replication
 
 DASHBOARD_DIR = os.path.join(BASE_DIR, "dashboard")
 MIME_TYPES = {
@@ -65,7 +66,7 @@ class NodePc1Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Allow-Headers", replication.CORS_HEADERS)
         self.send_header("X-Node-ID", self.node_id)
         self.send_header("X-Node-Role", "Edge_Retail_And_Supply_Chain")
         self.end_headers()
@@ -83,7 +84,13 @@ class NodePc1Handler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", 0) or 0)
             raw = self.rfile.read(length).decode("utf-8") if length else ""
             body = json.loads(raw) if raw else {}
+            if replication.same_storage(self.headers):
+                self._set_headers(200)
+                self.wfile.write(json.dumps(replication.same_storage_reply()).encode("utf-8"))
+                return
         status, payload = dq_api.handle(method, parsed.path, parse_qs(parsed.query), body, node=self.node_id)
+        if method == "POST" and status == 200:
+            payload = replication.after_write(self.headers, parsed.path, body, payload, role="pc1")
         self._set_headers(status)
         self.wfile.write(json.dumps(payload, default=str).encode("utf-8"))
 
@@ -212,12 +219,18 @@ class NodePc1Handler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(length).decode("utf-8")
             payload = json.loads(body) if body else {}
+            if replication.same_storage(self.headers):
+                self._set_headers(200)
+                self.wfile.write(json.dumps(replication.same_storage_reply()).encode("utf-8"))
+                return
             db_id = payload.get("db_id", "db1")
             op = payload.get("operation", "VIEW")
             table = payload.get("table", "purchase_events")
             data = payload.get("data", {})
 
-            res = dbe.execute_operation(db_id, op, table, data, node=self.node_id)
+            client = "copy from the other PC" if replication.is_copy(self.headers) else ""
+            res = dbe.execute_operation(db_id, op, table, data, node=self.node_id, client=client)
+            res = replication.after_write(self.headers, "/api/v1/explorer/operation", payload, res, role="pc1")
             self._set_headers(200)
             self.wfile.write(json.dumps(res, indent=2).encode("utf-8"))
         except Exception as e:
@@ -234,6 +247,7 @@ class NodePc1Handler(BaseHTTPRequestHandler):
         resp = {
             "status": "ONLINE",
             "node_id": self.node_id,
+            "storage_id": replication.STORAGE_ID,
             "role": "Edge Retail POS & Wholesale Distributor ERP",
             "hosted_services": [
                 {

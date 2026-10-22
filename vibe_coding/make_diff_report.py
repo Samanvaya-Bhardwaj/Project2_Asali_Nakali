@@ -6,12 +6,15 @@ Builds dashboard/vibe/index.html: the prompts, the code as first generated, and 
 highlighted diff of every change made since, so rubric item 3 can be shown from
 the running dashboard (http://localhost:8011/vibe/index.html).
 
-Three snapshots are compared:
+Snapshots compared:
   vibe_coding/phase1_baseline/   the project before phase 2 began
   vibe_coding/generated_v0/      phase-2 code exactly as the assistant first wrote it
+  vibe_coding/rounds/NN-name/    each later prompt: ROUND.md (the prompt), FILES.txt
+                                 (what it changed) and before/ (those files just before it)
   the working tree               what the project is now
 
-Rerun after any edit; your own changes show up highlighted automatically.
+Rerun after any edit; your own changes show up highlighted automatically. For a
+new prompt, save the files it will change into a new rounds/ folder first.
 
     python vibe_coding/make_diff_report.py
 """
@@ -46,6 +49,84 @@ def files_under(base):
             if rel != "SNAPSHOT_TAKEN_AT.txt":
                 out.append(rel)
     return sorted(out)
+
+
+# Source written after both snapshots (for example integration/replication.py) is
+# in neither of them, so it is found here and listed in full.
+LATER_DIRS = ("api", "integration", "dashboard", "data", "scripts", "tests")
+LATER_EXT = (".py", ".js", ".html", ".css")
+LATER_SKIP = ("dashboard/vibe/", "dashboard/_legacy/", "__pycache__", "SYSTEM_GUIDE")
+
+
+def added_later(known):
+    out = []
+    for top in LATER_DIRS:
+        for rel in files_under(os.path.join(ROOT, top)):
+            rel = top + "/" + rel
+            if rel.endswith(LATER_EXT) and rel not in known and not any(s in rel for s in LATER_SKIP):
+                out.append(rel)
+    return sorted(out)
+
+
+# Requests made after generation ("rounds"). Each vibe_coding/rounds/<NN-name>/
+# holds ROUND.md (the prompt, quoted), FILES.txt (what it changed) and before/
+# (those files just before it). A file's state after round i is the next round's
+# saved copy of it, or the working tree when no later round touched it.
+ROUNDS = os.path.join(HERE, "rounds")
+
+
+def round_names():
+    if not os.path.isdir(ROUNDS):
+        return []
+    return sorted(d for d in os.listdir(ROUNDS) if os.path.isdir(os.path.join(ROUNDS, d)))
+
+
+def after_round(names, i, rel):
+    for later in names[i + 1:]:
+        p = os.path.join(ROUNDS, later, "before", rel)
+        if os.path.exists(p):
+            return read(p)
+    return read(os.path.join(ROOT, rel))
+
+
+def render_rounds():
+    names = round_names()
+    cards, total_p, total_m = [], 0, 0
+    for i, name in enumerate(names):
+        d = os.path.join(ROUNDS, name)
+        num = name.split("-", 1)[0].lstrip("0")
+        files = [l.strip() for l in (read(os.path.join(d, "FILES.txt")) or []) if l.strip()]
+        rows, diffs = [], []
+        for rel in files:
+            a = read(os.path.join(d, "before", rel))
+            b = after_round(names, i, rel)
+            if b is None:
+                continue
+            if a is None:
+                total_p += len(b)
+                rows.append(f"<tr><td><code>{html.escape(rel)}</code></td><td>new file</td>"
+                            f"<td class='num plus'>+{len(b)}</td><td class='num minus'>-0</td></tr>")
+                diffs.append(f"<details><summary>{html.escape(rel)} <span class='tag'>new file</span> "
+                             f"<span class='plus'>+{len(b)}</span></summary><div><pre class='src'>"
+                             f"{html.escape(chr(10).join(b))}</pre></div></details>")
+                continue
+            p, m = stats(a, b)
+            if not (p or m):
+                continue
+            total_p += p
+            total_m += m
+            rows.append(f"<tr><td><code>{html.escape(rel)}</code></td><td>changed</td>"
+                        f"<td class='num plus'>+{p}</td><td class='num minus'>-{m}</td></tr>")
+            diffs.append(f"<details><summary>{html.escape(rel)} <span class='plus'>+{p}</span> "
+                         f"<span class='minus'>-{m}</span></summary><div>"
+                         f"{diff_table(a, b, f'before prompt {num}', f'after prompt {num}')}</div></details>")
+        intro = "\n".join(read(os.path.join(d, "ROUND.md")) or [f"# {name}"])
+        cards.append(f"<section class='round' id='prompt-{num}'><div class='card'>{md(intro)}"
+                     f"<p class='eyebrow' style='margin-top:14px'>Code this prompt changed ({len(rows)} file(s)). "
+                     f"Open a file to see it before and after, highlighted.</p>"
+                     f"<table><thead><tr><th>File</th><th>Kind</th><th class='num'>Added</th><th class='num'>Removed</th>"
+                     f"</tr></thead><tbody>{''.join(rows)}</tbody></table></div>{''.join(diffs)}</section>")
+    return cards, total_p, total_m, names
 
 
 def stats(a, b):
@@ -140,8 +221,16 @@ CSS = """
 --sub-ink:#9c2219;--chg:rgba(220,160,0,.22);}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "IBM Plex Sans Condensed",system-ui,sans-serif}
 .wrap{max-width:1240px;margin:0 auto;padding:28px 16px 80px}a{color:var(--lime)}
-h1{font:400 clamp(2rem,5vw,3.2rem)/1 "Anton",Impact,sans-serif;letter-spacing:.01em;text-transform:uppercase;margin:6px 0 10px}
-h2{font:400 1.7rem/1.1 "Anton",Impact,sans-serif;text-transform:uppercase;margin:44px 0 10px}h3{margin:28px 0 8px}h4,h5{margin:18px 0 6px}
+h1{font:700 clamp(1.9rem,4vw,2.7rem)/1.12 "IBM Plex Sans Condensed",system-ui,sans-serif;letter-spacing:-.02em;margin:6px 0 10px}
+h2{font:700 clamp(1.3rem,2.4vw,1.7rem)/1.2 "IBM Plex Sans Condensed",system-ui,sans-serif;letter-spacing:-.015em;margin:56px 0 6px;display:flex;gap:12px;align-items:center}
+h2 .n{flex:0 0 auto;width:32px;height:32px;border-radius:9px;background:var(--lime);color:var(--bg);display:grid;place-items:center;font-size:.95rem}
+.card h2{font-size:1.25rem;margin:24px 0 8px;display:block}.card h2:first-child{margin-top:0}h3{margin:28px 0 8px}h4,h5{margin:18px 0 6px}
+.use{color:var(--muted);max-width:88ch;margin:0 0 12px 44px}.use strong{color:var(--ink)}
+.guide{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:18px 0 8px}
+.guide a{display:block;padding:12px 14px;border:1px solid var(--rim);border-radius:12px;background:var(--surface);color:var(--ink);text-decoration:none}
+.guide a:hover{border-color:var(--lime)}.guide b{display:block;font-size:.92rem}.guide span{display:block;color:var(--muted);font-size:.78rem;margin-top:3px;line-height:1.45}
+.tag{font-size:.72rem;padding:1px 7px;border-radius:6px;background:var(--add);color:var(--add-ink);margin-left:4px}.round{margin-top:26px}
+@media (max-width:600px){.use{margin-left:0}}
 .eyebrow{color:var(--faint);font-size:.8rem}.card{background:var(--surface);border:1px solid var(--rim);border-radius:16px;padding:22px;margin:14px 0}
 .lede{color:var(--muted);max-width:80ch}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem}
 code{background:var(--inset);padding:1px 5px;border-radius:5px}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--lime);color:var(--muted);background:var(--inset);border-radius:0 10px 10px 0}
@@ -151,7 +240,8 @@ th{color:var(--faint);font-weight:500;font-size:.8rem}.num{text-align:right;font
 details{border:1px solid var(--rim);border-radius:12px;margin:10px 0;background:var(--surface)}summary{cursor:pointer;padding:12px 16px;font-weight:600}
 details>div{padding:0 12px 14px;overflow-x:auto}pre.src{background:var(--inset);padding:14px;border-radius:10px;overflow:auto;max-height:540px;line-height:1.5}
 table.diff{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.74rem;border:0;width:100%}table.diff td{border:0;padding:1px 6px;white-space:pre-wrap;word-break:break-word}
-table.diff th{background:var(--inset);color:var(--muted);font-weight:500}td.diff_header{color:var(--faint);text-align:right;width:1%}td.diff_next{display:none}
+table.diff th{background:var(--inset);color:var(--muted);font-weight:500}td.diff_next,th.diff_next{display:none}
+table.diff td.diff_header{color:var(--faint);text-align:right;width:1%;white-space:nowrap;word-break:normal;padding-right:8px}
 .diff_add{background:var(--add)}.diff_chg{background:var(--chg)}.diff_sub{background:var(--sub)}span.diff_add{color:var(--add-ink)}span.diff_sub{color:var(--sub-ink)}
 """
 
@@ -203,43 +293,80 @@ def main():
         listings.append(f"<details><summary>{html.escape(rel)} <span class='eyebrow'>{src.count(chr(10)) + 1} lines"
                         f"</span></summary><div><pre class='src'>{html.escape(src)}</pre></div></details>")
 
+    later = []
+    for rel in added_later(set(v0_files) | p1_files):
+        src = "\n".join(read(os.path.join(ROOT, rel)) or [])
+        later.append(f"<details><summary>{html.escape(rel)} <span class='eyebrow'>{src.count(chr(10)) + 1} lines"
+                     f"</span></summary><div><pre class='src'>{html.escape(src)}</pre></div></details>")
+
+    round_cards, round_p, round_m, names = render_rounds()
+    first_later = names[0].split("-", 1)[0].lstrip("0") if names else "12"
+    round_links = " &middot; ".join(f"<a href='#prompt-{n.split('-', 1)[0].lstrip('0')}'>prompt {n.split('-', 1)[0].lstrip('0')}</a>"
+                                    for n in names)
+
+    def head(n, anchor, title, use):
+        return f"<h2 id='{anchor}'><span class='n'>{n}</span>{title}</h2><p class='use'>{use}</p>"
+
+    guide = "".join(f"<a href='#{a}'><b>{n} &middot; {t}</b><span>{s}</span></a>" for n, a, t, s in [
+        (1, "prompts", "The prompts", "Every prompt, exactly as typed, including the later requests."),
+        (2, "later", "Later prompts and their code", "Each request made after generation, with the code it changed, before → after."),
+        (3, "why", "Why each change was made", "Every change after generation, with the problem it fixed."),
+        (4, "first", "The generated code, as first written", "The new Phase 2 files exactly as the assistant first wrote them."),
+        (5, "since", "Generated code → now", "Every line changed since generation, highlighted."),
+        (6, "phase1", "Phase 1 files → now", "What Phase 2 changed in files that already existed in Phase 1."),
+        (7, "added", "Files added later", "New files written after the first snapshot, in full."),
+    ])
+
     page = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vibe-coding report</title>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>{CSS}</style></head><body><div class="wrap">
-<p class="eyebrow"><a href="../uncertainty.html#vibe">&larr; Back to the uncertainty page</a> &middot; generated {now}</p>
-<h1>Prompt, generated code, and what changed</h1>
-<p class="lede">Rubric item 3. The prompts that produced the phase-2 code; the code exactly as the assistant first
-wrote it (frozen before anything was run, {html.escape(snap)}); and every line changed since, highlighted. A second
-set of diffs shows what phase 2 changed in files that already existed in phase 1.</p>
+<p class="eyebrow"><a href="../uncertainty.html#vibe">&larr; Back to Matching &amp; cleaning</a> &middot; built {now}</p>
+<p class="eyebrow" style="color:var(--lime)">Rubric item 3 &middot; vibe coding</p>
+<h1>The prompts, the code they produced, and every change</h1>
+<p class="lede">Three things in one place: the prompts that were typed; the code exactly as the assistant first wrote it
+(frozen before anything was run, {html.escape(snap)}); and every line changed since, highlighted. Requests made after
+the code was generated (prompt {first_later} onwards) are shown one by one with the code each of them changed.</p>
 <div class="card legend"><span class="diff_add">added</span><span class="diff_chg">changed</span><span class="diff_sub">removed</span>
-&nbsp; Since generation: <strong class="plus">+{total_p}</strong> / <strong class="minus">-{total_m}</strong> lines across
-{len(gen_diffs)} file(s) touched after the snapshot.</div>
+&nbsp; Since generation: <strong class="plus">+{total_p}</strong> / <strong class="minus">-{total_m}</strong> lines in
+{len(gen_diffs)} generated file(s). Later prompts: <strong class="plus">+{round_p}</strong> /
+<strong class="minus">-{round_m}</strong> lines.</div>
+<p class="eyebrow" style="margin-top:22px">What is on this page</p>
+<div class="guide">{guide}</div>
 
-<h2>1 &middot; The prompts</h2><div class="card">{md(prompts)}</div>
+{head(1, "prompts", "The prompts", "<strong>Use this to</strong> read every prompt exactly as it was typed: the first request (prompt 0), the 11 prompts the Phase 2 code was generated from, and the later requests (prompt " + first_later + " onwards).")}
+<div class="card">{md(prompts)}</div>
 
-<h2>2 &middot; What was changed after generation, and why</h2><div class="card">{md(changes)}</div>
+{head(2, "later", "Later prompts and the code they changed", "<strong>Use this to</strong> see what each request made after generation did to the code. Each prompt is quoted, then every file it changed is listed; open a file to see it just before and just after that prompt, highlighted. Jump to: " + round_links + ".")}
+{''.join(round_cards) or '<p>No later prompts yet.</p>'}
 
-<h2>3 &middot; Generated code &rarr; now, highlighted</h2>
+{head(3, "why", "Why each change was made", "<strong>Use this to</strong> read the reason behind every change made after generation: what was wrong, how it was found, and what was done, with the files it touched.")}
+<div class="card">{md(changes)}</div>
+
+{head(4, "first", "The generated code, as first written", "<strong>Use this to</strong> see the new Phase 2 files exactly as the assistant first wrote them, before anything was run. Files that already existed in Phase 1 are shown as diffs in part 6.")}
+{''.join(listings)}
+
+{head(5, "since", "Generated code &rarr; now, highlighted", "<strong>Use this to</strong> see every line changed in the generated files since generation, all prompts together. Open a file for the highlighted diff.")}
 <div class="card"><table><thead><tr><th>File</th><th>Kind</th><th class="num">Lines as generated</th><th class="num">Added</th><th class="num">Removed</th></tr></thead>
 <tbody>{''.join(gen_rows)}</tbody></table></div>
 {''.join(gen_diffs) or '<p>No changes since generation.</p>'}
 
-<h2>4 &middot; The generated code, as first written</h2>
-<p class="lede">New phase-2 files exactly as generated. Files that already existed in phase 1 are shown as diffs in section 5.</p>
-{''.join(listings)}
-
-<h2>5 &middot; Phase 1 &rarr; now, in files that already existed</h2>
+{head(6, "phase1", "Phase 1 files &rarr; now", "<strong>Use this to</strong> see what Phase 2 changed in files that already existed in Phase 1.")}
 <div class="card"><table><thead><tr><th>File</th><th class="num">Added</th><th class="num">Removed</th></tr></thead>
 <tbody>{''.join(p1_rows)}</tbody></table></div>
 {''.join(p1_diffs)}
+
+{head(7, "added", "Files added later", "<strong>Use this to</strong> read, in full, the new files written after the first snapshot (their reasons are in part 3).")}
+{''.join(later) or '<p>None.</p>'}
 </div></body></html>"""
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         f.write(page)
     print(f"  {len(gen_diffs)} generated file(s) changed since the snapshot (+{total_p} / -{total_m} lines)")
     print(f"  {len(p1_rows)} phase-1 file(s) changed by phase 2")
+    print(f"  {len(later)} file(s) added after both snapshots")
+    print(f"  {len(names)} later prompt(s) shown with their code (+{round_p} / -{round_m} lines)")
     print(f"  report -> {OUT}")
 
 

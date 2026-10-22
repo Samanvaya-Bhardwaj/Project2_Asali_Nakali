@@ -16,6 +16,7 @@ Usage:
 
 from __future__ import annotations
 import sys, os, json, argparse
+from typing import Optional
 from datetime import datetime
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +33,7 @@ from integration.trust_engine          import TrustEngine
 from integration.anomaly_detector      import AnomalyDetector
 from integration.audit_chain           import get_chain
 from integration.ministry_reporter     import auto_file_complaint, generate_html_report
+from integration.uncertainty.standardize import canonical_code, looks_like_code
 
 # --- ANSI colour helpers ------------------------------------------------------
 def green(s):  return f"\033[92m{s}\033[0m"
@@ -51,6 +53,156 @@ ALL_ITEM_CODES = [
 ]
 
 
+def _yes(v) -> int:
+    return 1 if str(v).strip().lower() in ("1", "true", "yes") else 0
+
+
+def _num(v, default: float = 0.0) -> float:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _dossier(record, result, anomaly_report) -> dict:
+    """
+    Everything the Check-a-medicine page draws, built from the live records:
+    the product, its shipments, its sales, the ministry's file on it, and the
+    evidence behind the score. A product registered a minute ago therefore
+    shows its own details, not a stored example.
+    """
+    p = record.manufacturer.product or {}
+    mfr = record.manufacturer.manufacturer or {}
+    product = {
+        "found": record.manufacturer.found,
+        "product_uid": p.get("product_uid") or record.item_code,
+        "manufacturer_id": p.get("manufacturer_id"),
+        "product_name": p.get("product_name") or "Unregistered product",
+        "generic_name": p.get("generic_name") or "Unidentified formulation",
+        "mfg_name": p.get("mfg_name") or mfr.get("company_name") or "Unregistered manufacturer",
+        "registration_no": p.get("registration_no") or "None",
+        "category": p.get("category") or "Unknown",
+        "dosage_form": p.get("dosage_form") or "Unknown",
+        "strength": p.get("strength") or "",
+        "batch_number": p.get("batch_number") or "Unrecorded batch",
+        "mfg_date": p.get("manufacture_date") or "—",
+        "expiry_date": p.get("expiry_date") or "—",
+        "is_recalled": _yes(p.get("is_recalled")),
+        "recall_reason": p.get("recall_reason"),
+        "gmp_certified": _yes(p.get("gmp_certified", mfr.get("gmp_certified"))),
+        "requires_cold_chain": _yes(p.get("requires_cold_chain")),
+        "msrp": _num(p.get("msrp_kes")),
+    }
+
+    batches = record.distribution.batches or []
+    names = sorted({str(b.get("dist_name") or b.get("distributor_id")) for b in batches})
+    distribution = {
+        "found": record.distribution.found,
+        "count": len(batches),
+        "distributors": ", ".join(names) or "No licensed distributor on record",
+        "authorized": bool(batches) and all(_yes(b.get("is_authorized")) for b in batches),
+        "cold_chain_ok": bool(batches) and all(_yes(b.get("cold_chain_maintained")) for b in batches),
+        "status": batches[0].get("status") if batches else "untracked",
+        "returns": len(record.distribution.returns or []),
+        "batches": [{"distributor": b.get("dist_name") or b.get("distributor_id"), "date": b.get("dispatch_date"),
+                     "status": b.get("status"), "notes": b.get("discrepancy_details") or ""} for b in batches],
+    }
+
+    events = record.purchase.events or []
+    prices = [_num(e.get("price_paid")) for e in events if e.get("price_paid") not in (None, "")]
+    purchase = {
+        "found": record.purchase.found,
+        "count": len(events),
+        "vendors": len({e.get("vendor_id") for e in events}),
+        "vendor_names": ", ".join(sorted({str(e.get("vendor_name") or e.get("vendor_id")) for e in events}))
+                        or "No dispensary on record",
+        "last_timestamp": max((str(e.get("scan_timestamp")) for e in events), default=None),
+        "avg_price": round(sum(prices) / len(prices), 2) if prices else 0.0,
+        "anomaly_count": sum(_yes(e.get("anomaly_flag")) for e in events),
+        "events": [{"vendor": e.get("vendor_name") or e.get("vendor_id"), "location": e.get("location_county"),
+                    "time": e.get("scan_timestamp"), "price": _num(e.get("price_paid"))} for e in events],
+    }
+
+    m = record.ministry
+    labs = m.lab_reports or []
+    ministry = {
+        "found": m.found,
+        "blacklisted": m.blacklist_entry is not None,
+        "complaints": len(m.complaints or []),
+        "open_cases": sum(1 for c in (m.complaints or []) if str(c.get("status")) not in ("resolved", "closed")),
+        "labs": len(labs),
+        "lab_result": labs[0].get("result") if labs else "N/A",
+        "alerts": len(m.alerts or []),
+        "reasons": [m.blacklist_entry.get("reason")] if m.blacklist_entry and m.blacklist_entry.get("reason") else [],
+    }
+
+    return {
+        "product": product,
+        "distribution": distribution,
+        "purchase": purchase,
+        "ministry": ministry,
+        "evidence": [{"signal": e.signal, "value": e.value, "db_source": e.db_source,
+                      "description": e.description, "tier": e.tier} for e in result.evidence],
+        "anomalies": [{"severity": f.severity, "anomaly_type": f.anomaly_type, "description": f.description}
+                      for f in anomaly_report.flags],
+        "recommendations": list(result.recommendations or []),
+    }
+
+
+SUGGEST_MIN = 0.5   # below this the closest product is noise, not a likely typo
+
+_HOW = {"batch_number": "batch", "dist_batch_id": "batch", "product_name": "name", "generic_name": "name",
+        "ocr_substitution": "lookalike", "product_uid": "lookalike"}
+
+
+def _resolution(typed: str, record) -> dict:
+    """
+    How the typed code became the code that was checked, so the page can say so.
+      exact      typed exactly as registered
+      tidied     only capitals, spaces or underscores differed
+      lookalike  scanner look-alike characters corrected (O/0, I/1, S/5, B/8, Z/2)
+      batch      a batch number, followed to the product it belongs to
+      name       matched on the product's brand or generic name
+      none       no registered product; checked as typed
+    """
+    er = record.entity_resolution
+    if er is None or not (er.is_exact_match or er.is_fuzzy_linked):
+        how = "none"
+    elif er.is_exact_match:
+        how = "exact" if record.item_code == typed.strip().upper() else "tidied"
+    else:
+        how = _HOW.get(er.matched_field, "lookalike")
+    return {"typed": typed, "how": how,
+            "explanation": er.match_explanation if er else "",
+            "path": er.transitive_path if er else "",
+            "confidence": er.confidence_score if er else 0.0}
+
+
+def _suggestion(typed: str, record) -> Optional[dict]:
+    """
+    When the checked code is not in the registry, the closest registered product
+    according to the Phase 2 matcher, offered as "did you mean". It never changes
+    the verdict: a fake printed with a near-miss code must not inherit a real
+    product's clean result, so the person checking decides.
+    """
+    if record.manufacturer.found:
+        return None
+    try:
+        from integration.uncertainty.cleanser import live_matcher
+        res = live_matcher().match({"source": "db1", "key": "verify", "code": typed, "channel": "manual"}, limit=3)
+    except Exception:
+        return None
+    if res.decision not in ("EXACT", "AUTO_LINK", "REVIEW") or not res.best_uid or res.best_uid == record.item_code:
+        return None
+    if (res.best_posterior or 0.0) < SUGGEST_MIN:
+        return None
+    best = next((c for c in res.candidates if c.uid == res.best_uid), None)
+    return {"uid": res.best_uid,
+            "product_name": best.product_name if best else None,
+            "chance": round(res.best_posterior or 0.0, 3),
+            "typed_as": res.code}
+
+
 def verify(item_code: str, generate_report: bool = False, silent: bool = False) -> dict:
     """
     Full GAV Pipeline (v2  -  Two-Tier Architecture):
@@ -67,6 +219,11 @@ def verify(item_code: str, generate_report: bool = False, silent: bool = False) 
     # Tier-0: normalize
     norm  = normalize(item_code)
     canon = norm.canonical if norm.valid else item_code.strip().upper()
+    if not norm.valid and looks_like_code(item_code):
+        # A medicine code typed without its dashes ('MEDSAM001') is still a code.
+        # Tidy it the Phase 2 way (formatting only, never a character) instead of
+        # letting it be read as a brand name, which matched it to another product.
+        canon = canonical_code(item_code)
     was_normalized = norm.was_normalized
 
     if not silent:
@@ -197,6 +354,10 @@ def verify(item_code: str, generate_report: bool = False, silent: bool = False) 
         "anomaly_count":      len(anomaly_report.flags),
         "evidence_count":     len(result.evidence),
         "db_coverage":        result.db_coverage,
+        "dossier":            _dossier(record, result, anomaly_report),
+        "resolved_code":      record.item_code,
+        "resolution":         _resolution(item_code, record),
+        "suggestion":         _suggestion(item_code, record),
     }
 
 

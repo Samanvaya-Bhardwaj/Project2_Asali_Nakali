@@ -1111,10 +1111,18 @@ table.data td strong, table.data td .em { color: var(--ink); font-weight: 600; }
 }
 @media (max-width: 700px) {
   .nav-inner #navClusterBadge { display: none; }
-  /* The landing page carries two calls to action side by side; trimming the
-     padding is enough to keep them on one line at phone width. */
+  /* Every page carries the same three page buttons; smaller type and padding
+     keep them on one line at phone width. */
   .nav-inner .btn-sm { padding-inline: 11px; }
   .nav-inner .row { gap: 6px; }
+  .nav-inner .nav-page { padding-inline: 8px; font-size: 0.7rem; height: 30px; }
+}
+/* On the narrowest phones the brand mark already links home, and the theme
+   follows the system setting, so the back link and theme switch step aside. */
+@media (max-width: 520px) {
+  .nav-inner .back-link,
+  .nav-inner #themeToggle { display: none; }
+  .nav-inner .row { gap: 4px; }
 }
 
 .footer {
@@ -1177,6 +1185,79 @@ table.data td strong, table.data td .em { color: var(--ink); font-weight: 600; }
 .back-link:hover { background: var(--surface-3); color: var(--ink); }
 .back-link svg { width: 14px; height: 14px; }
 @media (max-width: 620px) { .back-link span { display: none; } .back-link { padding-inline: 11px; } }
+
+/* --------------------------------------------------------------------------
+   11c. PLAIN SECTION HEADERS AND THE PAGE GUIDE
+   --------------------------------------------------------------------------
+   Every part of a page opens the same way: a number, a heading that says what
+   the part does, and one line on how to use it. The guide at the top of each
+   page lists those parts, so you can see what is where before scrolling.
+   -------------------------------------------------------------------------- */
+.part-head { display: flex; gap: 14px; align-items: flex-start; }
+.part-num {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  margin-top: 2px;
+  border-radius: 10px;
+  background: var(--lime);
+  color: var(--on-accent);
+  display: grid;
+  place-items: center;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.part-tag { font-size: 0.78rem; color: var(--ink-faint); }
+.part-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.part-use { margin-top: 6px; max-width: 82ch; font-size: 0.92rem; line-height: 1.55; color: var(--ink-muted); }
+.part-use strong { color: var(--ink); font-weight: 600; }
+
+.page-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 3.6vw, 2.8rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.guide { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.guide-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--rim);
+  transition: box-shadow 160ms var(--ease), background 160ms var(--ease);
+}
+.guide-item:hover { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--lime-dim); }
+.guide-num {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--wash-2);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.guide-title { display: block; font-weight: 600; font-size: 0.92rem; line-height: 1.3; color: var(--ink); }
+.guide-text { display: block; margin-top: 4px; font-size: 0.78rem; line-height: 1.45; color: var(--ink-muted); }
+
+/* A labelled block inside a card: "1. The code", "2. Where it was sold". */
+.step-label { display: block; margin: 16px 0 6px; font-size: 0.82rem; font-weight: 600; color: var(--ink); }
+.step-label:first-child { margin-top: 0; }
+.step-label .faint { font-weight: 400; }
+.field-label { display: block; margin: 10px 0 5px; font-size: 0.75rem; color: var(--ink-faint); }
 
 /* --------------------------------------------------------------------------
    12. MODAL

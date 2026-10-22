@@ -2,12 +2,14 @@
 
 Tool: Claude Code (model: Claude Opus 5.5), run inside this repository.
 
-There are two layers of prompt:
+There are three kinds of prompt:
 
 * **Prompt 0** is the request exactly as it was typed to the assistant.
 * **Prompts 1–11** are the component prompts that request was broken into. Each one is
   self-contained: pasting it into a coding assistant, together with the repository, should
   regenerate the corresponding module. They are listed in the order the code was generated.
+* **Prompts 12 onwards** are later requests, typed after the code was generated, quoted exactly.
+  The report shows each of them next to the code it changed (part 2 of the report).
 
 The code as it stood straight after generation, before anything was run, is frozen in
 `vibe_coding/generated_v0/`. Every change made after that point is listed in `CHANGES.md` and
@@ -176,3 +178,23 @@ open `dashboard/vibe/index.html`).
 > Render the photographed pack label for each camera-captured checkout from the product's
 > registered data (what is really printed), then damage it like a counter camera would: tilt,
 > blur, sensor noise, glare, JPEG compression. Pillow optional; skip cleanly without it.
+
+## Prompt 12 — connect the two phases, and a simpler UI
+
+> both phase 1 and phase 2 must be connected, like if we register some product in the database
+> then it should be shown on uncertainity phase too... make the ui simple, use simple words, as of
+> now, the ui is cluttered and not understandable which component is used for which task, so add
+> proper heading for every component, do not add new functionalitites
+
+## Prompt 13 — mistyped codes on Check a medicine
+
+> let say if the prouct is MED-SAM-001 then in schema matching if we mistyped something will it
+> verify it? how will algorithm react? let say i typed MED_sam_001
+
+(After the answer showed that the page "corrected" `med sam 001` to a recalled product:)
+
+> yes do it
+
+## Prompt 14 — this report
+
+> make the changes in vibe code page too, add the updated code and add the prompts further

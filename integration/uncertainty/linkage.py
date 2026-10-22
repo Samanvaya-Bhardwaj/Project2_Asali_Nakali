@@ -623,7 +623,7 @@ _FEATURE_TEXT = {
 
 def explain(res: MatchResult) -> str:
     if not res.candidates:
-        return f"No registered product shares enough of '{res.code}' to be a candidate."
+        return f"No registered product is close enough to '{res.code}'."
     best = next((c for c in res.candidates if c.uid == res.best_uid), res.candidates[0])
     parts = []
     for f, v in best.features.items():
@@ -631,26 +631,30 @@ def explain(res: MatchResult) -> str:
             continue
         text = _FEATURE_TEXT.get(f, {}).get(v, f"{f.replace('_', ' ')}: {v}")
         parts.append(f"{text} ({best.weights.get(f, 0):+.1f})")
-    evidence = "; ".join(parts) if parts else "no contextual evidence available"
+    evidence = "; ".join(parts) if parts else "no other clues available"
     if res.decision in ("NO_MATCH", "REVIEW"):
-        evidence = f"closest candidate {best.uid}: " + evidence
+        evidence = f"clues for {best.uid}: " + evidence
     what = f"'{res.code}'" if res.code else "The label"
     head = {
         "EXACT": f"{what} is a registered code.",
-        "AUTO_LINK": f"{what} resolves to {best.uid} with probability {best.posterior:.3f}.",
-        "REVIEW": f"Best candidate {best.uid} reaches only {best.posterior:.3f}; a person should decide.",
-        "NO_MATCH": f"Probability that {what} belongs to no registered product: {res.p_none:.3f}.",
-        "VALID_BUT_WRONG": f"{what} exists, but the evidence favours {best.uid} ({best.posterior:.3f}).",
+        "AUTO_LINK": f"{what} is {best.uid} ({best.posterior:.1%} sure).",
+        "REVIEW": f"The closest product is {best.uid}, but only {best.posterior:.1%} sure, so a person should check.",
+        "NO_MATCH": f"{res.p_none:.1%} chance that {what} is not a registered product.",
+        "VALID_BUT_WRONG": f"{what} is a real code, but the other clues point to {best.uid} ({best.posterior:.1%} sure).",
     }[res.decision]
     if "code" in best.weights:
-        level = best.code_level.split("_", 1)[1].replace("_", " ")
-        code_part = f"Code distance {best.code_distance:.2f} ({level}, {best.weights['code']:+.1f})"
+        level = _LEVEL_TEXT.get(best.code_level, best.code_level.split("_", 1)[1].replace("_", " "))
+        code_part = f"Code difference {best.code_distance:.2f} ({level}, {best.weights['code']:+.1f})"
     else:
         code_part = "No code was readable, so the label alone is the evidence"
     return f"{head} {code_part}; {evidence}."
 
 
 # -- algorithm comparison for a single query -------------------------------------
+
+_LEVEL_TEXT = {"L0_exact": "exact", "L1_confusable": "look-alike letters", "L2_one_edit": "one letter off",
+               "L3_two_edits": "two letters off", "L4_far": "very different"}
+
 
 def compare_algorithms(code: str, ctx: Optional[LiveContext] = None,
                        model: Optional[LinkageModel] = None, top: int = 3) -> List[Dict[str, object]]:

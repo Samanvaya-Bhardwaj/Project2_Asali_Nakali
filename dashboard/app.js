@@ -132,21 +132,30 @@ async function runVerification(manualCode) {
     btn.innerHTML = '<svg class="spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.2-8.6" stroke-linecap="round"/></svg> Checking…';
   }
 
-  await new Promise((r) => setTimeout(r, 220));
-
+  // Step 0: which code is meant. The PCs read the typed code against the live
+  // registry themselves, so a product registered a minute ago is known. They fix
+  // only slips that cannot turn one product into another (formatting, look-alike
+  // characters, batch numbers, product names); a closer miss is offered as "did
+  // you mean" and never checked in its place, because a fake can carry a
+  // near-miss code. The built-in example list is used only when no PC answers.
+  const live = await fetchLiveVerdict(rawCode);
   if (btn) {
     btn.disabled = false;
     btn.innerHTML = btnHtml;
   }
-
-  // Step 0: fuzzy entity resolution
-  const fuzzy = clientFuzzyResolve(rawCode);
-  const canonicalCode = fuzzy.canonical;
+  let fuzzy, canonicalCode;
+  if (live) {
+    canonicalCode = live.resolved_code || rawCode.toUpperCase();
+    fuzzy = liveResolution(rawCode, canonicalCode, live.resolution);
+  } else {
+    fuzzy = clientFuzzyResolve(rawCode);
+    canonicalCode = fuzzy.canonical;
+  }
 
   const fuzzyBanner = document.getElementById("fuzzyResolutionBanner");
   if (fuzzy.isFuzzy) {
     if (fuzzyBanner) fuzzyBanner.classList.remove("hidden");
-    setText("fuzzyConfidenceBadge", Math.round(fuzzy.score * 100) + "% match");
+    setText("fuzzyConfidenceBadge", fuzzy.badge || Math.round(fuzzy.score * 100) + "% match");
     if (fuzzy.transitivePath) {
       setText("fuzzyBannerText", "Matched through " + fuzzy.transitivePath + ". " + fuzzy.explanation);
     } else {
@@ -155,6 +164,7 @@ async function runVerification(manualCode) {
   } else if (fuzzyBanner) {
     fuzzyBanner.classList.add("hidden");
   }
+  renderSuggestion(rawCode, live ? live.suggestion : null);
 
   let data = BENCHMARK_DATA[canonicalCode];
 
@@ -200,12 +210,13 @@ async function runVerification(manualCode) {
     };
   }
 
-  // Ask the configured cluster to arbitrate this serial for real. When it
-  // answers, its verdict replaces the stored one; the descriptive detail below
-  // still comes from the stored dossier, which the badge says plainly.
-  const live = await fetchLiveVerdict(canonicalCode);
+  // When the PCs answered, the verdict and (from the live dossier) the product,
+  // shipments, sales and evidence all come from the databases as they are now,
+  // so a product registered a minute ago on the Databases page shows its own
+  // details. The stored dossier is only the fallback for when no PC answers.
   if (live) {
-    data = Object.assign({}, data, {
+    data = Object.assign({}, data, live.dossier || {}, {
+      complaint_id: live.complaint_id || (live.dossier ? null : data.complaint_id),
       verdict: live.verdict === "GENUINE" ? "ASALI" : live.verdict,
       trust_score: live.trust_score,
       veto_codes: live.veto_codes || [],
@@ -218,6 +229,45 @@ async function runVerification(manualCode) {
 
   currentItem = data;
   renderResult(data, rawCode, canonicalCode, fuzzy);
+}
+
+const HOW_READ = {
+  tidied:    ["Formatting", "Only the formatting was different (capital letters, spaces, dashes or underscores)."],
+  lookalike: ["Look-alike characters", "Look-alike characters were corrected, such as the letter O read as a zero or I as a one."],
+  batch:     ["Batch number", "This is a batch number; it belongs to this product."],
+  name:      ["Product name", "This was matched on the product's name."]
+};
+
+/** How the PCs read the typed code, in the shape the banner and stepper expect. */
+function liveResolution(rawCode, code, res) {
+  const how = (res && res.how) || "exact";
+  const read = HOW_READ[how];
+  return {
+    canonical: code,
+    how: how,
+    isFuzzy: !!read && code !== rawCode.trim().toUpperCase(),
+    score: res ? res.confidence : 1,
+    badge: read ? read[0] : "",
+    explanation: read ? read[1] : "",
+    transitivePath: null
+  };
+}
+
+/** A close miss is offered, never checked in place of what was typed. */
+function renderSuggestion(rawCode, s) {
+  const box = document.getElementById("suggestionBanner");
+  if (!box) return;
+  if (!s) { box.classList.add("hidden"); return; }
+  setText("suggestionText",
+    '"' + rawCode + '" is not in the registry, so it is checked exactly as typed (below). The closest registered ' +
+    "product is " + s.uid + (s.product_name ? " (" + s.product_name + ")" : "") + ". Matching & cleaning rates it a " +
+    Math.round(s.chance * 100) + "% likely typo, but a fake can carry a near-miss code too, so it is not checked in its place.");
+  const btn = document.getElementById("btnSuggestion");
+  if (btn) {
+    btn.textContent = "Check " + s.uid;
+    btn.onclick = () => loadScenario(s.uid);
+  }
+  box.classList.remove("hidden");
 }
 
 /**
@@ -256,23 +306,24 @@ function renderSourceBadge(live) {
   if (!badge) return;
 
   if (live) {
-    const target = window.Cluster ? window.Cluster.urlFor("db3") : "the cluster";
+    const target = window.Cluster ? window.Cluster.urlFor("db3") : "the PCs";
     badge.className = "badge badge-green";
-    badge.textContent = "Verdict computed live";
+    badge.textContent = "Checked live";
     if (note) {
       note.textContent =
-        "Arbitrated just now by " + target + " across " +
-        (live.db_coverage != null ? live.db_coverage + " of 4 silos" : "the cluster") +
-        " in " + (live.execution_ms != null ? live.execution_ms + " ms" : "under a second") +
-        ". Product and custody detail below is read from the stored dossier.";
+        "Checked just now by " + target + ", which found this code in " +
+        (live.db_coverage != null ? live.db_coverage + " of the 4 databases" : "the databases") +
+        " (" + (live.execution_ms != null ? Math.round(live.execution_ms) + " ms" : "under a second") + "). " +
+        (live.dossier ? "Everything on this page is read live from the databases."
+                      : "The product and journey details below come from a stored example.");
     }
   } else {
     badge.className = "badge";
-    badge.textContent = "Stored records";
+    badge.textContent = "Stored example";
     if (note) {
       note.textContent =
-        "No node answered, so this is the stored dossier for the serial. " +
-        "Set the node addresses from the status chip in the nav to arbitrate live.";
+        "No PC answered, so this is a stored example for the code. " +
+        "Click the status badge at the top to set the PC addresses and check it live.";
     }
   }
 }
@@ -383,7 +434,7 @@ function renderResult(data, rawCode, canonicalCode, fuzzy) {
 
   const hasHardVeto = (data.veto_codes && data.veto_codes.length > 0);
   setClass("tierBadge", "badge " + (hasHardVeto ? "badge-red" : "badge-green"));
-  setText("tierBadge", hasHardVeto ? "Overridden by veto" : "Weighted consensus");
+  setText("tierBadge", hasHardVeto ? "Hard stop: one finding decides" : "All findings weighed together");
 
   animateScoreGauge(data.trust_score, data.verdict);
 
@@ -407,7 +458,7 @@ function renderResult(data, rawCode, canonicalCode, fuzzy) {
       setText("verdictSubtitle", "A prescription-only medicine was sold by a vendor with no dispensing licence. The stock may well be genuine, but the chain of custody is broken and cannot be relied on.");
     } else {
       setText("verdictTitle", "Something does not add up");
-      setText("verdictSubtitle", "The distribution or scan history contains anomalies the mediator could not resolve in the pack's favour. A second check is needed before dispensing.");
+      setText("verdictSubtitle", "The shipment or sales history contains problems that could not be explained in the pack's favour. A second check is needed before dispensing.");
     }
   } else {
     if (p.found && p.is_recalled) {
@@ -415,7 +466,7 @@ function renderResult(data, rawCode, canonicalCode, fuzzy) {
       setText("verdictSubtitle", "Health authorities have issued an active recall for this batch. Dispensing it is illegal. Quarantine the remaining stock and notify the state drug controller.");
     } else {
       setText("verdictTitle", "Counterfeit, do not dispense");
-      setText("verdictSubtitle", "This serial does not appear in licensed manufacturer records, or it sits on a statutory blacklist. Either finding is enough on its own to override everything else and force the trust index to zero.");
+      setText("verdictSubtitle", "This code is not in the national drug registry, or it is on the government blacklist. Either finding alone is enough to override everything else and set the trust score to zero.");
     }
   }
 
@@ -436,7 +487,10 @@ function renderResult(data, rawCode, canonicalCode, fuzzy) {
 
   /* ---- 4. Pipeline stepper ---- */
   setClass("step1Num", "custody-marker custody-marker-ok");
-  setText("step1Status", fuzzy && fuzzy.isFuzzy ? "Matched by similarity" : "Exact match");
+  const STEP1 = { exact: "Exact code", tidied: "Formatting tidied", lookalike: "Look-alike letters fixed",
+                  batch: "Found by batch number", name: "Found by name", none: "Checked as typed" };
+  setText("step1Status", fuzzy && fuzzy.how ? STEP1[fuzzy.how] || "Exact code"
+    : fuzzy && fuzzy.isFuzzy ? "Matched by similarity" : "Exact match");
 
   setClass("step2Num", "custody-marker " + (p.found ? "custody-marker-ok" : "custody-marker-fail"));
   setText("step2Num", p.found ? "2" : "!");
@@ -779,7 +833,7 @@ function renderConflicts(canonicalCode, data) {
   }
 
   if (conflicts.length === 0) {
-    container.innerHTML = '<div class="card card-inset card-pad-sm"><p class="small muted">Nothing to arbitrate. All four silos describe this pack the same way.</p></div>';
+    container.innerHTML = '<div class="card card-inset card-pad-sm"><p class="small muted">Nothing to settle: all four databases describe this pack the same way.</p></div>';
     return;
   }
 

@@ -44,7 +44,7 @@ function runFuzzyResolution() {
 
   const link = document.getElementById("btnVerifyResolved");
   if (link) {
-    link.textContent = "Verify " + res.canonical;
+    link.textContent = "Check " + res.canonical + " on the Check a medicine page";
     link.setAttribute("href", "verify.html?code=" + encodeURIComponent(res.canonical));
   }
 }
@@ -105,19 +105,19 @@ function runUnitConversion() {
   }
 
   if (/^[0-9]{13}$/.test(val)) {
-    emit(val + " is an epoch timestamp in milliseconds. It becomes " +
+    emit(val + " is a computer timestamp (milliseconds since 1970). It becomes " +
          new Date(parseInt(val, 10)).toISOString() + ".");
     return;
   }
 
   const dateMatch = val.match(/^([0-3]?[0-9])[\/\-]([0-1]?[0-9])[\/\-](20[0-9]{2})$/);
   if (dateMatch) {
-    emit(val + " is written day first, as the gazette does. It becomes " +
+    emit(val + " is written day first, as the government gazette does. It becomes " +
          dateMatch[3] + "-" + dateMatch[2].padStart(2, "0") + "-" + dateMatch[1].padStart(2, "0") + ".");
     return;
   }
 
-  emit("No unit recognised. Stored as the plain token " + val.toUpperCase() + ".");
+  emit("No unit recognised, so it is stored as plain text: " + val.toUpperCase() + ".");
 }
 
 /* --------------------------------------------------------------------------
@@ -156,7 +156,7 @@ function testSchemaVersion(ver) {
     if (note) {
       note.textContent = "The serial is now buried inside a GS1 URI, the price arrives in paise rather " +
         "than rupees, and the outlet is a nested tree instead of a name. The adapter pulls all three back " +
-        "into the same canonical row, so nothing downstream has to change.";
+        "into the same standard row, so nothing else in the system has to change.";
     }
   } else {
     wbSetText("schemaPayloadDisplay", JSON.stringify({
@@ -173,7 +173,7 @@ function testSchemaVersion(ver) {
     }, null, 2));
     if (note) {
       note.textContent = "The original format maps across almost unchanged. Switch to version 2 to see " +
-        "what happens when a silo changes its format without warning.";
+        "what happens when a database changes its format without warning.";
     }
   }
 }

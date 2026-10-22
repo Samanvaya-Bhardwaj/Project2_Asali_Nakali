@@ -123,28 +123,9 @@ function getTargetNodeUrl(dbId) {
   return ExplorerState.pc2Url;
 }
 
-async function fetchFromCluster(endpoint, options = {}, dbHint = "db1") {
-  const primaryUrl = getTargetNodeUrl(dbHint);
-  const fallbackUrl = (primaryUrl === ExplorerState.pc1Url) ? ExplorerState.pc2Url : ExplorerState.pc1Url;
-
-  try {
-    const res = await fetch(primaryUrl + endpoint, { mode: "cors", ...options });
-    if (res.ok) return await res.json();
-    throw new Error("HTTP " + res.status + " from " + primaryUrl);
-  } catch (err) {
-    try {
-      const resFallback = await fetch(fallbackUrl + endpoint, { mode: "cors", ...options });
-      if (resFallback.ok) return await resFallback.json();
-    } catch (err2) {
-      try {
-        const resLocal = await fetch(endpoint, { ...options });
-        if (resLocal.ok) return await resLocal.json();
-      } catch (err3) {
-        throw new Error("Failed cluster call: " + err.message);
-      }
-    }
-    throw err;
-  }
+/* Same routing as every other page; writes also reach the other PC's copy. */
+function fetchFromCluster(endpoint, options = {}, dbHint = "db1") {
+  return window.Cluster.call(endpoint, options, dbHint);
 }
 
 async function pingClusterNodes() {
@@ -160,9 +141,9 @@ async function pingClusterNodes() {
     const ms = Math.round(performance.now() - t0);
     pc1Ok = true;
     setBadge("pc1StatusBadge", "badge badge-green", "Online");
-    setBadge("pc1Latency", "mono xsmall faint", ms + " ms round trip");
+    setBadge("pc1Latency", "mono xsmall faint", "answered in " + ms + " ms");
   } catch (e) {
-    setBadge("pc1StatusBadge", "badge", "Unreachable");
+    setBadge("pc1StatusBadge", "badge", "Not reachable");
     setBadge("pc1Latency", "mono xsmall faint", "no response");
   }
 
@@ -173,15 +154,15 @@ async function pingClusterNodes() {
     const ms = Math.round(performance.now() - t1);
     const body = await res2.json();
     if (body.simulated_partition) {
-      setBadge("pc2StatusBadge", "badge badge-red", "Partitioned");
-      setBadge("pc2Latency", "mono xsmall faint", "circuit open");
+      setBadge("pc2StatusBadge", "badge badge-red", "Cut off (test)");
+      setBadge("pc2Latency", "mono xsmall faint", "cut off by the test in Tools");
     } else {
       pc2Ok = true;
       setBadge("pc2StatusBadge", "badge badge-green", "Online");
-      setBadge("pc2Latency", "mono xsmall faint", ms + " ms round trip");
+      setBadge("pc2Latency", "mono xsmall faint", "answered in " + ms + " ms");
     }
   } catch (e) {
-    setBadge("pc2StatusBadge", "badge", "Unreachable");
+    setBadge("pc2StatusBadge", "badge", "Not reachable");
     setBadge("pc2Latency", "mono xsmall faint", "no response");
   }
 
@@ -189,13 +170,13 @@ async function pingClusterNodes() {
   if (nav) {
     if (pc1Ok && pc2Ok) {
       nav.className = "badge badge-green";
-      nav.innerHTML = '<span class="dot dot-green"></span> Both nodes online';
+      nav.innerHTML = '<span class="dot dot-green"></span> Both PCs online';
     } else if (pc1Ok || pc2Ok) {
       nav.className = "badge badge-amber";
-      nav.innerHTML = '<span class="dot dot-amber"></span> One node reachable';
+      nav.innerHTML = '<span class="dot dot-amber"></span> ' + (pc1Ok ? "Only PC1 online" : "Only PC2 online");
     } else {
       nav.className = "badge badge-red";
-      nav.innerHTML = '<span class="dot dot-red"></span> Nodes unreachable';
+      nav.innerHTML = '<span class="dot dot-red"></span> PCs not reachable';
     }
   }
 }
@@ -247,18 +228,18 @@ async function togglePartitionSimulation() {
   const impact = document.getElementById("partitionAuditImpact");
 
   if (isSimulatingPartition) {
-    if (btn) { btn.textContent = "Restore the regulatory node"; btn.className = "btn btn-ghost btn-sm"; }
-    setBadge("circuitBreakerStateBadge", "badge badge-red", "Circuit open");
-    setBadge("pc2StatusBadge", "badge badge-red", "Partitioned");
-    if (desc) desc.textContent = "Node PC2 is cut off, so the registry and the ministry records are " +
-      "unreachable. Rather than failing, the mediator answers from the retail and distribution records " +
-      "it can still see on PC1.";
-    if (impact) impact.textContent = "Any verdict produced now is marked as unconfirmed by the regulator, " +
+    if (btn) { btn.textContent = "Reconnect PC2"; btn.className = "btn btn-ghost btn-sm"; }
+    setBadge("circuitBreakerStateBadge", "badge badge-red", "PC2 cut off");
+    setBadge("pc2StatusBadge", "badge badge-red", "Cut off (test)");
+    if (desc) desc.textContent = "PC2 is cut off, so the drug registry and the ministry records cannot be " +
+      "reached. Instead of failing, the system answers from the sales and shipment records it can still " +
+      "see on PC1.";
+    if (impact) impact.textContent = "Any result given now is marked as not confirmed by the regulator, " +
       "and its confidence is capped at 50%.";
   } else {
-    if (btn) { btn.textContent = "Simulate losing node PC2"; btn.className = "btn btn-danger btn-sm"; }
-    setBadge("circuitBreakerStateBadge", "badge badge-green", "Circuit closed");
-    if (desc) desc.textContent = "Both nodes are reachable, so every verdict is backed by all five silos.";
+    if (btn) { btn.textContent = "Cut PC2 off (test)"; btn.className = "btn btn-danger btn-sm"; }
+    setBadge("circuitBreakerStateBadge", "badge badge-green", "PC2 connected");
+    if (desc) desc.textContent = "Both PCs are reachable, so every result uses all the databases.";
     if (impact) impact.textContent = "No confidence penalty is applied.";
     pingClusterNodes();
   }
@@ -312,9 +293,9 @@ function renderSchemaSection() {
   if (container) {
     container.innerHTML =
       '<div class="row-wrap gap-2" style="margin-bottom:12px;">' +
-        '<span class="badge ' + (onPc1 ? "badge-lime" : "badge-blue") + '">' + (onPc1 ? "Node PC1 · 8011" : "Node PC2 · 8012") + '</span>' +
+        '<span class="badge ' + (onPc1 ? "badge-lime" : "badge-blue") + '">' + (onPc1 ? "Stored on PC1" : "Stored on PC2") + '</span>' +
         '<span class="badge">' + esc(meta.paradigm) + '</span>' +
-        '<span class="badge">PK · ' + esc(meta.primary_key) + '</span>' +
+        '<span class="badge">Key column: ' + esc(meta.primary_key) + '</span>' +
       '</div>' +
       '<h3 class="display display-sm">' + esc(meta.name) + '</h3>' +
       '<p class="small muted" style="margin-top:10px; max-width:76ch;">' + esc(meta.role) + '</p>';
@@ -362,7 +343,7 @@ function renderSchemaColumnsOnly() {
 
   if (!tableData || !tableData.columns) {
     body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:26px;" class="faint">' +
-      'Column metadata for <span class="mono">' + esc(tbl) + '</span> comes from a live node — start the cluster to inspect it.</td></tr>';
+      'The columns of <span class="mono">' + esc(tbl) + '</span> are read from a running PC. Start the PCs to see them.</td></tr>';
     return;
   }
 
@@ -459,7 +440,7 @@ async function loadDbEntries() {
     const data = await fetchFromCluster("/api/v1/explorer/entries?" + queryParams.toString(), {}, dbId);
     renderEntriesGrid(data);
     if (metricsText) {
-      const nodeLabel = (dbId === "db1" || dbId === "db2") ? "Node PC1 · 8011" : "Node PC2 · 8012";
+      const nodeLabel = (dbId === "db1" || dbId === "db2") ? "read from PC1" : "read from PC2";
       const isAll = (limit === "all");
       const count = (data.records && data.records.length) || 0;
       const startIdx = isAll ? 1 : offset + 1;
@@ -467,14 +448,14 @@ async function loadDbEntries() {
       metricsText.innerHTML =
         '<span class="em">' + (count ? startIdx : 0) + '–' + endIdx + '</span> of ' +
         '<span class="em">' + data.filtered_records + '</span> records' +
-        '<span class="faint"> · filtered from ' + data.total_records + '</span>' +
+        '<span class="faint"> · out of ' + data.total_records + ' in the table</span>' +
         '<span class="faint"> · </span><span class="mono" style="color:var(--lime);">' + data.execution_ms + ' ms</span>' +
         '<span class="faint"> · ' + nodeLabel + '</span>';
     }
   } catch (err) {
     console.error("Error loading entries:", err);
     renderEntriesError(err.message);
-    if (metricsText) metricsText.innerHTML = '<span class="faint">No live node reachable</span>';
+    if (metricsText) metricsText.innerHTML = '<span class="faint">No PC reachable</span>';
   } finally {
     ExplorerState.isLoadingEntries = false;
     if (spinner) spinner.classList.add("hidden");
@@ -490,9 +471,9 @@ function renderEntriesGrid(data) {
   const records = data.records || [];
 
   if (!columns.length || !records.length) {
-    thead.innerHTML = "<tr><th>Status</th></tr>";
+    thead.innerHTML = "<tr><th>Result</th></tr>";
     tbody.innerHTML = '<tr><td style="text-align:center; padding:36px;" class="faint">' +
-      'No records match the current filter in <span class="mono">' + esc(ExplorerState.entriesTable) + '</span>.</td></tr>';
+      'No rows in <span class="mono">' + esc(ExplorerState.entriesTable) + '</span> match the search.</td></tr>';
     return;
   }
 
@@ -550,9 +531,9 @@ function renderEntriesError(errMsg) {
   if (thead) thead.innerHTML = "<tr><th>Connection</th></tr>";
   if (!tbody) return;
   tbody.innerHTML = '<tr><td style="padding:34px; text-align:center;">' +
-    '<p class="small" style="color:var(--red-ink);">Could not reach a node: ' + esc(errMsg) + '</p>' +
-    '<p class="xsmall faint" style="margin-top:8px;">Start the cluster with <span class="mono">python3 scripts/run_cluster.py --mode all</span>, ' +
-    'or point the endpoints above at the machines running PC1 and PC2.</p></td></tr>';
+    '<p class="small" style="color:var(--red-ink);">Could not reach a PC: ' + esc(errMsg) + '</p>' +
+    '<p class="xsmall faint" style="margin-top:8px;">Start the PCs with <span class="mono">python scripts/run_cluster.py --mode all</span>, ' +
+    'or set their addresses in part 1 (Connection).</p></td></tr>';
 }
 
 function copyText(el, text) {
@@ -596,15 +577,15 @@ function syncBenchUI() {
   if (opContainer) {
     const ops = (scope === "all")
       ? [
-          { key: "FEDERATED_VIEW",   label: "Federated view · 4-silo verification" },
-          { key: "FEDERATED_INSERT", label: "Multi-silo registration · DB3→DB2→DB1" },
-          { key: "FEDERATED_DELETE", label: "Quarantine &amp; blacklist · DB4 veto" }
+          { key: "FEDERATED_VIEW",   label: "Check a medicine in all 4 databases" },
+          { key: "FEDERATED_INSERT", label: "Register a new medicine (DB3, DB2 and DB1)" },
+          { key: "FEDERATED_DELETE", label: "Blacklist a medicine (DB4)" }
         ]
       : [
-          { key: "VIEW",   label: "VIEW · query" },
-          { key: "INSERT", label: "INSERT · create" },
-          { key: "UPDATE", label: "UPDATE · modify" },
-          { key: "DELETE", label: "DELETE · remove" }
+          { key: "VIEW",   label: "View rows" },
+          { key: "INSERT", label: "Add a row" },
+          { key: "UPDATE", label: "Change a row" },
+          { key: "DELETE", label: "Delete a row" }
         ];
     opContainer.innerHTML = ops.map(item =>
       '<button class="pill-btn bench-op-btn' + (item.key === op ? " is-active" : "") + '" ' +
@@ -624,15 +605,15 @@ function syncBenchUI() {
     if (descEl) descEl.textContent = exampleObj.description || "";
     if (editor) editor.value = JSON.stringify(exampleObj.payload, null, 2);
   } else {
-    if (descEl) descEl.textContent = "Custom " + op + " against " + scope.toUpperCase() +
-      " — start a node to load a valid example payload.";
+    if (descEl) descEl.textContent = op + " on " + scope.toUpperCase() +
+      ". Start the PCs to load a ready-made example.";
     if (editor && !editor.value.trim()) editor.value = "{\n  \n}";
   }
 
   if (nodeIndicator) {
-    nodeIndicator.textContent = (scope === "all") ? "Federated pipeline · PC1 + PC2"
-      : (scope === "db1" || scope === "db2") ? "Target · Node PC1 (8011)"
-      : "Target · Node PC2 (8012)";
+    nodeIndicator.textContent = (scope === "all") ? "Runs across PC1 and PC2"
+      : (scope === "db1" || scope === "db2") ? "Runs on PC1"
+      : "Runs on PC2";
   }
 }
 
@@ -660,7 +641,7 @@ async function executeCodeBench() {
   const editor = document.getElementById("benchCodeEditor");
 
   if (btn) {
-    btn.innerHTML = spinnerSvg(15) + " Executing…";
+    btn.innerHTML = spinnerSvg(15) + " Running…";
     btn.disabled = true;
   }
 
@@ -668,9 +649,9 @@ async function executeCodeBench() {
   try {
     payloadData = JSON.parse(editor.value);
   } catch (e) {
-    alert("JSON syntax error: " + e.message);
+    alert("The record is not valid JSON: " + e.message);
     ExplorerState.isExecutingBench = false;
-    if (btn) { btn.textContent = "Execute operation"; btn.disabled = false; }
+    if (btn) { btn.textContent = "Run it"; btn.disabled = false; }
     return;
   }
 
@@ -700,9 +681,15 @@ async function executeCodeBench() {
 
     if (metaBar) {
       const ok = res.success !== false;
-      let html = '<span class="badge ' + (ok ? "badge-green" : "badge-red") + '">' + (ok ? "HTTP 200" : "failed") + "</span>" +
+      let html = '<span class="badge ' + (ok ? "badge-green" : "badge-red") + '">' + (ok ? "Done" : "Failed") + "</span>" +
                  '<span class="xsmall muted">' + (res.execution_ms || clientMs) + " ms</span>";
-      if (res.rows_affected !== undefined) html += '<span class="xsmall muted">' + res.rows_affected + " row(s) affected</span>";
+      if (res.rows_affected !== undefined) html += '<span class="xsmall muted">' + res.rows_affected + " row(s) changed</span>";
+      const copy = res.replication;
+      if (copy && copy.status !== "same_storage") {
+        const tone = copy.status === "copied" ? "badge-green" : copy.status === "pending" ? "" : "badge-red";
+        html += '<span class="badge ' + tone + '" title="' + esc(copy.message) + '">' +
+          esc(copy.status === "copied" ? "Also saved on the other PC" : copy.status === "pending" ? "Copying to the other PC…" : "Not copied to the other PC") + "</span>";
+      }
       if (res.verdict) {
         const good = (res.verdict === "ASALI" || res.verdict === "GENUINE");
         html += '<span class="badge ' + (good ? "badge-green" : "badge-red") + '">' + esc(res.verdict) + " · " + res.trust_score + "%</span>";
@@ -718,10 +705,10 @@ async function executeCodeBench() {
     setTimeout(loadActivity, 320);
   } catch (err) {
     if (terminal) terminal.innerHTML = '<span class="tok-str-err">Error: ' + esc(err.message) + "</span>";
-    if (metaBar) metaBar.innerHTML = '<span class="badge badge-red">execution error</span>';
+    if (metaBar) metaBar.innerHTML = '<span class="badge badge-red">Failed</span>';
   } finally {
     ExplorerState.isExecutingBench = false;
-    if (btn) { btn.textContent = "Execute operation"; btn.disabled = false; }
+    if (btn) { btn.textContent = "Run it"; btn.disabled = false; }
   }
 }
 
@@ -769,7 +756,7 @@ async function loadConflictScenarios() {
   const host = document.getElementById("conflictScenariosContainer");
   if (host && !ExplorerState.conflictScenarios.length) {
     host.innerHTML = '<div class="card card-inset card-pad-sm col-12"><p class="small muted">' +
-      'Adversarial scenarios are served by the regulatory node. Start the cluster to load and simulate them.</p></div>';
+      'These cases are served by PC2. Start the PCs to load and run them.</p></div>';
   }
 }
 
@@ -795,14 +782,14 @@ function renderConflictMatrix() {
       '<p class="small muted">' + esc(sc.description) + "</p>" +
       '<hr class="divider-dashed" style="margin-block:12px;">' +
       '<div class="bento" style="gap:6px;">' +
-        '<div class="col-6"><p class="xsmall faint">Drug registry</p><p class="xsmall">' + esc(sc.silo_breakdown.db3_mfg) + "</p></div>" +
-        '<div class="col-6"><p class="xsmall faint">Distribution</p><p class="xsmall">' + esc(sc.silo_breakdown.db2_logistics) + "</p></div>" +
-        '<div class="col-6"><p class="xsmall faint">Retail checkouts</p><p class="xsmall">' + esc(sc.silo_breakdown.db1_pos) + "</p></div>" +
-        '<div class="col-6"><p class="xsmall faint">Grievances</p><p class="xsmall">' + esc(sc.silo_breakdown.db4_ministry) + "</p></div>" +
+        '<div class="col-6"><p class="xsmall faint">DB3 drug registry says</p><p class="xsmall">' + esc(sc.silo_breakdown.db3_mfg) + "</p></div>" +
+        '<div class="col-6"><p class="xsmall faint">DB2 shipments say</p><p class="xsmall">' + esc(sc.silo_breakdown.db2_logistics) + "</p></div>" +
+        '<div class="col-6"><p class="xsmall faint">DB1 pharmacy sales say</p><p class="xsmall">' + esc(sc.silo_breakdown.db1_pos) + "</p></div>" +
+        '<div class="col-6"><p class="xsmall faint">DB4 complaints say</p><p class="xsmall">' + esc(sc.silo_breakdown.db4_ministry) + "</p></div>" +
       "</div>" +
       '<div class="row-wrap gap-2 between" style="margin-top:14px;">' +
         '<span class="mono xsmall faint">' + esc(sc.item_code) + "</span>" +
-        '<span class="btn btn-ghost btn-sm">Run simulation →</span>' +
+        '<span class="btn btn-ghost btn-sm">Run this case →</span>' +
       "</div></div></div>";
   }).join("");
 }
@@ -817,7 +804,7 @@ async function simulateConflictScenario(scenarioId) {
   const resultBox = document.getElementById("conflictSimulationResult");
   if (resultBox) {
     resultBox.innerHTML = '<div class="row gap-3">' + spinnerSvg(16) +
-      '<span class="small muted">Running this case against the mediator for <span class="mono">' + esc(scenario.item_code) + "</span>…</span></div>";
+      '<span class="small muted">Checking <span class="mono">' + esc(scenario.item_code) + "</span> in all four databases…</span></div>";
   }
 
   try {
@@ -833,25 +820,25 @@ async function simulateConflictScenario(scenarioId) {
     if (resultBox) {
       const good = (res.verdict === "ASALI" || res.verdict === "GENUINE");
       const contradictions = (res.contradictions && res.contradictions.length)
-        ? '<p class="small" style="color:var(--red-ink); margin-top:10px;">The silos disagreed on: ' + esc(res.contradictions.join(", ")) + "</p>"
-        : '<p class="small" style="color:var(--green-ink); margin-top:10px;">Nothing to arbitrate. All four silos agree.</p>';
+        ? '<p class="small" style="color:var(--red-ink); margin-top:10px;">The databases disagreed on: ' + esc(res.contradictions.join(", ")) + "</p>"
+        : '<p class="small" style="color:var(--green-ink); margin-top:10px;">Nothing to settle: all four databases agree.</p>';
       const veto = (res.veto_codes && res.veto_codes.length)
-        ? '<p class="small" style="color:var(--red-ink); margin-top:6px; font-weight:600;">Override: ' + esc(res.veto_codes.join(", ")) + " — trust forced to 0.</p>"
+        ? '<p class="small" style="color:var(--red-ink); margin-top:6px; font-weight:600;">Hard stop: ' + esc(res.veto_codes.join(", ")) + " (trust score forced to 0).</p>"
         : "";
 
       resultBox.innerHTML =
         '<div class="row-wrap gap-3 between">' +
           '<div class="row gap-3">' +
             '<span class="badge badge-' + (good ? "green" : "red") + '">' + esc(res.verdict || "resolved") + "</span>" +
-            '<span class="h-md">Trust index of ' + esc(res.trust_score) + "%</span>" +
+            '<span class="h-md">Trust score ' + esc(res.trust_score) + "%</span>" +
           "</div>" +
           '<span class="mono xsmall faint">' + esc(res.execution_ms) + " ms</span>" +
         "</div>" + contradictions + veto +
-        '<p class="mono xsmall faint" style="margin-top:12px; word-break:break-all;">Audit block ' +
-          esc((res.audit_entry && res.audit_entry.entry_hash) || "signed into audit chain") + "</p>";
+        '<p class="mono xsmall faint" style="margin-top:12px; word-break:break-all;">Saved in the audit ledger: ' +
+          esc((res.audit_entry && res.audit_entry.entry_hash) || "yes") + "</p>";
     }
   } catch (err) {
-    if (resultBox) resultBox.innerHTML = '<p class="small" style="color:var(--red-ink);">Simulation error: ' + esc(err.message) + "</p>";
+    if (resultBox) resultBox.innerHTML = '<p class="small" style="color:var(--red-ink);">Could not run this case: ' + esc(err.message) + "</p>";
   }
 }
 
@@ -866,7 +853,7 @@ async function validateAuditLedger() {
   const resultBox = document.getElementById("auditValidationResult");
 
   if (btn) {
-    btn.innerHTML = spinnerSvg(15) + " Verifying hashes…";
+    btn.innerHTML = spinnerSvg(15) + " Checking…";
     btn.disabled = true;
   }
 
@@ -878,11 +865,11 @@ async function validateAuditLedger() {
           '<div class="card card-inset card-pad-sm">' +
             '<div class="row gap-3" style="margin-bottom:10px;">' +
               '<span class="dot dot-green"></span>' +
-              '<span class="eyebrow" style="color:var(--green-ink);">Chain integrity intact</span>' +
+              '<span class="eyebrow" style="color:var(--green-ink);">No tampering found</span>' +
             "</div>" +
-            '<p class="small muted">Verified <span class="em">' + esc(data.total_blocks) + " sequential blocks</span> in " +
-              esc(data.execution_ms) + " ms. Every SHA-256 pointer links back to genesis " +
-              '<span class="mono xsmall">' + esc(data.genesis_hash) + "</span> without discrepancy.</p>" +
+            '<p class="small muted">Checked <span class="em">' + esc(data.total_blocks) + " blocks</span> in " +
+              esc(data.execution_ms) + " ms. Every block's SHA-256 fingerprint matches, all the way back to the first block " +
+              '<span class="mono xsmall">' + esc(data.genesis_hash) + "</span>.</p>" +
             '<p class="mono xsmall faint" style="margin-top:10px; word-break:break-all;">Latest block #' +
               esc(data.latest_block_seq) + " · " + esc((data.latest_hash || "").substring(0, 40)) + "…</p>" +
           "</div>";
@@ -893,21 +880,21 @@ async function validateAuditLedger() {
               '<span class="dot dot-red"></span>' +
               '<span class="eyebrow" style="color:var(--red-ink);">Tampering detected</span>' +
             "</div>" +
-            '<p class="small muted">Hash discrepancy across <span class="em">' + esc(data.tampered_count) +
-              " block(s)</span>. The ledger can no longer be trusted as an evidentiary record.</p>" +
+            '<p class="small muted">The fingerprints do not match in <span class="em">' + esc(data.tampered_count) +
+              " block(s)</span>: something was edited, so the ledger can no longer be trusted as evidence.</p>" +
           "</div>";
       }
     }
   } catch (err) {
     if (resultBox) {
       resultBox.innerHTML = '<div class="card card-inset card-pad-sm"><p class="small" style="color:var(--red-ink);">' +
-        "Validation error: " + esc(err.message) + '</p><p class="xsmall faint" style="margin-top:6px;">' +
-        "The audit chain lives on node PC2 — start the cluster to validate it.</p></div>";
+        "Could not check the ledger: " + esc(err.message) + '</p><p class="xsmall faint" style="margin-top:6px;">' +
+        "The audit ledger is stored on PC2. Start the PCs to check it.</p></div>";
     }
   } finally {
     ExplorerState.isValidatingChain = false;
     if (btn) {
-      btn.innerHTML = "Validate cryptographic hashes";
+      btn.innerHTML = "Check every hash";
       btn.disabled = false;
     }
   }
@@ -939,15 +926,15 @@ const ACTION_TONE = {
 const ACTION_LABEL = {
   SELECT: "Browsed rows", SEARCH: "Searched", SCHEMA: "Read schema",
   VIEW: "Queried", INSERT: "Inserted", UPDATE: "Updated", DELETE: "Deleted",
-  FEDERATED_VIEW: "Verified across silos",
-  FEDERATED_INSERT: "Registered across silos",
-  FEDERATED_DELETE: "Quarantined across silos",
+  FEDERATED_VIEW: "Checked in all databases",
+  FEDERATED_INSERT: "Registered in all databases",
+  FEDERATED_DELETE: "Blacklisted",
   VALIDATE: "Checked the chain", CLEAR: "Cleared the log"
 };
 
 const SILO_LABEL = {
-  db1: "Retail checkouts", db2: "Distribution", db3: "Drug registry",
-  db4: "Grievances", audit: "Audit ledger", all: "All silos"
+  db1: "DB1 · Pharmacy sales", db2: "DB2 · Shipments", db3: "DB3 · Drug registry",
+  db4: "DB4 · Complaints", audit: "Audit ledger", all: "All databases"
 };
 
 function whenText(iso) {
@@ -1021,15 +1008,15 @@ function renderActivity(entries, counts, total, nodesAnswering) {
 
   if (!nodesAnswering) {
     tbody.innerHTML = '<tr><td colspan="8" style="padding:30px; text-align:center;">' +
-      '<p class="small" style="color:var(--red-ink);">No node answered.</p>' +
-      '<p class="xsmall faint" style="margin-top:6px;">Start the cluster, or change the addresses from the status chip in the nav.</p></td></tr>';
+      '<p class="small" style="color:var(--red-ink);">No PC answered.</p>' +
+      '<p class="xsmall faint" style="margin-top:6px;">Start the PCs, or change their addresses by clicking the status badge at the top.</p></td></tr>';
     if (metrics) metrics.textContent = "—";
     return;
   }
 
   if (!entries.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="padding:30px; text-align:center;" class="faint">' +
-      "Nothing recorded yet for this silo. Browse a table or run an operation and it will appear here.</td></tr>";
+      "Nothing recorded yet for this database. Browse a table or run an operation and it will appear here.</td></tr>";
     if (metrics) metrics.textContent = "0 entries";
     return;
   }
@@ -1055,7 +1042,7 @@ function renderActivity(entries, counts, total, nodesAnswering) {
   if (metrics) {
     metrics.innerHTML = "Showing <span class=\"em\">" + entries.length + "</span> of " +
       "<span class=\"em\">" + total + "</span> recorded operations" +
-      (nodesAnswering < 2 ? ' <span class="faint">· one node reachable</span>' : "");
+      (nodesAnswering < 2 ? ' <span class="faint">· only one PC answered</span>' : "");
   }
 }
 
@@ -1068,7 +1055,7 @@ function renderActivity(entries, counts, total, nodesAnswering) {
 async function clearActivity() {
   const ok = window.confirm(
     "Clear the activity log?\n\n" +
-    "This erases the record of every operation on both nodes and cannot be undone. " +
+    "This erases the record of every operation on both PCs and cannot be undone. " +
     "The databases themselves are not touched."
   );
   if (!ok) return;

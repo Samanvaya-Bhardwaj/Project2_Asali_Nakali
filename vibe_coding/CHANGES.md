@@ -113,6 +113,70 @@ changes were applied and the page warns. *train.py, uncertainty.js*
 * `create_databases.py`, `data/seed_db1..4.py`: honour `ASALI_DB_DIR` so the test suite builds
   in a temporary directory.
 
+## Later prompts (12 onwards)
+
+Each is shown with the code it changed in part 2 of the report.
+
+### Prompt 12: connecting phase 1 and phase 2, and a simpler UI
+
+**17. A product registered on one PC never reached the other.** Each node reads only its own
+copy of the databases. The Explorer sends a DB3 insert to PC2, but the Uncertainty page asks
+PC1, so with two laptops the new product never appeared in phase 2 (a real case:
+`MED-SAM-001` was in PC1's DB1 and DB2 but only in PC2's DB3). → Every write a node accepts
+(explorer insert/update/delete, registration across all databases, blacklisting, cleansing
+apply/decide/undo) is forwarded to the other node, which applies the same request to its own
+copy. The dashboard sends the other node's address with each write. Generated ids (federated
+item code, blacklist id, cleansing run id) travel with the copy, so both copies stay identical
+and "Undo this run" works on both. When both nodes share one folder, a storage id detects it and
+the copy is skipped. Copies are sent in order by one background thread per node, so two writes
+crossing between the PCs cannot deadlock. The page shows "Also saved on the other PC", or the
+reason it was not. *integration/replication.py (new), api/node_pc1.py, api/node_pc2.py,
+assets/cluster.js, explorer.js, cleanser.py, http_api.py, db_explorer.py, tests/test_replication.py (new)*
+
+**18. Check a medicine showed stored examples for real products.** The verdict was live, but the
+product, journey and evidence came from 22 stored examples, so any other product (newly
+registered, or the generated catalogue) showed a live verdict beside "Unregistered product".
+→ The live check now returns the full dossier built from the live records, and the page draws
+it. The stored examples are used only when no PC answers. *api/verify_item.py, db_explorer.py,
+app.js*
+
+**19. The Uncertainty page kept an old product list.** → It re-reads the registry when you return
+to the tab, and says when it last read it. *uncertainty.js*
+
+**20. A cluttered UI with unclear wording.** → Every page opens with a plain title and a guide
+listing its parts. Every part has a number, a heading saying what it does, and a "Use this to…"
+line. Jargon was replaced (silo → database, node → PC, posterior → chance, verdict arbitration →
+deciding). Inputs got labels. All pages share one nav: Check a medicine, Databases, Matching &
+cleaning. No features were added or removed. *all dashboard pages, style.css*
+
+**21. The Phase 2 page scrolled sideways on a phone.** The result table widened its grid column.
+→ The column may now shrink, and the nav fits a 390 px screen. *uncertainty.html, style.css*
+
+### Prompt 13: mistyped codes on Check a medicine
+
+**22. Check a medicine corrected codes against 22 stored examples.** Before asking the PCs, the
+page "corrected" the typed code using its built-in example list, which knows no newly registered
+product: `med sam 001` became the recalled `MED-RECALL-003`, `MEDSAM001` became `MED-ASALI-003`.
+The server had the same kind of slip: a code typed without dashes was read as a brand name.
+→ The page sends what was typed; the PCs read it against the live registry and say how
+(formatting, look-alike characters, batch number, product name). A code with no dashes is tidied
+the Phase 2 way (formatting only) instead of name-matched. A closer miss (`MED-SAN-001`,
+`MED-SAM-002`) is checked as typed and comes out as not registered, with a "Did you mean
+MED-SAM-001?" button from the Phase 2 matcher (shown only at 50% or more), because a fake can
+carry a near-miss code. The stored examples remain the fallback when no PC answers. The check
+button stays busy until the answer arrives. *api/verify_item.py, db_explorer.py, app.js,
+verify.html, tests/test_uncertainty.py*
+
+### Prompt 14: this report
+
+**23. Later prompts were mixed into one big diff.** The report compared everything against the
+generated snapshot, so it could not show which prompt changed which line. → Each later prompt
+now has a folder in `vibe_coding/rounds/` with the prompt, the list of files it changed and those
+files just before it; the report shows each prompt with its own before → after diffs (part 2).
+Prompt 12's starting point is the git commit; prompt 13's was rebuilt by undoing its exact edits,
+and checked to compile. The report also got the same plain headings and guide as the site.
+*vibe_coding/make_diff_report.py, vibe_coding/rounds/ (new), uncertainty.html*
+
 ---
 
 ## Your changes
@@ -120,3 +184,8 @@ changes were applied and the page warns. *train.py, uncertainty.js*
 *Add your own modifications below.* Whatever you change after this point is picked up
 automatically: rerun `python vibe_coding/make_diff_report.py` and the report highlights it
 against both the generated snapshot and the phase-1 baseline.
+
+To show a new prompt on its own, like prompts 12–14: before changing anything, make a folder
+`vibe_coding/rounds/15-short-name/` with `ROUND.md` (the prompt, quoted), `FILES.txt` (one
+path per line) and `before/` (copies of those files as they are now). Then make the changes
+and rerun the script.

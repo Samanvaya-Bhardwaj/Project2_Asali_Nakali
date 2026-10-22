@@ -209,6 +209,33 @@ class Integration(unittest.TestCase):
         for code in ("MED-NAKALI-001", "MED-NAKALI-003"):
             self.assertEqual(match(code=code, channel="scan").decision, "NO_MATCH", code)
 
+    def test_check_a_medicine_only_suggests_close_misses(self):
+        # The Check a medicine page checks an unregistered code as typed and only
+        # offers the closest product; far-off codes and registered ones get nothing.
+        from types import SimpleNamespace as NS
+        from api.verify_item import _suggestion
+        missing = lambda code: NS(item_code=code, manufacturer=NS(found=False))
+        sql("db3", "INSERT INTO products (product_uid, product_name, generic_name, manufacturer_id, category, "
+                   "dosage_form, strength, manufacture_date, expiry_date, batch_number, registration_no) "
+                   "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            ("MED-SAM-001", "Samcillin 500mg", "Amoxicillin", "MFG-001", "Antibiotic", "Tablet", "500mg",
+             "2025-01-01", "2027-01-01", "BATCH-SAM-01", "CDSCO/TEST/SAM-001"))
+        try:
+            s = _suggestion("MED-SAN-001", missing("MED-SAN-001"))
+            self.assertIsNotNone(s)
+            self.assertEqual(s["uid"], "MED-SAM-001")
+            self.assertGreaterEqual(s["chance"], 0.5)
+            self.assertIsNone(_suggestion("MED-TOTALLY-FAKE-9999", missing("MED-TOTALLY-FAKE-9999")))
+            self.assertIsNone(_suggestion("MED-SAM-001", NS(item_code="MED-SAM-001", manufacturer=NS(found=True))))
+        finally:
+            sql("db3", "DELETE FROM products WHERE product_uid = 'MED-SAM-001'")
+
+    def test_code_typed_without_dashes_is_tidied_not_name_matched(self):
+        from integration.uncertainty.standardize import canonical_code, looks_like_code
+        self.assertTrue(looks_like_code("MEDASALI008"))
+        self.assertEqual(canonical_code("MEDASALI008"), "MED-ASALI-008")
+        self.assertFalse(looks_like_code("Novamox"))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

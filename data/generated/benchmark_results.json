@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-20T01:55:36",
- "elapsed_s": 168.1,
+ "generated_at": "2026-10-21T10:31:26",
+ "elapsed_s": 210.8,
  "dataset": {
   "catalogue_size": 201,
   "train": 2884,
@@ -27,7 +27,7 @@
    "db2": 523,
    "db4": 178
   },
-  "cleansing_changes_applied": 0
+  "cleansing_changes_applied": 958
  },
  "blocking": {
   "method": "inverted index on confusion-folded character bigrams",
@@ -420,32 +420,32 @@
   "db1": {
    "code": {
     "manual:L2_one_edit": 4.24,
-    "ocr:L0_exact": 8.23,
-    "scan:L4_far": -15.02,
-    "ocr:L2_one_edit": 2.15,
-    "scan:L3_two_edits": -4.88,
     "scan:L2_one_edit": -2.97,
-    "ocr:L1_confusable": 7.38,
-    "manual:L3_two_edits": 0.12,
+    "scan:L3_two_edits": -4.88,
+    "scan:L4_far": -15.02,
+    "scan:L0_exact": 22.28,
+    "ocr:L0_exact": 8.23,
+    "ocr:L4_far": -9.34,
+    "ocr:L3_two_edits": 0.28,
     "manual:L4_far": -15.29,
-    "scan:L1_confusable": -6.44,
+    "ocr:L1_confusable": 7.38,
+    "ocr:L2_one_edit": 2.15,
+    "manual:L3_two_edits": 0.12,
     "manual:L0_exact": 8.78,
     "manual:L1_confusable": 6.04,
-    "ocr:L4_far": -9.34,
-    "scan:L0_exact": 22.28,
-    "ocr:L3_two_edits": 0.28
+    "scan:L1_confusable": -6.44
    },
    "custody": {
-    "to_vendor": 3.46,
-    "elsewhere": -9.17,
+    "never": 1.53,
     "same_city": -2.02,
-    "never": 1.53
+    "elsewhere": -9.17,
+    "to_vendor": 3.46
    },
    "price": {
-    "extreme": -5.18,
     "dump": -13.9,
-    "match": 2.72,
     "low": -10.93,
+    "extreme": -5.18,
+    "match": 2.72,
     "high": -12.39
    },
    "date": {
@@ -455,9 +455,9 @@
     "ok": 0.18
    },
    "label_brand": {
-    "close": -0.17,
     "agree": 2.55,
-    "disagree": -9.72
+    "disagree": -9.72,
+    "close": -0.17
    },
    "label_strength": {
     "agree": 3.09,
@@ -479,11 +479,11 @@
   },
   "db2": {
    "code": {
-    "erp:L1_confusable": 4.24,
     "erp:L0_exact": 11.2,
-    "erp:L3_two_edits": -1.33,
     "erp:L2_one_edit": 2.17,
-    "erp:L4_far": -13.33
+    "erp:L1_confusable": 4.24,
+    "erp:L4_far": -13.33,
+    "erp:L3_two_edits": -1.33
    },
    "mfr": {
     "agree": 1.94,
@@ -491,9 +491,9 @@
     "unknown_claim": -7.93
    },
    "auth": {
+    "not_authorized": -1.94,
     "authorized": 0.11,
-    "ghost": -3.11,
-    "not_authorized": -1.94
+    "ghost": -3.11
    },
    "dest": {
     "unlicensed": -2.99,
@@ -504,24 +504,24 @@
     "yes": 3.52
    },
    "date": {
-    "ok_fresh": 2.39,
     "pre_mfg": -13.18,
-    "ok_old": -9.66,
     "ok_aged": -7.99,
-    "expired": -0.66
+    "ok_old": -9.66,
+    "expired": -0.66,
+    "ok_fresh": 2.39
    }
   },
   "db4": {
    "code": {
+    "citizen:L1_confusable": 3.64,
+    "citizen:L4_far": -6.61,
     "citizen:L2_one_edit": 2.68,
     "citizen:L0_exact": 17.67,
-    "citizen:L3_two_edits": -0.24,
-    "citizen:L1_confusable": 3.64,
-    "citizen:L4_far": -6.61
+    "citizen:L3_two_edits": -0.24
    },
    "brand_mention": {
-    "agree": 2.67,
-    "other_brand": -8.19
+    "other_brand": -8.19,
+    "agree": 2.67
    },
    "vendor_mention": {
     "agree": 3.62,

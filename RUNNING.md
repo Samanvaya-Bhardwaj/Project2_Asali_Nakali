@@ -193,8 +193,8 @@ Say the word if you want C2 implemented.
 | Backend on your machine, data files elsewhere | **Layout C1**, read-only |
 | Each silo on a machine you choose | **Layout C2**, needs the code change |
 
-Whatever you pick, the sync caveat in section 4 still applies: nothing replicates
-between machines.
+Whatever you pick, start every machine from the same data: writes made through the
+website are copied between PC1 and PC2, but only from then on (section 4).
 
 ---
 
@@ -281,39 +281,38 @@ Things to know:
   benchmark about 3–4 minutes, on a background thread so the node keeps answering.
 - **Demo state.** `python scripts/rebuild_data.py` restores the noisy, uncleansed data. Undo on the
   page reverts any single cleansing run, newest first.
-- **Same-machine writes.** The test cards on the page write through node PC1 only, so the read that
-  follows sees the same files; the section 4 caveat still applies across two machines.
+- **Same-machine writes.** The test cards on the page write through node PC1, so the read that
+  follows sees the same files; PC1 then copies each write to PC2 (section 4).
 
 ---
 
-## 4. The databases do **not** sync between the two PCs
+## 4. How the two PCs keep the same data
 
-This is the most important thing to understand before demonstrating the system.
+Each PC holds a full copy of all five databases and reads only its own files. Each page asks
+one PC: Matching & cleaning asks PC1, Check a medicine asks PC2, and the Databases page asks
+the PC that owns the database. To keep the pages connected, **every write is copied to the
+other PC** (`integration/replication.py`):
 
-**There is no replication.** The backend makes no HTTP calls between nodes.
-`DB_FILES` in `integration/db_explorer.py` resolves to local paths, so each
-machine reads and writes its *own* complete set of all five databases.
+- The dashboard sends the other PC's address with each write. The PC that takes the write
+  applies it, then sends the same request on to the other PC, which applies it to its own copy.
+- This covers inserts, updates and deletes from the Databases page and the Matching & cleaning
+  test cards, registering a medicine in all databases, blacklisting, and cleansing runs
+  (apply, review decisions, undo). Ids the first PC generated travel with the copy, so both
+  copies stay identical and a cleansing run can be undone on both.
+- The result says what happened: *Also saved on the other PC*, *Copying to the other PC…*
+  (a long cleansing run finishes in the background), or why the copy failed (other PC offline).
+- On one laptop (`--mode all`) both nodes share the same files, so nothing is copied twice.
+- A write sent with PowerShell instead of the website is copied to the address the PC last saw
+  from the website, or to `PC1_HOST`/`PC2_HOST` if you set them before starting the node.
 
-The "distribution" is routing in the browser only: the frontend sends DB1/DB2
-requests to PC1 and DB3/DB4/audit requests to PC2. Each node holds a full copy and
-will answer for any silo, which is why the fallback path can silently serve
-divergent data.
+Measured with two separate copies of the project as PC1 and PC2: a product registered on the
+Databases page (sent to PC2) appeared on PC1's Matching & cleaning page and in Check a
+medicine with its real details; a price change from a Phase 2 test card (sent to PC1) reached
+PC2's copy.
 
-Measured by running a genuine second copy of the project as PC2:
-
-| Action | Result |
-| --- | --- |
-| Insert a DB1 row via PC1 | PC1's file: 1 row. PC2's file: **0** |
-| Ask PC2 to browse DB1 | It answers, from its own stale copy, missing the insert |
-| Federated insert via PC2 | Wrote DB3 on PC2 only; PC1 saw nothing |
-
-**What this means in practice.** A read-only demonstration across two machines
-works and looks convincing. The moment either machine *writes*, the two diverge
-and stay diverged. An insert your friend makes will never reach your PC.
-
-**If you need writes to be consistent during a demo,** do all of them from one
-machine, or keep both nodes on a single machine (`--mode all`) and use the second
-PC only to view the site over the network.
+**Limits.** Only *new* writes are copied. Start both laptops from the same data
+(`python scripts/rebuild_data.py --no-train` on both) before a demo. A write made while the
+other PC is offline is not replayed later. The activity log and audit ledger stay per PC.
 
 ---
 

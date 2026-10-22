@@ -93,14 +93,16 @@ def handle(method: str, path: str, params: Dict, body: Optional[Dict] = None,
         if method == "POST" and route == "apply":
             from .cleanser import apply
             res = apply(mode=body.get("mode", "auto"), issue_ids=body.get("issue_ids"),
-                        overrides=body.get("overrides"), actor=body.get("actor", "dashboard"))
+                        overrides=body.get("overrides"), actor=body.get("actor", "dashboard"),
+                        run_id=body.get("run_id"))
             _log("DQ_APPLY", f"Run {res['run_id']}: {res['issues_applied']} issue(s), "
                              f"{res['changes_applied']} change(s)", rows=res["changes_applied"],
                  ms=res["elapsed_ms"], node=node)
             return 200, res
         if method == "POST" and route == "decide":
             from .cleanser import decide
-            res = decide(body.get("issue_id", ""), body.get("decision", ""), body.get("uid"), body.get("note", ""))
+            res = decide(body.get("issue_id", ""), body.get("decision", ""), body.get("uid"), body.get("note", ""),
+                         run_id=body.get("run_id"))
             _log("DQ_REVIEW", f"{body.get('decision', '?')} {body.get('issue_id', '?')}", node=node,
                  ok=res.get("success", False))
             return 200, res

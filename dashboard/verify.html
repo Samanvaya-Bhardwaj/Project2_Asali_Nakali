@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verification terminal · Asali — Nakali</title>
-<meta name="description" content="Query one medicine serial across five autonomous data silos and read the arbitrated verdict with its evidence.">
+<title>Check a medicine · Asali — Nakali</title>
+<meta name="description" content="Type a medicine code and see whether it is genuine or fake, checked against all four databases, with the reasons.">
 <link rel="icon" type="image/svg+xml" href="assets/mark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,14 +33,15 @@
     </a>
     <a href="index.html" class="back-link">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      <span>Overview</span>
+      <span>Home</span>
     </a>
     </div>
     <div class="row gap-2">
       <button class="icon-btn" id="themeToggle" type="button" aria-label="Colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
-      <span class="badge" id="navClusterBadge"><span class="dot dot-amber dot-pulse"></span> Checking nodes</span>
-      <a href="uncertainty.html" class="btn btn-outline btn-sm">Uncertainty</a>
-      <a href="explorer.html" class="btn btn-accent btn-sm">Explorer</a>
+      <span class="badge" id="navClusterBadge"><span class="dot dot-amber dot-pulse"></span> Checking PCs</span>
+      <a href="verify.html" class="btn btn-primary btn-sm nav-page" aria-current="page">Check a medicine</a>
+      <a href="explorer.html" class="btn btn-outline btn-sm nav-page">Databases</a>
+      <a href="uncertainty.html" class="btn btn-outline btn-sm nav-page">Matching &amp; cleaning</a>
     </div>
   </div>
 </header>
@@ -48,13 +49,13 @@
 <!-- ========================= SECTION BAR ========================= -->
 <div class="subnav">
   <div class="shell subnav-inner">
-    <span class="subnav-label">Jump to</span>
+    <span class="subnav-label">Go to</span>
     <nav class="nav-links seg" style="display:flex;">
-      <a href="#query" class="seg-item is-active">Search</a>
-      <a href="#verdict" class="seg-item">Verdict</a>
-      <a href="#pack" class="seg-item">Pack &amp; custody</a>
-      <a href="#silos" class="seg-item">What each silo said</a>
-      <a href="#evidence" class="seg-item">Evidence</a>
+      <a href="#query" class="seg-item is-active">1 · Enter the code</a>
+      <a href="#verdict" class="seg-item">2 · Result</a>
+      <a href="#pack" class="seg-item">3 · Product and journey</a>
+      <a href="#silos" class="seg-item">4 · What each database said</a>
+      <a href="#evidence" class="seg-item">5 · Reasons</a>
     </nav>
   </div>
 </div>
@@ -64,16 +65,23 @@
 <!-- ========================= QUERY ========================= -->
 <section class="shell section-tight" id="query">
   <div class="stack gap-6">
-    <div class="stack gap-4" style="max-width:68ch;">
-      <p class="eyebrow eyebrow-lime">Verification terminal</p>
-      <h1 class="display display-lg">
-        Check a pack against <span class="hl-lime">every record</span>
-      </h1>
-      <p class="lede">
-        Enter a serial and the mediator splits it into four sub-queries, sends them to both nodes,
-        and reconciles the answers. Everything below is the reasoning behind the verdict, not just
-        the verdict itself.
+    <div style="max-width:82ch;">
+      <p class="eyebrow eyebrow-lime">Phase 1 · Check a medicine</p>
+      <h1 class="page-title" style="margin-top:8px;">Is this medicine genuine?</h1>
+      <p class="part-use" style="font-size:1rem;">
+        Type the code printed on the pack. The system looks it up in all four databases on both PCs and tells you
+        whether it is <strong>genuine (Asali)</strong>, <strong>suspicious</strong> or <strong>fake (Nakali)</strong>,
+        and why. Small slips are corrected automatically; for other typos the page suggests the closest registered
+        code. The page has five parts, listed in the bar above.
       </p>
+    </div>
+
+    <div class="part-head" style="margin-bottom:16px;">
+      <span class="part-num">1</span>
+      <div>
+        <h2 class="part-title">Enter the code</h2>
+        <p class="part-use"><strong>Use this to</strong> start a check. Type a code, barcode or batch number and press <strong>Check this code</strong>, or click one of the examples.</p>
+      </div>
     </div>
 
     <!-- Query bar -->
@@ -81,12 +89,12 @@
       <div class="stack gap-5">
         <div class="row-wrap gap-3">
           <div class="grow" style="min-width: 240px;">
-            <label class="eyebrow" for="itemCodeInput" style="display:block; margin-bottom:8px;">Serial, barcode or batch number</label>
+            <label class="eyebrow" for="itemCodeInput" style="display:block; margin-bottom:8px;">Code, barcode or batch number</label>
             <input id="itemCodeInput" class="field" type="text" value="MED-ASALI-001"
                    placeholder="MED-ASALI-001" autocomplete="off" spellcheck="false">
           </div>
           <button id="btnSearch" class="btn btn-primary btn-lg" style="align-self:flex-end;">
-            Run verification
+            Check this code
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
@@ -94,17 +102,19 @@
         <hr class="divider-dashed">
 
         <div class="stack gap-3">
-          <p class="eyebrow">Benchmark cases</p>
+          <p class="eyebrow">Examples to try</p>
           <div class="row-wrap gap-2" id="scenarioPills">
-            <button class="pill-btn scenario-pill is-active" data-code="MED-ASALI-001" onclick="loadScenario('MED-ASALI-001')">Genuine batch</button>
-            <button class="pill-btn scenario-pill" data-code="MED-NAKALI-001" onclick="loadScenario('MED-NAKALI-001')">Unregistered serial</button>
-            <button class="pill-btn scenario-pill" data-code="MED-ASALI-009" onclick="loadScenario('MED-ASALI-009')">Cold-chain failure</button>
-            <button class="pill-btn scenario-pill" data-code="MED-ASALI-002" onclick="loadScenario('MED-ASALI-002')">Cloned barcode</button>
-            <button class="pill-btn scenario-pill" data-code="MED-NAKALI-002" onclick="loadScenario('MED-NAKALI-002')">Blacklisted batch</button>
+            <button class="pill-btn scenario-pill is-active" data-code="MED-ASALI-001" onclick="loadScenario('MED-ASALI-001')">Genuine</button>
+            <button class="pill-btn scenario-pill" data-code="MED-NAKALI-001" onclick="loadScenario('MED-NAKALI-001')">Not registered (fake)</button>
+            <button class="pill-btn scenario-pill" data-code="MED-ASALI-009" onclick="loadScenario('MED-ASALI-009')">Cold chain broken</button>
+            <button class="pill-btn scenario-pill" data-code="MED-ASALI-002" onclick="loadScenario('MED-ASALI-002')">Copied barcode</button>
+            <button class="pill-btn scenario-pill" data-code="MED-NAKALI-002" onclick="loadScenario('MED-NAKALI-002')">Blacklisted</button>
           </div>
           <p class="small faint">
-            Try misspelling one. Entering <span class="mono">MED-ASAL1-OO1</span> or a batch number
-            like <span class="mono">BATCH-A001</span> still resolves to the right record.
+            Corrected automatically: capitals, spaces and missing dashes (<span class="mono">med_asali_001</span>),
+            look-alike characters such as O for 0 (<span class="mono">MED-ASAL1-OO1</span>), batch numbers
+            (<span class="mono">BATCH-A001</span>) and product names. Any other typo is checked as typed, with a
+            "Did you mean…?" suggestion. Products registered on the Databases page are included.
           </p>
         </div>
       </div>
@@ -118,13 +128,13 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>
           </span>
           <div class="grow">
-            <p class="eyebrow">Source of this verdict</p>
-            <p class="small muted" id="dataSourceNote" style="margin-top:3px;">Checking the cluster…</p>
+            <p class="eyebrow">Where this answer came from</p>
+            <p class="small muted" id="dataSourceNote" style="margin-top:3px;">Asking the PCs…</p>
           </div>
         </div>
         <div class="row-wrap gap-2">
           <span class="badge" id="dataSourceBadge">Checking…</span>
-          <button class="btn btn-ghost btn-sm" onclick="Cluster.openPanel()">Change connection</button>
+          <button class="btn btn-ghost btn-sm" onclick="Cluster.openPanel()">Change PC addresses</button>
         </div>
       </div>
     </div>
@@ -137,11 +147,27 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 7h8M8 12h8M8 17h5"/></svg>
           </span>
           <div class="grow">
-            <p class="eyebrow">Identifier resolved</p>
+            <p class="eyebrow">Code corrected</p>
             <p class="small" id="fuzzyBannerText" style="margin-top:3px;">—</p>
           </div>
         </div>
         <span class="badge badge-blue" id="fuzzyConfidenceBadge">—</span>
+      </div>
+    </div>
+
+    <!-- Close miss: offered, never checked in place of what was typed -->
+    <div id="suggestionBanner" class="card card-2 hidden fade-in" style="padding:15px 18px;">
+      <div class="row-wrap gap-3 between">
+        <div class="row gap-3 grow" style="min-width:240px;">
+          <span class="chip chip-amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          </span>
+          <div class="grow">
+            <p class="eyebrow">Did you mean…?</p>
+            <p class="small" id="suggestionText" style="margin-top:3px;">—</p>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btnSuggestion">Check it</button>
       </div>
     </div>
   </div>
@@ -149,6 +175,13 @@
 
 <!-- ========================= VERDICT ========================= -->
 <section class="shell" id="verdict" style="padding-bottom: 8px;">
+  <div class="part-head" style="margin-bottom:16px;">
+      <span class="part-num">2</span>
+      <div>
+        <h2 class="part-title">Result</h2>
+        <p class="part-use"><strong>Use this to</strong> read the answer: a trust score from 0 to 100, the verdict in plain words, and the four steps that led to it. <strong>Open the report</strong> shows the full incident report you can download.</p>
+      </div>
+    </div>
   <div class="bento">
 
     <!-- Trust gauge -->
@@ -156,7 +189,7 @@
       <div class="card card-pad-lg" id="verdictCard" style="height:100%;">
         <div class="card-head">
           <div>
-            <p class="eyebrow">Trust index</p>
+            <p class="eyebrow">Trust score</p>
             <p class="serial" id="itemCodeDisplay" style="margin-top:6px;">MED-ASALI-001</p>
           </div>
           <span class="badge" id="verdictBadge">—</span>
@@ -164,7 +197,7 @@
 
         <div class="gauge" style="margin-inline:auto;">
           <svg viewBox="0 0 200 124" role="img" aria-labelledby="gaugeLabel">
-            <title id="gaugeLabel">Trust index gauge</title>
+            <title id="gaugeLabel">Trust score gauge</title>
             <defs>
               <pattern id="gaugeHatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
                 <line x1="0" y="0" x2="0" y2="7" stroke="var(--hatch-ink)" stroke-width="2.4"/>
@@ -188,15 +221,15 @@
         <hr class="divider-dashed" style="margin-block:18px 14px;">
 
         <div class="kv" style="padding-top:0;">
-          <span class="kv-key">Mediator confidence</span>
+          <span class="kv-key">How complete the data is</span>
           <span class="kv-val mono" id="confidenceVal">—</span>
         </div>
         <div class="kv">
-          <span class="kv-key">Silos answering</span>
+          <span class="kv-key">Databases that know this code</span>
           <span class="kv-val"><span class="badge" id="dbCoverageBadge">—</span></span>
         </div>
         <div class="kv">
-          <span class="kv-key">Lifecycle state</span>
+          <span class="kv-key">Status of the pack</span>
           <span class="kv-val mono" id="lifecycleVal">—</span>
         </div>
       </div>
@@ -207,7 +240,7 @@
       <div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column;">
         <div class="card-head">
           <p class="eyebrow">Verdict</p>
-          <span class="badge" id="tierBadge">—</span>
+          <span class="badge" id="tierBadge" title="How the score was decided">—</span>
         </div>
 
         <h2 class="display display-md" id="verdictWordMark" style="margin-bottom:10px;">Asali</h2>
@@ -216,13 +249,13 @@
 
         <hr class="divider-dashed" style="margin-block:20px;">
 
-        <p class="eyebrow" style="margin-bottom:12px;">How the verdict was reached</p>
+        <p class="eyebrow" style="margin-bottom:12px;">How the result was reached</p>
         <div class="bento" style="gap:10px;">
           <div class="col-3"><div class="card card-inset card-pad-sm" id="step1Node">
             <div class="row gap-3">
               <span class="custody-marker custody-marker-ok" id="step1Num">1</span>
               <div class="grow" style="min-width:0;">
-                <p class="xsmall" style="font-weight:600;">Serial read</p>
+                <p class="xsmall" style="font-weight:600;">Code read</p>
                 <p class="xsmall faint trunc" id="step1Status">Resolved</p>
               </div>
             </div>
@@ -240,7 +273,7 @@
             <div class="row gap-3">
               <span class="custody-marker" id="step3Num">3</span>
               <div class="grow" style="min-width:0;">
-                <p class="xsmall" style="font-weight:600;">Veto gate</p>
+                <p class="xsmall" style="font-weight:600;">Hard stops</p>
                 <p class="xsmall faint trunc" id="step3Status">—</p>
               </div>
             </div>
@@ -249,7 +282,7 @@
             <div class="row gap-3">
               <span class="custody-marker" id="step4Num">4</span>
               <div class="grow" style="min-width:0;">
-                <p class="xsmall" style="font-weight:600;">Dispensing</p>
+                <p class="xsmall" style="font-weight:600;">Safe to sell?</p>
                 <p class="xsmall faint trunc" id="step4Status">—</p>
               </div>
             </div>
@@ -258,7 +291,7 @@
 
         <div class="mt-auto"></div>
         <div class="row-wrap gap-2" style="margin-top:20px;">
-          <button class="btn btn-ghost btn-sm" onclick="openDossierModal()">View incident report</button>
+          <button class="btn btn-ghost btn-sm" onclick="openDossierModal()">Open the report</button>
           <button class="btn btn-outline btn-sm" onclick="downloadDossierText()">Download as text</button>
         </div>
       </div>
@@ -306,13 +339,20 @@
 
 <!-- ========================= PACK + CUSTODY ========================= -->
 <section class="shell section-tight" id="pack">
+  <div class="part-head" style="margin-bottom:16px;">
+      <span class="part-num">3</span>
+      <div>
+        <h2 class="part-title">The product and its journey</h2>
+        <p class="part-use"><strong>Use this to</strong> see what the pack claims to be (from the drug registry) and the path it took: made by the factory, shipped by a distributor, sold by a pharmacy.</p>
+      </div>
+    </div>
   <div class="bento">
 
     <!-- Unit pack -->
     <div class="col-5">
       <div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column;">
         <div class="card-head">
-          <p class="eyebrow">The pack, as it claims to be</p>
+          <p class="eyebrow">The product, as registered (DB3)</p>
           <span class="badge" id="packSealBadge">—</span>
         </div>
 
@@ -341,8 +381,8 @@
       <div class="card card-pad-lg" style="height:100%;">
         <div class="card-head">
           <div>
-            <p class="eyebrow">Chain of custody</p>
-            <h3 class="h-md" style="margin-top:6px;">From factory to counter</h3>
+            <p class="eyebrow">Journey of the pack</p>
+            <h3 class="h-md" style="margin-top:6px;">Factory → distributor → pharmacy</h3>
           </div>
           <span class="index-num">3 stages</span>
         </div>
@@ -374,7 +414,7 @@
                 <span class="badge" id="custodyBadge2">—</span>
               </div>
               <p class="small muted" id="custodySub2" style="margin-top:4px;">—</p>
-              <p class="xsmall faint" style="margin-top:6px;">Source: distributor ledger and temperature sensors (DB2)</p>
+              <p class="xsmall faint" style="margin-top:6px;">Source: distributor shipments and temperature sensors (DB2)</p>
             </div>
           </div>
 
@@ -389,17 +429,17 @@
                 <span class="badge" id="custodyBadge3">—</span>
               </div>
               <p class="small muted" id="custodySub3" style="margin-top:4px;">—</p>
-              <p class="xsmall faint" style="margin-top:6px;">Source: retail checkout scans (DB1)</p>
+              <p class="xsmall faint" style="margin-top:6px;">Source: pharmacy sales (DB1)</p>
             </div>
           </div>
         </div>
 
         <hr class="divider-dashed" style="margin-block:18px;">
 
-        <p class="eyebrow" style="margin-bottom:12px;">Reconciled details</p>
+        <p class="eyebrow" style="margin-bottom:12px;">Details combined from all databases</p>
         <div class="bento" style="gap:10px;">
           <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Manufacturer</span><span class="kv-val trunc" id="metaManufacturer">—</span></div></div>
-          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Licence</span><span class="kv-val mono trunc" id="metaRegNo">—</span></div></div>
+          <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Registration no.</span><span class="kv-val mono trunc" id="metaRegNo">—</span></div></div>
           <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Batch</span><span class="kv-val mono trunc" id="metaBatch">—</span></div></div>
           <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Expiry</span><span class="kv-val mono trunc" id="metaExpiry">—</span></div></div>
           <div class="col-6"><div class="kv" style="padding-top:0;"><span class="kv-key">Distributor</span><span class="kv-val trunc" id="metaDistributor">—</span></div></div>
@@ -416,15 +456,12 @@
 <!-- ========================= SILOS ========================= -->
 <section class="shell section-tight" id="silos">
   <div class="stack gap-5">
-    <div class="row-wrap gap-4 between">
-      <div style="max-width:32ch;">
-        <p class="eyebrow eyebrow-lime">Sub-queries</p>
-        <h2 class="display display-md" style="margin-top:8px;">What each silo returned</h2>
+    <div class="part-head" style="margin-bottom:16px;">
+      <span class="part-num">4</span>
+      <div>
+        <h2 class="part-title">What each database said</h2>
+        <p class="part-use"><strong>Use this to</strong> see each database's own answer. The same question is asked of all four, each in its own language; press <strong>Show the query and what it found</strong> on a card to see exactly what was asked and what came back.</p>
       </div>
-      <p class="small muted" style="max-width:46ch;">
-        The same question, asked four different ways. Open a card to see the query that was
-        actually sent and what came back.
-      </p>
     </div>
 
     <div class="bento">
@@ -434,8 +471,8 @@
           <div class="row gap-3">
             <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 5-5"/></svg></span>
             <div>
-              <p class="h-sm">Retail checkouts</p>
-              <p class="xsmall faint">DB1, JSON documents on node PC1</p>
+              <p class="h-sm">DB1 · Pharmacy sales</p>
+              <p class="xsmall faint">Stored on PC1 as JSON documents</p>
             </div>
           </div>
           <span class="badge" id="db1Badge">—</span>
@@ -443,7 +480,7 @@
         <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD1Status">—</span></div>
         <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD1Detail">—</span></div>
         <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db1')">
-          <span>Query and findings</span>
+          <span>Show the query and what it found</span>
           <svg class="chev" id="db1Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div id="db1Dropdown" class="hidden" style="margin-top:12px;">
@@ -458,8 +495,8 @@
           <div class="row gap-3">
             <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span>
             <div>
-              <p class="h-sm">Distribution and transit</p>
-              <p class="xsmall faint">DB2, SQLite on node PC1</p>
+              <p class="h-sm">DB2 · Shipments</p>
+              <p class="xsmall faint">Stored on PC1 in SQLite</p>
             </div>
           </div>
           <span class="badge" id="db2Badge">—</span>
@@ -467,7 +504,7 @@
         <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD2Status">—</span></div>
         <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD2Detail">—</span></div>
         <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db2')">
-          <span>Query and findings</span>
+          <span>Show the query and what it found</span>
           <svg class="chev" id="db2Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div id="db2Dropdown" class="hidden" style="margin-top:12px;">
@@ -482,8 +519,8 @@
           <div class="row gap-3">
             <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></span>
             <div>
-              <p class="h-sm">Drug registry</p>
-              <p class="xsmall faint">DB3, master catalogue on node PC2</p>
+              <p class="h-sm">DB3 · Drug registry</p>
+              <p class="xsmall faint">Stored on PC2, the master list of real products</p>
             </div>
           </div>
           <span class="badge" id="db3Badge">—</span>
@@ -491,7 +528,7 @@
         <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD3Status">—</span></div>
         <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD3Detail">—</span></div>
         <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db3')">
-          <span>Query and findings</span>
+          <span>Show the query and what it found</span>
           <svg class="chev" id="db3Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div id="db3Dropdown" class="hidden" style="margin-top:12px;">
@@ -506,8 +543,8 @@
           <div class="row gap-3">
             <span class="chip chip-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span>
             <div>
-              <p class="h-sm">Complaints and recalls</p>
-              <p class="xsmall faint">DB4, REST service on node PC2</p>
+              <p class="h-sm">DB4 · Complaints and recalls</p>
+              <p class="xsmall faint">Stored on PC2, read through a web service</p>
             </div>
           </div>
           <span class="badge" id="db4Badge">—</span>
@@ -515,7 +552,7 @@
         <div class="kv" style="padding-top:0;"><span class="kv-key">Status</span><span class="kv-val" id="auditD4Status">—</span></div>
         <div class="kv"><span class="kv-key">Detail</span><span class="kv-val" id="auditD4Detail">—</span></div>
         <button class="btn btn-ghost btn-sm full" style="margin-top:14px;" onclick="toggleDbAccordion('db4')">
-          <span>Query and findings</span>
+          <span>Show the query and what it found</span>
           <svg class="chev" id="db4Chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div id="db4Dropdown" class="hidden" style="margin-top:12px;">
@@ -529,26 +566,33 @@
 
 <!-- ========================= EVIDENCE ========================= -->
 <section class="shell section-tight" id="evidence">
+  <div class="part-head" style="margin-bottom:16px;">
+      <span class="part-num">5</span>
+      <div>
+        <h2 class="part-title">Reasons for the score</h2>
+        <p class="part-use"><strong>Use this to</strong> see every finding that raised or lowered the score, and the places where the databases disagreed and which one was believed.</p>
+      </div>
+    </div>
   <div class="bento">
     <div class="col-7">
       <div class="card card-pad-lg" style="height:100%;">
         <div class="card-head">
           <div>
-            <p class="eyebrow">Evidence</p>
-            <h3 class="h-md" style="margin-top:6px;">Signals that moved the score</h3>
+            <p class="eyebrow">Findings</p>
+            <h3 class="h-md" style="margin-top:6px;">What raised or lowered the score</h3>
           </div>
           <span class="badge" id="evidenceCountBadge">—</span>
         </div>
         <div class="table-wrap">
           <table class="data">
             <thead>
-              <tr><th>Signal</th><th>Change</th><th>Source</th><th>Finding</th></tr>
+              <tr><th>Finding</th><th>Score change</th><th>Database</th><th>Details</th></tr>
             </thead>
             <tbody id="auditSignalsTbody"></tbody>
           </table>
         </div>
         <div class="row-wrap gap-3 between" style="margin-top:14px;">
-          <span class="eyebrow">Audit entry</span>
+          <span class="eyebrow">Saved in the audit ledger as</span>
           <span class="hash-chip" id="auditHashDisplay" onclick="copyHash(this)">—</span>
         </div>
       </div>
@@ -558,12 +602,12 @@
       <div class="card card-pad-lg" style="height:100%;">
         <div class="card-head">
           <div>
-            <p class="eyebrow">Arbitration</p>
-            <h3 class="h-md" style="margin-top:6px;">Where the silos disagreed</h3>
+            <p class="eyebrow">Disagreements</p>
+            <h3 class="h-md" style="margin-top:6px;">Where the databases disagreed</h3>
           </div>
           <span class="badge" id="conflictCountBadge">—</span>
         </div>
-        <p class="small faint" style="margin-bottom:12px;">Item <span class="mono" id="conflictActiveItem">—</span></p>
+        <p class="small faint" style="margin-bottom:12px;">Code <span class="mono" id="conflictActiveItem">—</span></p>
         <div class="stack gap-3" id="conflictListContainer"></div>
       </div>
     </div>
@@ -576,14 +620,14 @@
     <div class="row-wrap gap-4 between">
       <div style="max-width:52ch;">
         <p class="eyebrow eyebrow-lime">Next</p>
-        <h3 class="h-lg" style="margin-top:8px;">Want to see where these answers come from?</h3>
+        <h3 class="h-lg" style="margin-top:8px;">See the data behind this answer</h3>
         <p class="small muted" style="margin-top:8px;">
-          The explorer shows every schema and live row behind this verdict, lets you run operations
-          against either node, and includes the entity resolution and unit conversion tools.
+          The Databases page shows every table and row used here, and lets you add, change or delete records.
+          Matching &amp; cleaning (Phase 2) handles messy and mistyped records.
         </p>
       </div>
       <a href="explorer.html" class="btn btn-primary">
-        Open the explorer
+        Open Databases
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div>
@@ -597,11 +641,12 @@
   <div class="shell row-wrap gap-4 between">
     <div>
       <p class="brand" style="font-size:1.1rem;"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#D8FF3E"/><path d="M16 7.5a8.5 8.5 0 0 0 0 17z" fill="#0A0B0D"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#0A0B0D" stroke-width="1.8"/><g stroke="#0A0B0D" stroke-width="1.5" stroke-linecap="round"><path d="M17.8 10.4 L21.6 14.2"/><path d="M17.8 14.2 L22.4 18.8"/><path d="M17.8 18 L20.6 20.8"/></g></svg></span> Asali<span class="brand-slash"> / </span>Nakali</p>
-      <p class="small muted" style="margin-top:8px;">Federated anti-counterfeit verification.</p>
+      <p class="small muted" style="margin-top:8px;">Checks whether a medicine is genuine (asali) or fake (nakali) using four databases.</p>
     </div>
     <div class="row-wrap gap-2">
-      <a href="index.html" class="pill-btn">Overview</a>
-      <a href="explorer.html" class="pill-btn">Database explorer</a>
+      <a href="index.html" class="pill-btn">Home</a>
+      <a href="explorer.html" class="pill-btn">Databases</a>
+      <a href="uncertainty.html" class="pill-btn">Matching &amp; cleaning</a>
     </div>
   </div>
 </footer>

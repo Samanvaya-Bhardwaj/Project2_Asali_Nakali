@@ -12,8 +12,9 @@
 window.Cluster = (function () {
   const KEY_1 = "asali_pc1_endpoint";
   const KEY_2 = "asali_pc2_endpoint";
-  const DEFAULT_1 = "http://127.0.0.1:8011";
-  const DEFAULT_2 = "http://127.0.0.1:8012";
+  const DEFAULT_1 = "http://192.168.52.152:8011";
+  const DEFAULT_2 = "http://192.168.52.111:8012";
+
 
   function read(key, fallback) {
     try {
@@ -71,18 +72,30 @@ window.Cluster = (function () {
     return dbHint === "db1" || dbHint === "db2" ? state.pc1 : state.pc2;
   }
 
+  /**
+   * A write carries the other node's address, so the node that takes it can
+   * copy it to the other PC and both copies of the databases stay the same
+   * (see integration/replication.py).
+   */
+  function withPeer(target, options) {
+    const method = String(options.method || "GET").toUpperCase();
+    const peer = target === state.pc1 ? state.pc2 : state.pc1;
+    if (method === "GET" || !peer || peer === target) return options;
+    return { ...options, headers: { ...(options.headers || {}), "X-Asali-Peer": peer } };
+  }
+
   /** Routed fetch: the owning node first, then the other, then same-origin. */
   async function call(endpoint, options = {}, dbHint = "db1") {
     const primary = urlFor(dbHint);
     const secondary = primary === state.pc1 ? state.pc2 : state.pc1;
 
     try {
-      const res = await fetch(primary + endpoint, { mode: "cors", ...options });
+      const res = await fetch(primary + endpoint, { mode: "cors", ...withPeer(primary, options) });
       if (res.ok) return await res.json();
       throw new Error("HTTP " + res.status + " from " + primary);
     } catch (err) {
       try {
-        const res2 = await fetch(secondary + endpoint, { mode: "cors", ...options });
+        const res2 = await fetch(secondary + endpoint, { mode: "cors", ...withPeer(secondary, options) });
         if (res2.ok) return await res2.json();
       } catch (e2) {
         try {
@@ -141,21 +154,21 @@ window.Cluster = (function () {
     if (s.allOnline) {
       cls = "badge badge-green";
       dot = '<span class="dot dot-green"></span>';
-      label = "Both nodes online";
+      label = "Both PCs online";
     } else if (state.partitioned) {
       cls = "badge badge-red";
       dot = '<span class="dot dot-red"></span>';
-      label = "PC2 partitioned";
+      label = "PC2 cut off (test)";
     } else if (s.anyOnline) {
       cls = "badge badge-amber";
       dot = '<span class="dot dot-amber"></span>';
-      label = state.pc1Online ? "PC1 only" : "PC2 only";
+      label = state.pc1Online ? "Only PC1 online" : "Only PC2 online";
     }
 
     chip.className = cls;
     chip.innerHTML = dot + " " + label;
     chip.style.cursor = "pointer";
-    chip.setAttribute("title", "Change node addresses");
+    chip.setAttribute("title", "Click to see or change the PC addresses");
   }
 
   function closePanel() {
@@ -171,7 +184,7 @@ window.Cluster = (function () {
       '<div class="kv"><span class="kv-key">' + name + "</span>" +
       '<span class="kv-val"><span class="badge ' +
       (online === true ? "badge-green" : online === false ? "badge-red" : "") + '">' +
-      (online === true ? "online" + (ms != null ? ", " + ms + " ms" : "") : online === false ? "no answer" : "checking") +
+      (online === true ? "online" + (ms != null ? ", answered in " + ms + " ms" : "") : online === false ? "no answer" : "checking") +
       "</span></span></div>";
 
     const panel = document.createElement("div");
@@ -181,25 +194,26 @@ window.Cluster = (function () {
       '<div class="modal-panel" style="max-width:520px;">' +
         '<div class="card-head">' +
           "<div><p class=\"eyebrow eyebrow-lime\">Connection</p>" +
-          '<h3 class="display display-sm" style="margin-top:6px;">Where the data comes from</h3></div>' +
+          '<h3 class="part-title" style="margin-top:6px;">PC addresses</h3></div>' +
           '<button class="icon-btn" data-close aria-label="Close">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
           "</button>" +
         "</div>" +
         '<p class="small muted" style="margin-bottom:16px;">' +
-          "These two addresses are used by every page. Point them at other machines on the " +
-          "network and the verification page will query those instead." +
+          "Every page uses these two addresses. If PC1 and PC2 run on two laptops, enter each " +
+          "laptop's address (for example http://192.168.52.152:8011). A change made on one PC is " +
+          "also copied to the other." +
         "</p>" +
-        '<label class="eyebrow" for="clusterPc1" style="display:block; margin-bottom:8px;">Node PC1 — retail and distribution</label>' +
+        '<label class="eyebrow" for="clusterPc1" style="display:block; margin-bottom:8px;">PC1 address (pharmacy sales and shipments)</label>' +
         '<input id="clusterPc1" class="field field-sm" spellcheck="false" value="' + state.pc1 + '">' +
-        '<label class="eyebrow" for="clusterPc2" style="display:block; margin:14px 0 8px;">Node PC2 — registry, grievances and ledger</label>' +
+        '<label class="eyebrow" for="clusterPc2" style="display:block; margin:14px 0 8px;">PC2 address (registry, complaints and audit ledger)</label>' +
         '<input id="clusterPc2" class="field field-sm" spellcheck="false" value="' + state.pc2 + '">' +
         '<div class="card card-inset card-pad-sm" style="margin-top:16px;">' +
-          line("Node PC1", state.pc1, s.pc1Online, s.pc1Ms) +
-          line("Node PC2", state.pc2, s.pc2Online, s.pc2Ms) +
+          line("PC1", state.pc1, s.pc1Online, s.pc1Ms) +
+          line("PC2", state.pc2, s.pc2Online, s.pc2Ms) +
         "</div>" +
         '<p class="xsmall faint" style="margin-top:12px;">' +
-          "Saved in this browser only. Opening the site from a different machine's address gives that browser its own setting." +
+          "Saved in this browser only. Another browser, or the site opened from a different address, keeps its own setting." +
         "</p>" +
         '<div class="row-wrap gap-2" style="margin-top:20px; justify-content:flex-end;">' +
           '<button class="btn btn-ghost btn-sm" data-reset>Reset to defaults</button>' +

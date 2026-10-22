@@ -50,15 +50,16 @@
     </a>
     </div>
     <nav class="nav-links seg">
-      <a href="#overview" class="seg-item is-active">Overview</a>
+      <a href="#overview" class="seg-item is-active">Home</a>
+      <a href="#pages" class="seg-item">What's here</a>
       <a href="#how" class="seg-item">How it works</a>
-      <a href="#challenges" class="seg-item">Integration problems</a>
+      <a href="#challenges" class="seg-item">Problems solved</a>
     </nav>
     <div class="row gap-2">
       <button class="icon-btn" id="themeToggle" type="button" aria-label="Colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
-      <a href="uncertainty.html" class="btn btn-outline btn-sm">Uncertainty</a>
-      <a href="explorer.html" class="btn btn-accent btn-sm">Explorer</a>
-      <a href="verify.html" class="btn btn-primary btn-sm">Verify a medicine</a>
+      <a href="verify.html" class="btn btn-primary btn-sm nav-page">Check a medicine</a>
+      <a href="explorer.html" class="btn btn-outline btn-sm nav-page">Databases</a>
+      <a href="uncertainty.html" class="btn btn-outline btn-sm nav-page">Matching &amp; cleaning</a>
     </div>
   </div>
 </header>
@@ -71,42 +72,42 @@
 
     <div class="card card-pad-lg" style="display:flex; flex-direction:column; justify-content:space-between; gap:36px; padding:clamp(24px, 4vw, 44px);">
       <div class="stack gap-5">
-        <p class="eyebrow">Pharmaceutical provenance · Information Integration &amp; Architecture</p>
+        <p class="eyebrow">Information Integration &amp; Architecture project</p>
 
         <h1 class="display display-xl">
-          A counterfeit pack looks fine.<br>
-          <em>Its records don't.</em>
+          Is this medicine<br>
+          <em>genuine or fake?</em>
         </h1>
 
-        <p class="lede" style="max-width: 54ch;">
-          The WHO estimates that one in ten medical products in developing nations is
-          substandard or falsified. The evidence is rarely in any single system. It shows up as a
-          disagreement between them: a serial no manufacturer ever issued, a temperature log that
-          ruins a biologic, one barcode scanned in two cities ten minutes apart.
+        <p class="lede" style="max-width: 56ch;">
+          A fake pack can look perfect. What gives it away is its records: a code the maker never issued,
+          a shipment that got too warm, one barcode sold in two cities ten minutes apart.
         </p>
 
-        <p class="lede" style="max-width: 54ch;">
-          Asali&nbsp;/&nbsp;Nakali queries five of those systems at once and reconciles what they
-          say against each other.
+        <p class="lede" style="max-width: 56ch;">
+          These records sit in <strong>four separate databases on two PCs</strong>: pharmacy sales,
+          distributor shipments, the national drug registry, and complaints. <strong>Phase 1</strong> joins
+          them to check a pack. <strong>Phase 2</strong> deals with messy records: mistyped codes,
+          duplicates and conflicts. <span class="mono">Asali</span> means genuine, <span class="mono">nakali</span> means fake.
         </p>
       </div>
 
       <div class="stack gap-5">
         <div class="row-wrap gap-3">
           <a href="verify.html" class="btn btn-primary btn-lg">
-            Verify a medicine
+            Check a medicine
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-          <a href="explorer.html" class="btn btn-outline btn-lg">Browse the databases</a>
+          <a href="#pages" class="btn btn-outline btn-lg">See what's on this website</a>
         </div>
 
         <hr class="divider-dashed">
 
         <div class="bento" style="gap:12px;">
-          <div class="col-3"><p class="stat-num">5</p><p class="xsmall faint">Data silos</p></div>
-          <div class="col-3"><p class="stat-num">2</p><p class="xsmall faint">Physical nodes</p></div>
-          <div class="col-3"><p class="stat-num">4</p><p class="xsmall faint">Storage paradigms</p></div>
-          <div class="col-3"><p class="stat-num">20</p><p class="xsmall faint">Benchmark cases</p></div>
+          <div class="col-3"><p class="stat-num">4</p><p class="xsmall faint">Databases (plus an audit ledger)</p></div>
+          <div class="col-3"><p class="stat-num">2</p><p class="xsmall faint">PCs that hold them</p></div>
+          <div class="col-3"><p class="stat-num">4</p><p class="xsmall faint">Different storage types</p></div>
+          <div class="col-3"><p class="stat-num">2</p><p class="xsmall faint">Project phases</p></div>
         </div>
       </div>
     </div>
@@ -117,16 +118,16 @@
       </div>
 
       <div class="card card-lime">
-        <p class="eyebrow">A clean result</p>
-        <p class="display display-sm" style="margin-block:6px 6px;">Novamox 500mg, trust index 100</p>
-        <p class="small" style="font-weight:500;">All four silos agree. Nothing to arbitrate.</p>
+        <p class="eyebrow">Example of a result</p>
+        <p class="display display-sm" style="margin-block:6px 6px;">Novamox 500mg, trust score 100</p>
+        <p class="small" style="font-weight:500;">All four databases agree, so it is genuine.</p>
       </div>
 
       <div class="card card-2">
-        <p class="eyebrow" style="margin-bottom:12px;">What the system is built to catch</p>
+        <p class="eyebrow" style="margin-bottom:12px;">What the system catches</p>
         <div class="row-wrap gap-2">
-          <span class="sticker">Unregistered serials</span>
-          <span class="sticker sticker-invert">Cloned barcodes</span>
+          <span class="sticker">Codes not in the registry</span>
+          <span class="sticker sticker-invert">Copied barcodes</span>
           <span class="sticker">Broken cold chain</span>
           <span class="sticker sticker-invert">Recalled batches</span>
           <span class="sticker">Unlicensed sellers</span>
@@ -137,41 +138,76 @@
   </div>
 </section>
 
+<!-- ========================= WHAT'S HERE ========================= -->
+<section class="shell section-tight" id="pages">
+  <div class="stack gap-4">
+    <div class="part-head">
+        <div>
+          <h2 class="part-title">What's on this website</h2>
+          <p class="part-use">Three pages. Each one has numbered parts, and every part starts with a heading and a line saying what it is for.</p>
+        </div>
+      </div>
+    <div class="bento" style="gap:12px;">
+      <div class="col-4"><div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column; gap:12px;">
+        <span class="badge badge-lime" style="align-self:flex-start;">Phase 1</span>
+        <h3 class="h-lg">Check a medicine</h3>
+        <p class="small muted">Type the code on a pack. See whether it is genuine, suspicious or fake, the trust score, the product's journey from factory to pharmacy, and the reasons.</p>
+        <a href="verify.html" class="btn btn-primary btn-sm mt-auto" style="align-self:flex-start;">Open Check a medicine</a>
+      </div></div>
+      <div class="col-4"><div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column; gap:12px;">
+        <span class="badge badge-lime" style="align-self:flex-start;">Phase 1</span>
+        <h3 class="h-lg">Databases</h3>
+        <p class="small muted">See the four databases and their tables, search the rows, and add, change or delete records. Also: the activity log, the audit check, and small tools for each integration problem.</p>
+        <a href="explorer.html" class="btn btn-outline btn-sm mt-auto" style="align-self:flex-start;">Open Databases</a>
+      </div></div>
+      <div class="col-4"><div class="card card-pad-lg" style="height:100%; display:flex; flex-direction:column; gap:12px;">
+        <span class="badge badge-blue" style="align-self:flex-start;">Phase 2</span>
+        <h3 class="h-lg">Matching &amp; cleaning</h3>
+        <p class="small muted">Messy records: find which registered product a mistyped or camera-read code belongs to, see why that method was chosen, and clean duplicates, typos and conflicts (with undo).</p>
+        <a href="uncertainty.html" class="btn btn-outline btn-sm mt-auto" style="align-self:flex-start;">Open Matching &amp; cleaning</a>
+      </div></div>
+    </div>
+    <p class="small muted">
+      The pages share the same data. A product registered on the Databases page appears in Check a medicine and in
+      Matching &amp; cleaning, and a fix made in Matching &amp; cleaning is seen by the other two. When PC1 and PC2 are two
+      laptops, each change is also copied to the other laptop.
+    </p>
+  </div>
+</section>
+
 <!-- ========================= THE PROBLEM ========================= -->
 <section class="shell section-tight">
   <div class="card card-pad-lg" style="padding:clamp(24px, 4vw, 48px);">
     <div class="bento" style="gap:clamp(16px, 3vw, 32px);">
       <div class="col-5">
         <p class="eyebrow eyebrow-lime">The problem</p>
-        <h2 class="display display-md" style="margin-top:12px;">
-          Why this can't just be one database
-        </h2>
-        <p class="small muted" style="margin-top:16px; max-width:38ch;">
-          Every obvious fix runs into the same four obstacles, and they are the reason
-          the project is built as a mediator rather than a warehouse.
+        <h2 class="part-title" style="margin-top:8px;">Why the data can't simply be put in one database</h2>
+        <p class="small muted" style="margin-top:12px; max-width:38ch;">
+          Four reasons. Because of them, the project leaves each database where it is and asks all of them
+          through one middle layer (a <em>mediator</em>) instead of copying everything into one place.
         </p>
       </div>
       <div class="col-7">
         <div class="bento" style="gap:12px;">
           <div class="col-6"><div class="card card-inset card-pad-sm" style="height:100%;">
             <span class="index-num">1</span>
-            <p class="h-sm" style="margin-top:6px;">The holders are rivals</p>
-            <p class="small muted" style="margin-top:6px;">Private pharmacies, logistics firms and regulators have no reason to merge their records into one system, and good reasons not to.</p>
+            <p class="h-sm" style="margin-top:6px;">Different owners</p>
+            <p class="small muted" style="margin-top:6px;">Pharmacies, transport companies and the government each own their data and will not hand it over to one shared system.</p>
           </div></div>
           <div class="col-6"><div class="card card-inset card-pad-sm" style="height:100%;">
             <span class="index-num">2</span>
-            <p class="h-sm" style="margin-top:6px;">The formats differ</p>
-            <p class="small muted" style="margin-top:6px;">JSON documents in one place, normalised SQL in another, a master registry in a third and a REST service in the fourth.</p>
+            <p class="h-sm" style="margin-top:6px;">Different formats</p>
+            <p class="small muted" style="margin-top:6px;">JSON documents in one, SQL tables in another, a master list in the third and a web service in the fourth.</p>
           </div></div>
           <div class="col-6"><div class="card card-inset card-pad-sm" style="height:100%;">
             <span class="index-num">3</span>
-            <p class="h-sm" style="margin-top:6px;">The keys don't match</p>
-            <p class="small muted" style="margin-top:6px;">One physical pack is <span class="mono xsmall">scan_code</span> at the counter, <span class="mono xsmall">batch_serial</span> in transit, <span class="mono xsmall">product_uid</span> in the registry and <span class="mono xsmall">item_ref</span> in a complaint.</p>
+            <p class="h-sm" style="margin-top:6px;">Different names for the same code</p>
+            <p class="small muted" style="margin-top:6px;">One pack is <span class="mono xsmall">scan_code</span> at the counter, <span class="mono xsmall">batch_serial</span> in transit, <span class="mono xsmall">product_uid</span> in the registry and <span class="mono xsmall">item_ref</span> in a complaint.</p>
           </div></div>
           <div class="col-6"><div class="card card-inset card-pad-sm" style="height:100%;">
             <span class="index-num">4</span>
-            <p class="h-sm" style="margin-top:6px;">Some sources outrank others</p>
-            <p class="small muted" style="margin-top:6px;">A statutory recall is not one opinion among four to be averaged. It has to override everything else, so the system needs two tiers of arbitration rather than one score.</p>
+            <p class="h-sm" style="margin-top:6px;">Some sources count more</p>
+            <p class="small muted" style="margin-top:6px;">A government recall is not one opinion to be averaged with the others. It must override everything, so the system first checks for such "hard stops" and only then weighs the rest.</p>
           </div></div>
         </div>
       </div>
@@ -183,14 +219,12 @@
 <section class="shell section" id="how">
   <div class="stack gap-6">
     <div class="row-wrap gap-4 between">
-      <div style="max-width:30ch;">
-        <p class="eyebrow eyebrow-lime">How it works</p>
-        <h2 class="display display-lg" style="margin-top:10px;">What happens when you scan a pack</h2>
-      </div>
-      <p class="lede" style="max-width:42ch;">
-        A global-as-view mediator rewrites one question into each silo's own dialect,
-        collects the answers, and then decides what they add up to.
-      </p>
+      <div class="part-head">
+          <div>
+            <h2 class="part-title">How a check works, step by step</h2>
+            <p class="part-use">One question ("is this code genuine?") is turned into a query each database understands, the answers are collected, and the system decides what they add up to. This design is called a global-as-view (GAV) mediator.</p>
+          </div>
+        </div>
     </div>
 
     <div class="bento">
@@ -199,11 +233,11 @@
           <img src="images/db1_nosql_3d.png" alt="A pharmacy till and barcode scanner">
         </div>
         <span class="index-num">Step 1</span>
-        <h3 class="h-lg" style="margin-top:8px;">Read the serial, then resolve it</h3>
+        <h3 class="h-lg" style="margin-top:8px;">Read the code and fix mistakes</h3>
         <p class="small muted" style="margin-top:8px;">
-          Scanners misread characters and staff sometimes type a batch number instead of a product
-          code. Three string metrics (Jaro-Winkler, Levenshtein and Soundex) decide which known
-          pack the input actually refers to before any lookup happens.
+          Scanners misread letters and staff sometimes type a batch number instead of the product code.
+          Before looking anything up, the system works out which real product code was meant
+          (Phase 2 does this much more carefully).
         </p>
       </div></div>
 
@@ -212,11 +246,10 @@
           <img src="images/db2_logistics_3d.png" alt="A refrigerated delivery truck carrying vaccines">
         </div>
         <span class="index-num">Step 2</span>
-        <h3 class="h-lg" style="margin-top:8px;">Split the question four ways</h3>
+        <h3 class="h-lg" style="margin-top:8px;">Ask all four databases</h3>
         <p class="small muted" style="margin-top:8px;">
-          The mediator turns one query into four native sub-queries: a document lookup, two SQL
-          joins and an authenticated REST call. They run against both nodes in parallel, and
-          each answer is normalised into a shared vocabulary on the way back.
+          The one question becomes four: a document search, two SQL queries and a web-service call,
+          sent to both PCs. Each answer is converted into the same units and names on the way back.
         </p>
       </div></div>
 
@@ -225,11 +258,11 @@
           <img src="images/db3_cdsco_3d.png" alt="A regulatory master ledger with a quality-control seal">
         </div>
         <span class="index-num">Step 3</span>
-        <h3 class="h-lg" style="margin-top:8px;">Arbitrate, then record the decision</h3>
+        <h3 class="h-lg" style="margin-top:8px;">Decide, then save the result</h3>
         <p class="small muted" style="margin-top:8px;">
-          A veto gate runs first: recalls, blacklists and unregistered serials force the score to
-          zero on their own. Anything that survives goes to weighted consensus, and the result is
-          appended to a hash chain so it can be audited later.
+          Hard stops come first: a recall, a blacklist or a code missing from the registry sets the score
+          to zero on its own. Otherwise all findings are weighed into a score from 0 to 100, and the result
+          is saved in a tamper-proof audit ledger.
         </p>
       </div></div>
     </div>
@@ -238,41 +271,41 @@
     <div class="card card-pad-lg">
       <div class="card-head">
         <div>
-          <p class="eyebrow">Deployment</p>
-          <h3 class="h-lg" style="margin-top:6px;">How the nodes are split</h3>
+          <p class="eyebrow">Two PCs</p>
+          <h3 class="h-lg" style="margin-top:6px;">Which PC holds which database</h3>
         </div>
-        <span class="badge">HTTP over LAN</span>
+        <span class="badge">They talk over the local network</span>
       </div>
 
       <div class="bento" style="gap:12px;">
         <div class="col-6"><div class="card card-inset" style="padding:20px; height:100%;">
           <div class="row-wrap gap-2 between" style="margin-bottom:14px;">
-            <span class="badge badge-lime">Node PC1</span>
+            <span class="badge badge-lime">PC1</span>
             <span class="mono xsmall faint">port 8011</span>
           </div>
-          <h4 class="h-md">Retail and logistics</h4>
-          <p class="small muted" style="margin-top:6px; margin-bottom:14px;">The commercial edge of the supply chain. This node also serves the web frontend.</p>
-          <div class="kv" style="padding-top:0;"><span class="kv-key">DB1, retail point of sale</span><span class="kv-val mono xsmall">JSON documents</span></div>
-          <div class="kv"><span class="kv-key">DB2, distributor ledger</span><span class="kv-val mono xsmall">SQLite, 3NF</span></div>
+          <h4 class="h-md">Pharmacies and distributors</h4>
+          <p class="small muted" style="margin-top:6px; margin-bottom:14px;">The business side of the supply chain. It also serves this website.</p>
+          <div class="kv" style="padding-top:0;"><span class="kv-key">DB1, pharmacy sales</span><span class="kv-val mono xsmall">JSON documents</span></div>
+          <div class="kv"><span class="kv-key">DB2, distributor shipments</span><span class="kv-val mono xsmall">SQLite tables</span></div>
         </div></div>
 
         <div class="col-6"><div class="card card-inset" style="padding:20px; height:100%;">
           <div class="row-wrap gap-2 between" style="margin-bottom:14px;">
-            <span class="badge badge-blue">Node PC2</span>
+            <span class="badge badge-blue">PC2</span>
             <span class="mono xsmall faint">port 8012</span>
           </div>
           <h4 class="h-md">Regulator and ministry</h4>
-          <p class="small muted" style="margin-top:6px; margin-bottom:14px;">The statutory side. It holds the veto power and the audit ledger.</p>
-          <div class="kv" style="padding-top:0;"><span class="kv-key">DB3, drug registry</span><span class="kv-val mono xsmall">Master catalogue</span></div>
-          <div class="kv"><span class="kv-key">DB4, consumer grievances</span><span class="kv-val mono xsmall">REST service</span></div>
+          <p class="small muted" style="margin-top:6px; margin-bottom:14px;">The government side. It holds the hard stops (recalls, blacklist) and the audit ledger. It also serves this website.</p>
+          <div class="kv" style="padding-top:0;"><span class="kv-key">DB3, national drug registry</span><span class="kv-val mono xsmall">Master list</span></div>
+          <div class="kv"><span class="kv-key">DB4, complaints and lab reports</span><span class="kv-val mono xsmall">Web service</span></div>
           <div class="kv"><span class="kv-key">Audit ledger</span><span class="kv-val mono xsmall">SHA-256 chain</span></div>
         </div></div>
       </div>
 
       <p class="small muted" style="margin-top:16px; max-width:76ch;">
-        Both daemons run on one laptop or on two machines over the same network. If the regulatory
-        node becomes unreachable, the mediator falls back to the records it can still see and says
-        so in the result rather than failing outright.
+        Both can run on one laptop, or on two laptops on the same network. A change made on one PC is
+        copied to the other. If PC2 stops answering, the system still answers from the records it can
+        see, and says so, instead of failing.
       </p>
     </div>
   </div>
@@ -282,14 +315,12 @@
 <section class="shell section" id="challenges">
   <div class="stack gap-6">
     <div class="row-wrap gap-4 between">
-      <div style="max-width:30ch;">
-        <p class="eyebrow eyebrow-lime">Coursework</p>
-        <h2 class="display display-lg" style="margin-top:10px;">The integration problems underneath</h2>
-      </div>
-      <p class="lede" style="max-width:42ch;">
-        Eight classical problems in information integration, each one wired to something you can
-        operate in the explorer rather than only read about.
-      </p>
+      <div class="part-head">
+          <div>
+            <h2 class="part-title">Problems the project solves</h2>
+            <p class="part-use">Eight standard data-integration problems (Phase 1). Each one can be tried on the Databases page. Phase 2 adds matching and cleaning of messy data on its own page.</p>
+          </div>
+        </div>
     </div>
 
     <div class="bento">
@@ -300,8 +331,8 @@
           </div>
           <div class="grow">
             <span class="index-num">1</span>
-            <h3 class="h-md" style="margin-top:4px;">Query unfolding</h3>
-            <p class="small muted" style="margin-top:6px;">One global-as-view query is rewritten into four native dialects and the results recomposed into a single dossier.</p>
+            <h3 class="h-md" style="margin-top:4px;">One question, four databases</h3>
+            <p class="small muted" style="margin-top:6px;">One question is rewritten into the language of each database, and the four answers are put back together into one report.</p>
           </div>
         </div>
       </div></div>
@@ -313,8 +344,8 @@
           </div>
           <div class="grow">
             <span class="index-num">2</span>
-            <h3 class="h-md" style="margin-top:4px;">Structural flattening</h3>
-            <p class="small muted" style="margin-top:6px;">Nested facility trees and location hierarchies are collapsed into the flat rows the mediator compares on.</p>
+            <h3 class="h-md" style="margin-top:4px;">Nested data made flat</h3>
+            <p class="small muted" style="margin-top:6px;">Data stored inside other data (a shop inside a district inside a state) is turned into simple rows that can be compared.</p>
           </div>
         </div>
       </div></div>
@@ -326,8 +357,8 @@
           </div>
           <div class="grow">
             <span class="index-num">3</span>
-            <h3 class="h-md" style="margin-top:4px;">Units and semantics</h3>
-            <p class="small muted" style="margin-top:6px;">Temperatures in Fahrenheit or Kelvin, prices in dollars, timestamps as epoch milliseconds. All converted before anything is compared.</p>
+            <h3 class="h-md" style="margin-top:4px;">Different units</h3>
+            <p class="small muted" style="margin-top:6px;">Temperatures in Fahrenheit or Kelvin, prices in dollars, times as computer timestamps: all converted to the same units before comparing.</p>
           </div>
         </div>
       </div></div>
@@ -339,8 +370,8 @@
           </div>
           <div class="grow">
             <span class="index-num">4</span>
-            <h3 class="h-md" style="margin-top:4px;">Entity resolution</h3>
-            <p class="small muted" style="margin-top:6px;">Three string metrics vote on whether a mangled scan refers to a known pack, and the reasoning is shown rather than hidden.</p>
+            <h3 class="h-md" style="margin-top:4px;">Mistyped codes</h3>
+            <p class="small muted" style="margin-top:6px;">A damaged or mistyped code is matched to the real product it means, and the reasoning is shown.</p>
           </div>
         </div>
       </div></div>
@@ -352,8 +383,8 @@
           </div>
           <div class="grow">
             <span class="index-num">5</span>
-            <h3 class="h-md" style="margin-top:4px;">Conflict arbitration</h3>
-            <p class="small muted" style="margin-top:6px;">Written policies decide which silo wins a disagreement: statutory authority, physical feasibility, and caution about patient safety.</p>
+            <h3 class="h-md" style="margin-top:4px;">Settling disagreements</h3>
+            <p class="small muted" style="margin-top:6px;">Written rules decide which database to believe when they disagree: the government first, then what is physically possible, then patient safety.</p>
           </div>
         </div>
       </div></div>
@@ -365,8 +396,8 @@
           </div>
           <div class="grow">
             <span class="index-num">6</span>
-            <h3 class="h-md" style="margin-top:4px;">Partition tolerance</h3>
-            <p class="small muted" style="margin-top:6px;">Cut the regulatory node off and a circuit breaker trips. The mediator answers from what remains and caps its own confidence.</p>
+            <h3 class="h-md" style="margin-top:4px;">One PC goes offline</h3>
+            <p class="small muted" style="margin-top:6px;">If PC2 is cut off, the system still answers from the data it can reach, and lowers its confidence.</p>
           </div>
         </div>
       </div></div>
@@ -378,8 +409,8 @@
           </div>
           <div class="grow">
             <span class="index-num">7</span>
-            <h3 class="h-md" style="margin-top:4px;">Schema evolution</h3>
-            <p class="small muted" style="margin-top:6px;">A silo upgrades to GS1 digital links and minor-unit currency while running. The adapter absorbs the change without a redeploy.</p>
+            <h3 class="h-md" style="margin-top:4px;">A database changes its format</h3>
+            <p class="small muted" style="margin-top:6px;">A database switches to a new code format and prices in paise. An adapter handles it without changing the rest of the system.</p>
           </div>
         </div>
       </div></div>
@@ -391,8 +422,8 @@
           </div>
           <div class="grow">
             <span class="index-num" style="color:rgba(255,255,255,0.55);">8</span>
-            <h3 class="h-md" style="margin-top:4px;">Identity across disjoint keys</h3>
-            <p class="small" style="margin-top:6px; color:rgba(255,255,255,0.84);">No two silos share a primary key. Bridge keys close the graph from batch number to product code to complaint reference, so one pack stays one entity.</p>
+            <h3 class="h-md" style="margin-top:4px;">Linking records without a shared ID</h3>
+            <p class="small" style="margin-top:6px; color:rgba(255,255,255,0.84);">No two databases use the same ID column. Batch number, product code and complaint reference are linked so that one pack stays one pack.</p>
           </div>
         </div>
       </div></div>
@@ -404,37 +435,38 @@
 <section class="shell section-tight">
   <div class="stack gap-5">
     <div style="max-width:40ch;">
-      <p class="eyebrow eyebrow-lime">Benchmark cases</p>
-      <h2 class="display display-md" style="margin-top:10px;">Four cases worth running first</h2>
+      <p class="eyebrow eyebrow-lime">Examples</p>
+      <h2 class="part-title" style="margin-top:8px;">Four examples to try first</h2>
+      <p class="part-use">Each button opens Check a medicine with that code.</p>
     </div>
 
     <div class="bento">
       <div class="col-3"><div class="card" style="height:100%; display:flex; flex-direction:column;">
         <span class="badge badge-green">Genuine, 100</span>
-        <h3 class="h-md" style="margin-top:12px;">Clean provenance</h3>
-        <p class="small muted" style="margin-top:6px;">Novamox 500mg. Every silo agrees, so there is nothing to arbitrate.</p>
-        <a href="verify.html?code=MED-ASALI-001" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Run this case</a>
+        <h3 class="h-md" style="margin-top:12px;">Genuine</h3>
+        <p class="small muted" style="margin-top:6px;">Novamox 500mg. All four databases agree.</p>
+        <a href="verify.html?code=MED-ASALI-001" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Check this code</a>
       </div></div>
 
       <div class="col-3"><div class="card tint-nakali" style="height:100%; display:flex; flex-direction:column;">
         <span class="badge badge-red">Counterfeit, 0</span>
-        <h3 class="h-md" style="margin-top:12px;">Unregistered serial</h3>
-        <p class="small muted" style="margin-top:6px;">Sales records exist downstream, but the registry never issued the code.</p>
-        <a href="verify.html?code=MED-NAKALI-001" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Run this case</a>
+        <h3 class="h-md" style="margin-top:12px;">Not in the registry</h3>
+        <p class="small muted" style="margin-top:6px;">It was sold in pharmacies, but the maker never issued this code.</p>
+        <a href="verify.html?code=MED-NAKALI-001" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Check this code</a>
       </div></div>
 
       <div class="col-3"><div class="card tint-suspicious" style="height:100%; display:flex; flex-direction:column;">
         <span class="badge badge-amber">Suspicious, 65</span>
         <h3 class="h-md" style="margin-top:12px;">Broken cold chain</h3>
         <p class="small muted" style="margin-top:6px;">Genuine insulin that spent too long above 8&nbsp;°C in transit.</p>
-        <a href="verify.html?code=MED-ASALI-009" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Run this case</a>
+        <a href="verify.html?code=MED-ASALI-009" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Check this code</a>
       </div></div>
 
       <div class="col-3"><div class="card tint-suspicious" style="height:100%; display:flex; flex-direction:column;">
         <span class="badge badge-amber">Suspicious, 65</span>
-        <h3 class="h-md" style="margin-top:12px;">Cloned barcode</h3>
-        <p class="small muted" style="margin-top:6px;">Five checkout scans, three cities, 28 minutes. No pack travels that fast.</p>
-        <a href="verify.html?code=MED-ASALI-002" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Run this case</a>
+        <h3 class="h-md" style="margin-top:12px;">Copied barcode</h3>
+        <p class="small muted" style="margin-top:6px;">Sold five times in three cities within 28 minutes. No pack travels that fast.</p>
+        <a href="verify.html?code=MED-ASALI-002" class="btn btn-ghost btn-sm full mt-auto" style="margin-top:16px;">Check this code</a>
       </div></div>
     </div>
   </div>
@@ -445,7 +477,7 @@
   <div class="stack gap-5">
     <div style="max-width:40ch;">
       <p class="eyebrow eyebrow-lime">Who it is for</p>
-      <h2 class="display display-md" style="margin-top:10px;">Three points in the chain</h2>
+      <h2 class="part-title" style="margin-top:8px;">Who would use it</h2>
     </div>
 
     <div class="bento">
@@ -472,7 +504,7 @@
         <div style="padding:20px;">
           <p class="eyebrow">At the border</p>
           <h3 class="h-md" style="margin-top:8px;">Inspectors</h3>
-          <p class="small muted" style="margin-top:6px;">An incident report generated on the spot and signed into the audit chain.</p>
+          <p class="small muted" style="margin-top:6px;">An incident report made on the spot and saved in the tamper-proof audit ledger.</p>
         </div>
       </div></div>
     </div>
@@ -484,30 +516,28 @@
   <div class="bento">
     <div class="col-6"><div class="card card-lime" style="height:100%; padding:clamp(24px, 4vw, 40px); display:flex; flex-direction:column; justify-content:space-between; gap:28px;">
       <div>
-        <p class="eyebrow">Verification terminal</p>
+        <p class="eyebrow">Phase 1</p>
         <h2 class="display display-md" style="margin-top:10px;">Check a medicine</h2>
         <p class="small" style="margin-top:12px; max-width:40ch; font-weight:500;">
-          Run the genuine batch, the cloned barcode, the spoiled insulin or the blacklisted
-          counterfeit, and read how the verdict was reached.
+          Type a code and see whether it is genuine, suspicious or fake, and why.
         </p>
       </div>
       <a href="verify.html" class="btn btn-lg" style="background:#0A0B0D; color:var(--lime); align-self:flex-start;">
-        Open the terminal
+        Open Check a medicine
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div></div>
 
     <div class="col-6"><div class="card" style="height:100%; padding:clamp(24px, 4vw, 40px); display:flex; flex-direction:column; justify-content:space-between; gap:28px;">
       <div>
-        <p class="eyebrow eyebrow-lime">Database explorer</p>
-        <h2 class="display display-md" style="margin-top:10px;">Look underneath</h2>
+        <p class="eyebrow eyebrow-lime">Phase 2</p>
+        <h2 class="display display-md" style="margin-top:10px;">Matching &amp; cleaning</h2>
         <p class="small muted" style="margin-top:12px; max-width:40ch;">
-          Every schema and live row, operations you can run against either node, the integration
-          tools, and a validator that walks the audit chain block by block.
+          Find the real product behind a messy code, and clean duplicates, typos and conflicts in the databases.
         </p>
       </div>
-      <a href="explorer.html" class="btn btn-outline btn-lg" style="align-self:flex-start;">
-        Open the explorer
+      <a href="uncertainty.html" class="btn btn-outline btn-lg" style="align-self:flex-start;">
+        Open Matching &amp; cleaning
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div></div>
@@ -523,13 +553,14 @@
       <div style="max-width:42ch;">
         <p class="brand" style="font-size:1.15rem;"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#D8FF3E"/><path d="M16 7.5a8.5 8.5 0 0 0 0 17z" fill="#0A0B0D"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#0A0B0D" stroke-width="1.8"/><g stroke="#0A0B0D" stroke-width="1.5" stroke-linecap="round"><path d="M17.8 10.4 L21.6 14.2"/><path d="M17.8 14.2 L22.4 18.8"/><path d="M17.8 18 L20.6 20.8"/></g></svg></span> Asali<span class="brand-slash"> / </span>Nakali</p>
         <p class="small muted" style="margin-top:10px;">
-          A federated anti-counterfeit verification network, built for the Information Integration
-          and Architecture course.
+          Checks whether a medicine is genuine (asali) or fake (nakali) using four databases.
+          Built for the Information Integration and Architecture course.
         </p>
       </div>
       <div class="row-wrap gap-2">
-        <a href="verify.html" class="pill-btn">Verification terminal</a>
-        <a href="explorer.html" class="pill-btn">Database explorer</a>
+        <a href="verify.html" class="pill-btn">Check a medicine</a>
+        <a href="explorer.html" class="pill-btn">Databases</a>
+        <a href="uncertainty.html" class="pill-btn">Matching &amp; cleaning</a>
       </div>
     </div>
     <hr class="divider">

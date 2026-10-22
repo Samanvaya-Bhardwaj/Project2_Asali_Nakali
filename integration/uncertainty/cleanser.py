@@ -849,7 +849,8 @@ def _apply_change(conns, dq, run_id, seq, issue: Issue, ch: Change) -> bool:
 
 def apply(mode: str = "auto", issue_ids: Optional[Iterable[str]] = None,
           overrides: Optional[Dict[str, str]] = None, actor: str = "dashboard",
-          quarantine_ids: Optional[Iterable[str]] = None, max_passes: int = 3) -> Dict[str, object]:
+          quarantine_ids: Optional[Iterable[str]] = None, max_passes: int = 3,
+          run_id: Optional[str] = None) -> Dict[str, object]:
     """
     mode='auto'      apply every AUTO and RETAIN issue, rescanning until nothing
                      automatic is left (a fixed code can reveal a duplicate, a
@@ -857,9 +858,11 @@ def apply(mode: str = "auto", issue_ids: Optional[Iterable[str]] = None,
     mode='selected'  apply only the given issue ids (a reviewer accepting items)
     overrides        {issue_id: uid} lets a reviewer pick a different candidate
     quarantine_ids   review items the reviewer judged counterfeit: flagged, not relinked
+    run_id           given when the other node replays this run on its copy, so
+                     both copies carry the same id and either can undo it
     """
     t0 = time.perf_counter()
-    run_id = "DQ-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")[:22]
+    run_id = run_id or "DQ-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")[:22]
     totals = {"issues": 0, "changes": 0, "skipped": 0, "passes": 0}
     by_cat: Counter = Counter()
     touched: set = set()
@@ -1014,15 +1017,16 @@ def undo(run_id: str) -> Dict[str, object]:
     return {"success": True, "run_id": run_id, "actions_reverted": restored}
 
 
-def decide(issue_id: str, decision: str, uid: Optional[str] = None, note: str = "") -> Dict[str, object]:
+def decide(issue_id: str, decision: str, uid: Optional[str] = None, note: str = "",
+           run_id: Optional[str] = None) -> Dict[str, object]:
     """A reviewer's verdict on one REVIEW item: accept (optionally another candidate), quarantine
     it as counterfeit evidence, or reject the suggestion and keep the record as it is."""
     decision = decision.upper()
     if decision in ("ACCEPT", "ACCEPTED"):
         return apply(mode="selected", issue_ids=[issue_id], overrides={issue_id: uid} if uid else None,
-                     actor="reviewer")
+                     actor="reviewer", run_id=run_id)
     if decision in ("QUARANTINE", "COUNTERFEIT"):
-        return apply(mode="selected", quarantine_ids=[issue_id], actor="reviewer")
+        return apply(mode="selected", quarantine_ids=[issue_id], actor="reviewer", run_id=run_id)
     if decision in ("REJECT", "REJECTED", "KEEP"):
         dq = _dq_conn()
         dq.execute("INSERT OR REPLACE INTO dq_decisions VALUES (?,?,?,?,?)",
