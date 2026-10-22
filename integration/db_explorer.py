@@ -276,6 +276,18 @@ def _get_db_entries_impl(
         conn.close()
 
 
+def _registry_code(raw) -> str:
+    """
+    The standard written form of a medicine code: upper case, standard dashes
+    ('MED-sam-001', 'med_sam 001' -> 'MED-SAM-001'). Formatting only, never a
+    character. The registry is matched letter for letter and every lookup tidies
+    what was typed first, so a code registered in any other form could never be
+    found again: it was reported as fake.
+    """
+    from integration.uncertainty.standardize import canonical_code
+    return canonical_code(raw) if raw else ""
+
+
 def _execute_operation_impl(
     db_id: str,
     operation: str,
@@ -496,7 +508,11 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
 
     elif operation in ("INSERT", "FEDERATED_INSERT", "FEDERATED_REGISTER"):
         # Atomically seed record across DB3, DB2, and DB1
-        item_code = data.get("item_code") or f"MED-FED-{int(time.time())}"
+        item_code = _registry_code(data.get("item_code")) or f"MED-FED-{int(time.time())}"
+        # Ids of the rows this writes are built from the whole code, not its last
+        # four characters: 'MED-SAM-001' and 'MED-ABC-001' used to share the
+        # registration number 'CDSCO/2026/-001', so the second registration failed.
+        key = item_code[4:] if item_code.startswith("MED-") else item_code
         brand = data.get("product_name") or "CiproMed 500mg"
         mfg_id = data.get("manufacturer_id") or "MFG-001"
 
@@ -512,8 +528,8 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
             "pack_size": "10x10",
             "manufacture_date": "2026-01-10",
             "expiry_date": "2028-01-10",
-            "batch_number": f"BATCH-{item_code[-4:]}",
-            "registration_no": f"CDSCO/2026/{item_code[-4:]}",
+            "batch_number": f"BATCH-{key}",
+            "registration_no": f"CDSCO/2026/{key}",
             "requires_cold_chain": 0,
             "is_recalled": 0,
             "unit_cost_kes": 120.0,
@@ -525,7 +541,7 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
         # Phase 2 fix (RUNNING.md 5.1): ids and enum values now match the DB2 / DB1
         # constraints, so these two writes no longer fail.
         db2_data = {
-            "batch_id": f"DISP-{item_code[-4:]}",
+            "batch_id": f"DISP-{key}",
             "batch_serial": item_code,
             "distributor_id": "DIST-001",
             "manufacturer_ref": mfg_id,
@@ -545,7 +561,7 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
 
         # 3. Insert DB1 Retail POS scan
         db1_data = {
-            "event_id": f"POS-{item_code[-4:]}",
+            "event_id": f"POS-{key}",
             "scan_code": item_code,
             "scan_timestamp": "2026-02-01 11:30:00",
             "vendor_id": "VND-001",
@@ -576,7 +592,7 @@ def _execute_federated_operation(operation: str, data: Dict[str, Any]) -> Dict[s
         }
 
     elif operation in ("DELETE", "FEDERATED_DELETE", "FEDERATED_QUARANTINE"):
-        item_code = data.get("item_code") or "MED-NAKALI-001"
+        item_code = _registry_code(data.get("item_code")) or "MED-NAKALI-001"
         # Blacklist in DB4 to trigger instant statutory freeze
         db4_blacklist = {
             "blacklist_id": data.get("blacklist_id") or f"BLK-{int(time.time())}",
@@ -1232,17 +1248,23 @@ def _after_write(db_id: str, table: str, op: str, data: Dict[str, Any], res: Dic
 def execute_operation(db_id: str, operation: str, table: str, data: Dict[str, Any],
                       node: str = "", client: str = "") -> Dict[str, Any]:
     t0 = time.perf_counter()
-    res = _execute_operation_impl(db_id, operation, table, data)
     op = (operation or "").strip().upper()
+    if db_id == "db3" and table == "products" and op in ("INSERT", "UPDATE")             and isinstance(data, dict) and data.get("product_uid"):
+        data = dict(data, product_uid=_registry_code(data["product_uid"]))
+    res = _execute_operation_impl(db_id, operation, table, data)
     ok = res.get("success", True) is not False
     if ok and op in ("INSERT", "UPDATE", "DELETE") and db_id != "all":
         _after_write(db_id, table, op, data, res)
 
     if not ok:
         summary = "Failed: " + str(res.get("error", "unknown error"))
-    elif op.startswith("FEDERATED"):
+    elif op in ("FEDERATED_VIEW", "FEDERATED_QUERY"):
         summary = (f'Verdict {res.get("verdict", "?")} at {res.get("trust_score", "?")}% '
                    f'across {res.get("db_coverage", "?")} silos')
+    elif op in ("FEDERATED_INSERT", "FEDERATED_REGISTER"):
+        summary = f'Registered {res.get("item_code", "?")} in DB3, DB2 and DB1'
+    elif op.startswith("FEDERATED"):
+        summary = f'Blacklisted {res.get("item_code", "?")} in DB4'
     elif op == "VIEW":
         summary = f'Queried {len(res.get("records", []) or [])} row(s)'
     else:

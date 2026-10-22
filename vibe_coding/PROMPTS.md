@@ -198,3 +198,14 @@ open `dashboard/vibe/index.html`).
 ## Prompt 14 — this report
 
 > make the changes in vibe code page too, add the updated code and add the prompts further
+
+## Prompt 15 — .gitignore
+
+> put the files that are not needed to be pushed on github in gitignore
+
+## Prompt 16 — a registered medicine shown as fake
+
+> databases / 2 pc's are connected, http://192.168.52.152:8011 and http://192.168.52.111:8012, but
+> when we are adding a new medicine from the databases page, and then trying to check it on
+> matching and cleaning phase we are unable to detect the medicine, it is saying fake... can you
+> run the test properly and made the changes if you find the issue

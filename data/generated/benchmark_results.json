@@ -1,8 +1,8 @@
 {
- "generated_at": "2026-10-21T10:31:26",
- "elapsed_s": 210.8,
+ "generated_at": "2026-10-22T23:35:07",
+ "elapsed_s": 73.6,
  "dataset": {
-  "catalogue_size": 201,
+  "catalogue_size": 202,
   "train": 2884,
   "test": 2887,
   "test_positives": 2808,
@@ -27,13 +27,13 @@
    "db2": 523,
    "db4": 178
   },
-  "cleansing_changes_applied": 958
+  "cleansing_changes_applied": 0
  },
  "blocking": {
   "method": "inverted index on confusion-folded character bigrams",
   "pairs_completeness": 1.0,
   "mean_block_size": 29.2,
-  "reduction_ratio": 0.8547,
+  "reduction_ratio": 0.8554,
   "train_pairs_completeness": 1.0
  },
  "methods": [
@@ -172,11 +172,11 @@
    "top1_noisy": 0.0595,
    "recall_at_5": 0.2894,
    "mrr": 0.1688,
-   "precision": 0.0818,
+   "precision": 0.0812,
    "recall": 0.0689,
-   "f1": 0.0748,
-   "false_link_rate_fakes": 0.8481,
-   "tied_top1_rate": 1.0,
+   "f1": 0.0745,
+   "false_link_rate_fakes": 0.8734,
+   "tied_top1_rate": 0.9946,
    "by_kind": {
     "clean": 0.0913,
     "delete": 0.09,
@@ -419,80 +419,80 @@
  "weights": {
   "db1": {
    "code": {
+    "scan:L1_confusable": -6.44,
     "manual:L2_one_edit": 4.24,
-    "scan:L2_one_edit": -2.97,
-    "scan:L3_two_edits": -4.88,
-    "scan:L4_far": -15.02,
-    "scan:L0_exact": 22.28,
-    "ocr:L0_exact": 8.23,
     "ocr:L4_far": -9.34,
-    "ocr:L3_two_edits": 0.28,
-    "manual:L4_far": -15.29,
     "ocr:L1_confusable": 7.38,
+    "scan:L3_two_edits": -4.88,
     "ocr:L2_one_edit": 2.15,
-    "manual:L3_two_edits": 0.12,
+    "scan:L4_far": -15.02,
     "manual:L0_exact": 8.78,
+    "scan:L2_one_edit": -2.97,
+    "scan:L0_exact": 22.28,
+    "manual:L3_two_edits": 0.12,
+    "ocr:L0_exact": 8.23,
+    "manual:L4_far": -15.29,
     "manual:L1_confusable": 6.04,
-    "scan:L1_confusable": -6.44
+    "ocr:L3_two_edits": 0.28
    },
    "custody": {
     "never": 1.53,
     "same_city": -2.02,
-    "elsewhere": -9.17,
-    "to_vendor": 3.46
+    "to_vendor": 3.46,
+    "elsewhere": -9.17
    },
    "price": {
-    "dump": -13.9,
-    "low": -10.93,
+    "high": -12.39,
     "extreme": -5.18,
+    "dump": -13.9,
     "match": 2.72,
-    "high": -12.39
+    "low": -10.93
    },
    "date": {
-    "pre_mfg": -13.12,
     "pre_arrival": -7.7,
-    "expired": -6.72,
-    "ok": 0.18
+    "ok": 0.18,
+    "pre_mfg": -13.13,
+    "expired": -6.72
    },
    "label_brand": {
-    "agree": 2.55,
+    "close": -0.17,
     "disagree": -9.72,
-    "close": -0.17
+    "agree": 2.55
    },
    "label_strength": {
-    "agree": 3.09,
-    "disagree": -4.28
+    "disagree": -4.28,
+    "agree": 3.09
    },
    "label_batch": {
+    "near": 2.52,
     "exact": 19.28,
-    "far": -9.29,
-    "near": 2.52
+    "far": -9.29
    },
    "label_expiry": {
-    "agree": 4.73,
-    "disagree": -6.73
+    "disagree": -6.73,
+    "agree": 4.73
    },
    "label_mrp": {
-    "agree": 3.42,
-    "disagree": -9.23
+    "disagree": -9.23,
+    "agree": 3.42
    }
   },
   "db2": {
    "code": {
     "erp:L0_exact": 11.2,
-    "erp:L2_one_edit": 2.17,
+    "erp:L3_two_edits": -1.33,
     "erp:L1_confusable": 4.24,
     "erp:L4_far": -13.33,
-    "erp:L3_two_edits": -1.33
+    "erp:L2_one_edit": 2.17
    },
    "mfr": {
-    "agree": 1.94,
     "disagree": -4.97,
-    "unknown_claim": -7.93
+    "unknown_claim": -7.93,
+    "agree": 1.93
    },
    "auth": {
-    "not_authorized": -1.94,
     "authorized": 0.11,
+    "not_authorized": -1.96,
     "ghost": -3.11
    },
    "dest": {
@@ -500,50 +500,50 @@
     "licensed": 0.05
    },
    "sold_at_dest": {
-    "no": -4.82,
-    "yes": 3.52
+    "yes": 3.51,
+    "no": -4.82
    },
    "date": {
-    "pre_mfg": -13.18,
+    "ok_fresh": 2.39,
     "ok_aged": -7.99,
-    "ok_old": -9.66,
-    "expired": -0.66,
-    "ok_fresh": 2.39
+    "ok_old": -9.65,
+    "pre_mfg": -13.19,
+    "expired": -0.66
    }
   },
   "db4": {
    "code": {
-    "citizen:L1_confusable": 3.64,
-    "citizen:L4_far": -6.61,
-    "citizen:L2_one_edit": 2.68,
+    "citizen:L3_two_edits": -0.24,
     "citizen:L0_exact": 17.67,
-    "citizen:L3_two_edits": -0.24
+    "citizen:L4_far": -6.61,
+    "citizen:L1_confusable": 3.64,
+    "citizen:L2_one_edit": 2.68
    },
    "brand_mention": {
     "other_brand": -8.19,
     "agree": 2.67
    },
    "vendor_mention": {
-    "agree": 3.62,
-    "disagree": -6.06
+    "disagree": -6.06,
+    "agree": 3.62
    },
    "date": {
-    "pre_mfg": -9.41,
-    "ok": 0.24
+    "ok": 0.24,
+    "pre_mfg": -9.41
    }
   },
   "ref": {}
  },
  "names": {
   "n_queries": 720,
-  "n_brands": 55,
+  "n_brands": 56,
   "methods": [
    {
     "name": "Levenshtein",
-    "top1": 0.9917,
+    "top1": 0.9903,
     "by_kind": {
      "keyboard": 1.0,
-     "transpose": 0.9583,
+     "transpose": 0.95,
      "delete": 1.0,
      "insert": 1.0,
      "phonetic": 1.0,
@@ -576,26 +576,26 @@
    },
    {
     "name": "Bigram Jaccard",
-    "top1": 0.9889,
+    "top1": 0.9847,
     "by_kind": {
      "keyboard": 1.0,
-     "transpose": 0.9583,
+     "transpose": 0.9417,
      "delete": 1.0,
      "insert": 1.0,
      "phonetic": 1.0,
-     "ocr": 0.975
+     "ocr": 0.9667
     }
    },
    {
     "name": "Soundex",
-    "top1": 0.7778,
+    "top1": 0.7681,
     "by_kind": {
-     "keyboard": 0.675,
+     "keyboard": 0.65,
      "transpose": 0.775,
-     "delete": 0.75,
+     "delete": 0.7583,
      "insert": 0.9167,
-     "phonetic": 0.8667,
-     "ocr": 0.6833
+     "phonetic": 0.8917,
+     "ocr": 0.6167
     }
    },
    {
@@ -603,11 +603,11 @@
     "top1": 0.9833,
     "by_kind": {
      "keyboard": 0.9583,
-     "transpose": 1.0,
-     "delete": 0.9833,
-     "insert": 0.9917,
+     "transpose": 0.9917,
+     "delete": 0.9917,
+     "insert": 1.0,
      "phonetic": 1.0,
-     "ocr": 0.9667
+     "ocr": 0.9583
     }
    }
   ]

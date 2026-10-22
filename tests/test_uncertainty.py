@@ -230,6 +230,21 @@ class Integration(unittest.TestCase):
         finally:
             sql("db3", "DELETE FROM products WHERE product_uid = 'MED-SAM-001'")
 
+    def test_registry_codes_are_stored_in_standard_form(self):
+        # A medicine registered as 'MED-sam-001' was stored that way, and every
+        # lookup tidies to 'MED-SAM-001' first, so it was reported as fake.
+        from integration.db_explorer import _registry_code
+        self.assertEqual(_registry_code("MED-sam-001"), "MED-SAM-001")
+        self.assertEqual(_registry_code("med_shagun 190"), "MED-SHAGUN-190")
+        self.assertEqual(_registry_code("MED-FED-1234"), "MED-FED-1234")
+        self.assertEqual(match(code="MED-asali-007").decision, "EXACT")
+
+    def test_registered_code_with_details_that_do_not_fit_is_flagged(self):
+        r = match(code="MED-ASALI-007", vendor_id="VND-007", price_paid=5, date="2020-01-01 10:00")
+        self.assertEqual(r.decision, "EXACT")
+        self.assertGreaterEqual(r.p_none, 0.8)
+        self.assertTrue(any("do not fit" in n for n in r.notes))
+
     def test_code_typed_without_dashes_is_tidied_not_name_matched(self):
         from integration.uncertainty.standardize import canonical_code, looks_like_code
         self.assertTrue(looks_like_code("MEDASALI008"))

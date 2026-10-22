@@ -24,7 +24,7 @@
     body: JSON.stringify({ db_id, operation, table, data })
   }, "db1");
 
-  const S = { catalog: null, samples: [], scan: null, page: 0, pageSize: 40, bench: null, tests: {} };
+  const S = { catalog: null, samples: [], scan: null, page: 0, pageSize: 40, bench: null, tests: {}, example: null };
 
   const FEATURE_LABEL = {
     code: "code", custody: "shipping", price: "price", date: "dates", label_brand: "label brand",
@@ -166,7 +166,10 @@
   }
 
   function renderMatch(r) {
-    const [tone, badge, title] = DECISION[r.decision] || ["warn", "", r.decision];
+    let [tone, badge, title] = DECISION[r.decision] || ["warn", "", r.decision];
+    if (r.decision === "EXACT" && r.p_none >= 0.5) {
+      [tone, badge, title] = ["warn", "badge-amber", "Registered code, but the other details do not fit"];
+    }
     const best = (r.candidates || []).find((c) => c.uid === r.best_uid);
     let h = '<div class="u-banner ' + tone + '">' +
       '<div class="row-wrap gap-2 between"><span class="badge ' + badge + '">' + esc(title) + "</span>" +
@@ -239,6 +242,32 @@
     const img = $("mPreview");
     if (o.image) { img.src = o.image; img.classList.remove("hidden"); $("btnOcr").disabled = false; }
     else { img.classList.add("hidden"); img.removeAttribute("src"); $("btnOcr").disabled = true; }
+    S.example = exampleFields();
+    $("mCodeNote").classList.add("hidden");
+  }
+
+  const EXAMPLE_FIELDS = ["mVendor", "mPrice", "mQty", "mDate", "mLabel"];
+  const exampleFields = () => Object.fromEntries(EXAMPLE_FIELDS.map((id) => [id, $(id).value]));
+
+  /**
+   * Typing your own code over an example must not keep the example's pharmacy,
+   * price, date and label: they describe a different sale, and they made a
+   * freshly registered product read as fake. Boxes still holding the example's
+   * value are cleared; anything you changed yourself is kept.
+   */
+  function forgetExample() {
+    if (!S.example) return;
+    let cleared = 0;
+    EXAMPLE_FIELDS.forEach((id) => {
+      if ($(id).value !== "" && $(id).value === S.example[id]) { $(id).value = ""; cleared++; }
+    });
+    const img = $("mPreview");
+    if (!img.classList.contains("hidden")) { img.classList.add("hidden"); img.removeAttribute("src"); $("btnOcr").disabled = true; cleared++; }
+    $("mChannel").value = "manual";
+    document.querySelectorAll("[data-demo]").forEach((b) => b.classList.remove("is-active"));
+    $("mSample").value = "";
+    S.example = null;
+    if (cleared) $("mCodeNote").classList.remove("hidden");
   }
 
   function sampleToQuery(x) {
@@ -809,6 +838,7 @@
     document.querySelectorAll("[data-demo]").forEach((b) => b.addEventListener("click", () => demo(b.dataset.demo)));
     $("btnMatch").addEventListener("click", runMatch);
     $("mCode").addEventListener("keydown", (e) => { if (e.key === "Enter") runMatch(); });
+    $("mCode").addEventListener("input", forgetExample);
     $("btnOcr").addEventListener("click", runOcr);
     $("mSample").addEventListener("change", (e) => {
       const x = S.samples[+e.target.value];

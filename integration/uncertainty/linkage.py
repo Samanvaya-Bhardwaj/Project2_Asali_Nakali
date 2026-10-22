@@ -512,6 +512,9 @@ class Matcher:
                 decision, best_uid = "VALID_BUT_WRONG", others[0].uid
             else:
                 decision, best_uid = "EXACT", exact
+                if p_none >= th["none"]:
+                    notes.append("The code is registered, but the other details of this record (pharmacy, price, "
+                                 "dates or label) do not fit that product: a real code used in a suspicious way.")
         elif best is not None and best.posterior >= th["link"]:
             decision, best_uid = "AUTO_LINK", best.uid
         elif not scored or p_none >= th["none"]:

@@ -175,7 +175,48 @@ now has a folder in `vibe_coding/rounds/` with the prompt, the list of files it 
 files just before it; the report shows each prompt with its own before → after diffs (part 2).
 Prompt 12's starting point is the git commit; prompt 13's was rebuilt by undoing its exact edits,
 and checked to compile. The report also got the same plain headings and guide as the site.
-*vibe_coding/make_diff_report.py, vibe_coding/rounds/ (new), uncertainty.html*
+*vibe_coding/make_diff_report.py, vibe_coding/rounds/ (new)*
+
+### Prompt 15: .gitignore
+
+**24. Files that do not belong on GitHub were committed.** → `.gitignore` covers Python caches,
+OS and editor files, runtime state the nodes rewrite on every run (activity log, audit ledger,
+cleansing history, incident reports, SQLite journals; each is recreated automatically) and
+personal material the project never uses (screenshots, reference images, course PDFs, scratch,
+an empty `fonts/`, the old `dashboard/_legacy/`). Top-level rules start with `/`: a plain
+`fonts/` also matched `dashboard/assets/fonts/`, which the site needs. The 77 committed files
+were untracked with `git rm --cached` and kept on disk. *.gitignore*
+
+### Prompt 16: a registered medicine shown as fake
+
+Found by reading both live PCs' registries and activity logs, then repeating the user's steps in
+a browser against two separate copies acting as PC1 and PC2. The copy between PCs worked; the
+registered rows were the problem.
+
+**25. Registry codes kept the case they were typed in.** "Register a new medicine" stored
+`MED-sam-001` as typed. Every lookup tidies the typed code to `MED-SAM-001` first and the registry
+compares letter for letter, so the product could never be found and was called fake on Matching
+& cleaning, in "Find all records" and on Check a medicine. → Codes are stored in standard form
+when they enter the registry (registering in all databases, adding or renaming a DB3 product,
+blacklisting); formatting only, never a character. *db_explorer.py*
+
+**26. Registration ids collided.** Row ids came from the code's last four characters, so
+`MED-SAM-001` and `MED-ABC-001` both got registration number `CDSCO/2026/-001`, which must be
+unique, and the second registration failed. → Ids use the whole code (`BATCH-SAM-001`,
+`DISP-SAM-001`, `POS-SAM-001`). The activity log now says "Registered MED-SAM-001 in DB3, DB2 and
+DB1" instead of "Verdict ? at ?%". *db_explorer.py*
+
+**27. An example's details stayed when you typed your own code.** The page opens with an example
+filled in (pharmacy VND-005, Rs 95, sold 2025-06-02). Typing a new code over it kept those, so a
+freshly registered product (Rs 240, made 2026-01-10) read as sold before it was made at a fifth of
+its price: a mistyped code of it came out as fake. → Typing your own code clears the boxes that
+still hold the example's values, says so, and keeps anything you changed yourself.
+*uncertainty.js, uncertainty.html*
+
+**28. "Exact match" in green beside "100% chance it is fake".** A registered code whose other
+details contradict it stays an exact match by design (a real code used on a fake pack is evidence),
+but the page did not say so. → The matcher adds a plain note and the page shows the result in
+amber: "Registered code, but the other details do not fit". *linkage.py, uncertainty.js*
 
 ---
 

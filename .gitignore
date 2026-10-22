@@ -1,7 +1,36 @@
+# Python
 __pycache__/
-*.pyc
-.DS_Store
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
 
-# Runtime state: cleansing lineage is rebuilt per demo, and the pre-phase-2 backup is local only
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Runtime state written while the nodes run; each is recreated automatically
+databases/activity_log.sqlite
+databases/audit_chain.sqlite
 databases/data_quality.sqlite
 databases/backup_before_phase2/
+databases/*.sqlite-journal
+databases/*.sqlite-wal
+databases/*.sqlite-shm
+data/network_topology.json
+/reports/
+
+# Personal reference material and scratch work, not used by the project.
+# A leading / means the top folder only: dashboard/assets/fonts/ is used by the site.
+/SS/
+/TG/
+/ref_art_images/
+/original-*.webp
+/scratch/
+/fonts/
+/Welcome.md*.pdf
+/iia_project.md.pdf
+dashboard/_legacy/
